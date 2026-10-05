@@ -101,7 +101,7 @@ cross-origin isolation for Godot web exports) scoped to their path.
   portfolio site containing only the galaxy build (channels never touch production). Needs secret
   with deploy rights to project `alexanderkholodov` (ideally a deploy-only "Firebase Hosting Admin"
   service account; only the operator can create it).
-- On tag `vX.Y.Z` (after operator merges): build with base `/galaxy/` → attach
+- On tag `vX.Y.Z` (after the version PR is merged): build with base `/galaxy/` → attach
   `galaxy-dist-vX.Y.Z.tar.gz` (+ `version.json`) to a GitHub Release. Also deploys
   `firestore.rules` to the data project (rules changes always require operator approval, see 05).
 

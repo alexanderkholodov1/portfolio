@@ -6,7 +6,9 @@
 
 ## Non-negotiables
 
-1. **NEVER touch `main`.** Feature branch → commit → push → PR → stop. Only the operator merges.
+1. **Branch + PR per version** (`vX.Y.Z: <what it delivers>`) for history and CI previews. There is
+   no "never touch `main`" rule: the operator decides in the moment who merges (default: the agent
+   merges once CI is green, unless he says otherwise).
 2. Every PR is a milestone titled **`vX.Y.Z: <what it delivers>`**. Releases are tags `vX.Y.Z` with
    the build artifact `galaxy-dist-vX.Y.Z.tar.gz` attached.
 3. **Commits authored as the operator; no AI co-author trailers.** History states what the change

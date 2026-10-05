@@ -86,7 +86,7 @@ Every action is appended to a local action log the operator can review after the
 4. Deploy to a **preview channel**; smoke-test the preview URL.
 5. Summarize the change by voice (what, why, risk) and wait for "apply".
 6. Promote to production with `portfolio/scripts/deploy-local` (live-safe, see 05).
-7. Merge to `main` is done later **by the operator** (AKLabs contract); the hotfix deploys from the
+7. Merge of the hotfix branch to `main` happens afterwards, per the operator's instruction; the hotfix deploys from the
    branch.
 8. **Rollback** = one command: restore the previous Hosting version + `git revert` on the branch.
 

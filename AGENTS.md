@@ -7,7 +7,9 @@
 
 ## Non-negotiables
 
-1. **NEVER touch `main`.** Feature branch → commit → push → PR → stop. Only the operator merges.
+1. **Branch + PR per version** (`vX.Y.Z: <what it delivers>`) for history and CI previews. There is
+   no "never touch `main`" rule: the operator decides in the moment who merges (default: the agent
+   merges once CI is green, unless he says otherwise).
 2. Every PR is a milestone titled **`vX.Y.Z: <what it delivers>`** (see `docs/plan/06-roadmap.md`).
 3. **Commits are authored as the operator** (his git config). **No AI co-author trailers.** History
    states what the change delivers — never process narration, never "as requested", never apologies.
