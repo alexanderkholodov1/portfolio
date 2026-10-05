@@ -1,0 +1,27 @@
+# --- Secrets: never commit ---
+private/
+*.pem
+*-firebase-adminsdk-*.json
+*service-account*.json
+.env
+.env.*
+!.env.example
+
+# --- Dependencies / build ---
+node_modules/
+dist/
+.astro/
+.turbo/
+.firebase/
+games-dist/
+
+# --- Firebase emulator / logs ---
+.emulator-data/
+firebase-debug*.log
+firestore-debug.log
+ui-debug.log
+*.log
+
+# --- OS ---
+.DS_Store
+Thumbs.db
