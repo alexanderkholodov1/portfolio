@@ -1,9 +1,21 @@
 # AGENTS.md — the contract every agent obeys in this repo
 
 > **portfolio** is Alexander Kholodov's personal website (`alexanderkholodov.web.app`) and the
-> host that assembles and deploys his web games (first: **Collective Galaxy** at `/galaxy`, built in
-> the separate `galaxy` repo). The plan of record is `docs/plan/` — read `docs/plan/README.md`
+> host that assembles and deploys independent projects (first: the game in the separate `galaxy`
+> repo, whose final public name/path remain pending). The portfolio plan is `docs/plan/` — read `docs/plan/README.md`
 > before doing anything. The original dossier is `WAR-COUNCIL.md`.
+
+## Current M0 decisions
+
+- Galaxy and portfolio have separate plans, source and commits. The game plan lives in
+  `../galaxy/docs/plan/`; this repository owns profile/content, identity and project hosting.
+- Priority is galaxy first, portfolio second. The portfolio will host many independent projects.
+- The fair QR opens the game directly; profile navigation is an optional discovery route, not
+  an entry prerequisite. The intended game URL is a path under the existing domain, name pending.
+- Liquid glass and supplied logos are tentative references for a dedicated design session.
+- The assistant is entirely excluded from current work. Current instruction is M0 documentation
+  and separate documentation commits only; implementation belongs to the next M1 boundary.
+- Milestones describe outcomes without calendar-day allocation; the operator owns scheduling.
 
 ## Non-negotiables
 
@@ -18,7 +30,9 @@
 5. **Secrets.** `private/` holds an admin service-account key: god-mode, server-side only. Use it by
    path via `GOOGLE_APPLICATION_CREDENTIALS`; never print it, read it aloud, commit it, or bundle it.
    The *web* Firebase config (apiKey, authDomain, projectId) is public by design. A privacy test is a
-   **build gate**: the build fails if anything from `private/` or any key material reaches `dist/`.
+   **build gate**: reject credentials, key material and arbitrary private content in `dist/`.
+   User-authorized logo derivatives may be explicitly curated into public assets with recorded
+   provenance; never copy/import `private/` wholesale. M0 does not publish or relocate assets.
 6. **Free tier only** (Firebase Spark). Anything that needs Blaze is flagged as a paid dependency with
    a free path offered first.
 7. **Never reserve a public name without asking** — Hosting sites, Firebase projects, domains, repos,
@@ -29,8 +43,8 @@
 9. **Access is enforced by Firestore security rules, deny-by-default** — never by hiding routes.
 10. **English is the primary language everywhere** (URLs, UI, defaults); Spanish is secondary.
     **Light and dark mode** on every UI. No broken buttons, dead links or placeholder content shipped.
-11. **Design:** follow `../../CASPIAN/governance/DESIGN-DOCTRINE.md` on every UI. Generic,
-    machine-default output is a defect.
+11. **Design:** use the operator's brief and any supplied DESIGN-DOCTRINE on UI work. The historical
+    CASPIAN path was absent on Hearth; do not claim it was read. Final identity awaits a dedicated session.
 12. **Zero invented content.** Project descriptions, bios, numbers and claims come from the operator
     or from verifiable sources. If content is missing, leave a visible TODO in a PR, never filler.
 13. **The plan is a living document, not absolute truth.** You may and should improve it with your

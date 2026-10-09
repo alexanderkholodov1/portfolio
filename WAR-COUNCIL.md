@@ -1,11 +1,17 @@
 # War-council dossier — Portfolio Center (v0 DRAFT)
 
+> **M0 update, 2026-10-09:** this dossier is historical. Current portfolio decisions live in
+> [docs/plan/08-decisions.md](docs/plan/08-decisions.md). The operator explicitly authorized M0
+> planning and separate commits; the old signature requirement below does not block that work.
+> Game planning now belongs to the independent `galaxy` repository. Its final name/path and
+> detailed design remain open; the fair QR opens the game directly. The assistant is excluded.
+
 > Planning document per CASPIAN doctrine rule 8: **no build starts until the operator signs §7.**
 > Drafted 2026-07-15. Small, ships in days; from the operator's own notes: a website for his
 > portfolio + a Linktree-style links page.
 
 > **Update 2026-10-05 — plan of record moved to [`docs/plan/`](docs/plan/README.md).** The portfolio
-> now also hosts and deploys Alexander's web games, starting with *Collective Galaxy* (`/galaxy`, separate
+> now also hosts and deploys Alexander's web games, starting with *Collective Galaxy* (prototype `/galaxy`, separate
 > `galaxy` repo) for USFQ's BAD Day 2026, deadline 2026-10-21. Agreed in planning: English primary /
 > Spanish secondary (supersedes §3 Q3's "ES+EN"), Astro for the portfolio (§3 Q4), Firebase Hosting on
 > project `alexanderkholodov`. §7 still requires the operator's signature.
