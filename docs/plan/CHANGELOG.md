@@ -3,6 +3,10 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-10-15 — Only the operator merges pull requests; fixed in AGENTS.md and in the galaxy
+  template — The earlier text let an agent merge on green CI; he never said that
+  — decided by operator.
+
 - 2026-10-15 — Replaced the intermediate calendar with dependency-ordered version priorities and
   remaining work (0/15 done); retained final delivery on 2026-10-21 and all milestone scope and
   acceptance criteria, removing only the rehearsal date from scope text. Marked P1/P1b/G1–G4
