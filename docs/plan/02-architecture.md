@@ -13,7 +13,7 @@
           │ preview channels only                         │ ONLY deployer of production
           ▼                                               ▼
  Firebase project "alexanderkholodov"  ── Hosting only ──  https://alexanderkholodov.web.app
- Firebase project "<galaxy data>"      ── Firestore + Auth (Anonymous, Google) + its own service account
+ Firebase project "little-galaxy"      ── Firestore + Auth (Anonymous, Google) + its own service account
 ```
 
 Agreed in planning: **two repos** (each game independent; this is the pattern for future games),
@@ -36,6 +36,8 @@ Agreed in planning: **two repos** (each game independent; this is the pattern fo
 
 ### `galaxy` (to be created by the operator)
 
+Status update (operator): `alexanderkholodov1/galaxy` now exists; repository creation is complete.
+
 ```
 apps/web/        Vite + React + TypeScript + React Three Fiber (+ drei, postprocessing), Zustand,
                  Tone.js. Built with base "/galaxy/".
@@ -53,13 +55,16 @@ implementation time; pin them in lockfiles.
 
 The assistant lives in `apps/stand` for the fair. It is meant to become the operator's general
 personal assistant later (possibly extracted / merged with CASPIAN) — keep it modular.
+For the fair, every assistant component must be free and unable to silently become paid
+(operator decision, 2026-10-14). Paid APIs are not allowed; cut G v0.8.0 first if no strictly
+free brain is viable (A1/D2).
 
 ## Firebase projects
 
 | Project | Services | Notes |
 |---|---|---|
 | `alexanderkholodov` (exists) | Hosting (site `alexanderkholodov`) | Nothing else needed. Its admin key in `private/` is used for Hosting deploys only. |
-| Galaxy data project (to create; name chosen by operator, suggestion `collective-galaxy`) | Firestore, Authentication (Anonymous + Google) | Own quota, own rules, own service account. Can be reset without touching the portfolio. |
+| `little-galaxy` (created by the operator) | Firestore, Authentication (Anonymous + Google) | Own quota, own rules, own service account. Can be reset without touching the portfolio. |
 
 - The galaxy web app initializes Firebase with the **data project's public web config**.
 - In the data project's Auth settings, **authorized domains** must include

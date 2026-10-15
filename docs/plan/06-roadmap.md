@@ -1,25 +1,61 @@
 # 06 — Roadmap: versioned milestones
 
 One PR per version, titled `vX.Y.Z: <what it delivers>`. Patch versions (`vX.Y.Z+1`) for fixes.
-Dates are targets; **the hard deadline is 2026-10-21** (v1.0.0 on 10-20, 10-21 is buffer).
+**The hard deadline is 2026-10-21.** Complete v1.0.0 and the operator rehearsal before delivery,
+leaving room for verification and recovery. Milestones have no intermediate schedule dates.
 `G` = galaxy repo, `P` = portfolio repo. "Blocker" = operator task from `07-operator-checklist.md`.
 
-## Timeline
+## Order and priority
 
-| Dates | Version | Repo |
+Follow this dependency order. Coordinated milestones are verified together. The tiers apply the
+cut order below: prerequisites and fair verification are required; only the stated parts of
+Sound and Memory are candidates for reduction. G v0.5.0 has no explicit cut in the original list,
+so it remains a should milestone. No scope or acceptance criteria change unless a cut is applied.
+
+| Version | Priority tier | Dependency / reduction guidance |
 |---|---|---|
-| Oct 5–6 | P v0.1.0 · G v0.1.0 | both |
-| Oct 7–8 | G v0.2.0 | galaxy |
-| Oct 9–10 | G v0.3.0 | galaxy |
-| Oct 11 | G v0.4.0 | galaxy |
-| Oct 12–13 | G v0.5.0 | galaxy |
-| Oct 14 | G v0.6.0 | galaxy |
-| Oct 15 | P v0.2.0 | portfolio |
-| Oct 16 | G v0.7.0 · P v0.3.0 | both |
-| Oct 17–19 | G v0.8.0 | galaxy |
-| Oct 20 | G v1.0.0 · P v1.0.0 | both |
-| Oct 21 | buffer + operator rehearsal | — |
-| after fair | G v1.1.0 · P v1.1.0 | both |
+| G v0.1.0 | Required for the fair (never cut) | Foundation for the galaxy artifact and core; coordinate with P v0.1.0. |
+| P v0.1.0 | Required for the fair (never cut) | Hosting and assembly foundation; acceptance needs the G v0.1.0 artifact. |
+| G v0.2.0 | Required for the fair (never cut) | Galaxy core. |
+| G v0.3.0 | Required for the fair (never cut) | Rich objects and hangar core. |
+| G v0.4.0 | Should (simplify if needed) | Second reduction: simpler sound, one tone per type + pet sound. |
+| G v0.5.0 | Should (simplify if needed) | Global interactions and scenes; voice spike informs the optional assistant. |
+| G v0.6.0 | Should (simplify if needed) | Third reduction: drop the postcard; keep timelapse and object pages. |
+| P v0.2.0 | Required for the fair (never cut) | Real portfolio content; P3 must be ready first. |
+| G v0.7.0 | Required for the fair (never cut) | Live safety; coordinate with P v0.3.0 for deploy and rollback verification. |
+| P v0.3.0 | Required for the fair (never cut) | Deploy and rollback scripts needed to verify live safety and support G v0.8.0. |
+| G v0.8.0 | First to cut | Simplify live fixes and laptop control first; cut entirely if no strictly free brain is viable (A1/D2). |
+| G v1.0.0 | Required for the fair (never cut) | Integrated fair verification after retained galaxy milestones. |
+| P v1.0.0 | Required for the fair (never cut) | Pin the verified galaxy release and verify production and rehearsal. |
+| G v1.1.0 | After the fair | Close and freeze the season. |
+| P v1.1.0 | After the fair | Serve the frozen season statically. |
+
+## Remaining work
+
+Status at this update: every version is **not started**. Completed setup tasks in `07` do not
+mean a version has met its acceptance criteria. Next: G v0.1.0 and P v0.1.0, coordinated; P2 remains
+open for the portfolio CI deploy.
+
+| Version | Status |
+|---|---|
+| G v0.1.0 | not started |
+| P v0.1.0 | not started |
+| G v0.2.0 | not started |
+| G v0.3.0 | not started |
+| G v0.4.0 | not started |
+| G v0.5.0 | not started |
+| G v0.6.0 | not started |
+| P v0.2.0 | not started |
+| G v0.7.0 | not started |
+| P v0.3.0 | not started |
+| G v0.8.0 | not started |
+| G v1.0.0 | not started |
+| P v1.0.0 | not started |
+| G v1.1.0 | not started |
+| P v1.1.0 | not started |
+
+**Total: 0 / 15 versions done; 15 remain** (13 for the fair, 2 after the fair).
+Update this table as each version meets its acceptance criteria.
 
 ---
 
@@ -97,7 +133,7 @@ Blockers: G1 (repo), G2 (data project + Firestore + Auth), G3 (web app config), 
 - **Accept:** timelapse of a test session matches what happened; postcard shares on Android and iPhone.
 
 ## P v0.2.0 — Portfolio shell with real content
-Blocker: P3 (operator content by **Oct 13**).
+Blocker: P3 (operator content needed before P v0.2.0).
 - Home (with live banner reading `snapshots/live` from the data project), Projects, About, Links,
   Galaxy entry — EN/ES, light/dark, per DESIGN-DOCTRINE.
 - **Accept:** Lighthouse ≥ 95 on portfolio pages; `/links` instant on mobile; zero invented content.
@@ -111,7 +147,7 @@ Blocker: P3 (operator content by **Oct 13**).
   state nor breaks; rollback restores the previous release in one command.
 
 ## G v0.8.0 — Assistant
-Blockers: A1 (brain decision D2 + API key), A2 (laptop specs for D8), A3 (workspace folder).
+Blockers: A1 (strictly free brain decision D2; paid API keys are not allowed), A2 (laptop specs for D8), A3 (workspace folder).
 - Everything in `04-assistant.md`: push-to-talk (owner `/galaxy/talk`, public in `/create`), STT,
   brain, Piper TTS, subtitles + orb on screen, personality, owner/public separation, levels N0–N3,
   galaxy tools, laptop control, workspace folder, action log, fix pipeline using P v0.3.0 scripts,
@@ -124,7 +160,7 @@ Blockers: A1 (brain decision D2 + API key), A2 (laptop specs for D8), A3 (worksp
 - Load test (100 simulated phones) + quota report; failure-mode drills from `05`.
 - `docs/RUNBOOK.md` (galaxy repo) per `05`; backup video recorded.
 - Pin `games.json` to `galaxy v1.0.0`; production verified on real devices.
-- Operator: rehearsal on campus Wi-Fi with real phones (Oct 21 buffer).
+- Operator: rehearsal on campus Wi-Fi with real phones.
 - **Accept:** runbook dry-run passes end to end on the booth hardware.
 
 ## G v1.1.0 · P v1.1.0 — Season freeze (after the fair)
@@ -136,7 +172,8 @@ Blockers: A1 (brain decision D2 + API key), A2 (laptop specs for D8), A3 (worksp
 ## Cut order if behind schedule
 
 1. G v0.8.0 shrinks first: live fixes become a manual command run by the operator; laptop control
-   limited to opening/moving windows.
+   limited to opening/moving windows. Cut G v0.8.0 entirely if a strictly free brain is not viable;
+   paid services or services that could silently become paid are not allowed (A1/D2).
 2. G v0.4.0: simpler sound (one tone per type + pet sound).
 3. G v0.6.0: postcard dropped (timelapse and object pages stay).
 
