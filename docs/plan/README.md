@@ -16,7 +16,7 @@
 | [03-data-and-security.md](03-data-and-security.md) | Firestore data model, security rules, rate limits, quota budget |
 | [04-assistant.md](04-assistant.md) | The fair assistant ("adjutant"): voice loop, personality, permission levels, live code fixes |
 | [05-live-deploys-and-ops.md](05-live-deploys-and-ops.md) | Deploying during the fair without breaking anyone, rollback, testing, failure modes, fair-day runbook |
-| [06-roadmap.md](06-roadmap.md) | **Versioned milestones with dates and acceptance criteria — start here to implement** |
+| [06-roadmap.md](06-roadmap.md) | **Versioned milestones with priorities, remaining work and acceptance criteria — start here to implement** |
 | [07-operator-checklist.md](07-operator-checklist.md) | Things only Alexander can do (console switches, secrets, content) — blockers |
 | [08-decisions.md](08-decisions.md) | Decision log: decided, and pending-with-default |
 | [09-sources.md](09-sources.md) | Verified external facts (quotas, Hosting behaviour) with links and date checked |
@@ -46,6 +46,8 @@ plan file and the code disagree, the plan is updated — docs are part of done.
 2. Check `07-operator-checklist.md`: items marked **BLOCKER for vX** must be done by the operator
    before that version can be verified. Do not work around them.
 3. Implement `06-roadmap.md` top to bottom: **galaxy v0.1.0** and **portfolio v0.1.0** first.
+   See the roadmap's "Order and priority" and "Remaining work" for the next milestone, total work
+   left and what to cut first. Setup updates are tracked in `07-operator-checklist.md`.
 4. One PR per version, titled `vX.Y.Z: <what it delivers>`. Stack the next version's branch on the
    previous one while a PR waits for the operator's merge.
 
@@ -59,3 +61,8 @@ plan file and the code disagree, the plan is updated — docs are part of done.
   (`https://alexanderkholodov.web.app`); Firestore not created; Authentication not initialized; no
   web app registered. Under the agreed architecture this project only needs **Hosting**.
 - Firebase data project for the galaxy: **not created yet** (operator task; name chosen by him).
+
+Current operator-confirmed setup supersedes the historical snapshot above: the `galaxy` repo
+exists, `little-galaxy` has Firestore, Authentication and a registered web app, and its service-account
+key is in the galaxy checkout's git-ignored `private/`. Push access through `gh` and git identity
+are configured. P2 remains open; see `07-operator-checklist.md` for outstanding dependencies.

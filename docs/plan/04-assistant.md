@@ -33,7 +33,7 @@ this is meant to grow into.
 phone (/galaxy/talk or /galaxy/create)                     booth laptop (apps/stand)
  hold-to-talk → MediaRecorder clip (≤ ~20 s, compressed)
  → base64 into Firestore assistant/inbox/{id}  ──────────►  listener picks it up
-                                                            → STT (D8: local Whisper / cloud)
+                                                            → STT (D8: local Whisper / strictly free alternative)
                                                             → brain (D2) with role-scoped tools
                                                             → TTS (Piper, deep voice) → laptop/TV speakers
  subtitles on screen  ◄──────── assistant/outbox/{id} ◄──  transcript + reply text
@@ -94,10 +94,13 @@ Rules/data/config changes are never part of an N2 fix; they escalate to N3.
 
 ## Brain (D2 — default pending operator confirmation)
 
-Default: **Claude Agent SDK** as the brain (tool-calling agent with the tool sets above), and
-**Claude Code headless** (`claude -p`) inside the hotfix worktree for code changes. Requires an
-Anthropic API key (operator; has a cost). Alternative: route through CASPIAN. Migrating to CASPIAN
-later stays possible because tools are defined in `apps/stand` independently of the brain.
+Operator decision, 2026-10-14: the assistant may use only free components, with no path to
+silently becoming paid. An **Anthropic API key is not allowed**; the previous default using
+Claude Agent SDK / Claude Code headless with that paid API key is superseded. Select a strictly free brain with the role-scoped
+tools above; no replacement has been selected yet. STT and TTS must meet the same constraint.
+If no strictly free brain is viable, **cut G v0.8.0 first**. Routing through CASPIAN is only an
+option if all of its assistant dependencies satisfy this decision. Migrating later stays
+possible because tools are defined in `apps/stand` independently of the brain.
 
 ## End-of-fair report (example of N0 work)
 
