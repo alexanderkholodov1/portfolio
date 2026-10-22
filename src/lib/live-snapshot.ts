@@ -9,8 +9,9 @@ export type Reading =
   | { state: 'stale'; updatedAt: number }
   | { state: 'unavailable' };
 
+// Only the two fields the banner uses are requested; the document also carries every object's render data.
 export function snapshotUrl(projectId: string, apiKey: string) {
-  return `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/snapshots/live?key=${encodeURIComponent(apiKey)}`;
+  return `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/snapshots/live?mask.fieldPaths=creators&mask.fieldPaths=at&key=${encodeURIComponent(apiKey)}`;
 }
 
 type Field = { integerValue?: string; doubleValue?: number; timestampValue?: string };

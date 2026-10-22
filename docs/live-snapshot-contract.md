@@ -3,7 +3,7 @@
 The Home banner reads one document, `snapshots/live`, of the galaxy data project (Firestore
 project `little-galaxy`, configurable with `LIVE_PROJECT_ID`) through the public REST endpoint:
 
-    GET https://firestore.googleapis.com/v1/projects/<project>/databases/(default)/documents/snapshots/live?key=<VITE_FIREBASE_API_KEY>
+    GET https://firestore.googleapis.com/v1/projects/<project>/databases/(default)/documents/snapshots/live?mask.fieldPaths=creators&mask.fieldPaths=at&key=<VITE_FIREBASE_API_KEY>
 
 The key is the public web key. No Firebase SDK is loaded on text pages.
 
