@@ -10,15 +10,18 @@ export const LIVE_ORIGIN = `https://${SITE}.web.app`;
 const API = 'https://firebasehosting.googleapis.com/v1beta1';
 const run = promisify(execFile);
 
-// Minimal flag parser: `--name value`, `--name=value` or boolean `--name`.
+// Minimal flag parser: `--name value`, `--name=value` for strings; booleans are presence-only
+// and reject any inline value, so `--yes=false` is an error instead of an authorization.
 export function parseArgs(argv, { booleans = [], strings = [] }) {
   const flags = {};
   for (let i = 0; i < argv.length; i++) {
     const match = /^--([a-z-]+)(?:=(.*))?$/.exec(argv[i]);
     if (!match) throw new Error(`Unexpected argument: ${argv[i]}`);
     const [, name, inline] = match;
-    if (booleans.includes(name)) flags[name] = true;
-    else if (strings.includes(name)) {
+    if (booleans.includes(name)) {
+      if (inline !== undefined) throw new Error(`--${name} takes no value (got "${inline}"); omit the flag to leave it off`);
+      flags[name] = true;
+    } else if (strings.includes(name)) {
       const value = inline ?? argv[++i];
       if (value === undefined || value.startsWith('--')) throw new Error(`--${name} needs a value`);
       flags[name] = value;
@@ -75,23 +78,53 @@ export async function googleToken() {
 }
 
 const liveChannel = `projects/${PROJECT}/sites/${SITE}/channels/live`;
+const versionPattern = new RegExp(`^projects/[^/]+/sites/${SITE}/versions/[^/]+$`);
+const MAX_PAGES = 20;
 
-export async function listLiveReleases(rest) {
-  return (await rest.get(`${liveChannel}/releases`, '?pageSize=25')).releases ?? [];
+// The channel resource carries the authoritative current release.
+export async function getCurrentRelease(rest, channel = 'live') {
+  const release = (await rest.get(`projects/${PROJECT}/sites/${SITE}/channels/${channel}`)).release;
+  if (!release?.version?.name || !versionPattern.test(release.version.name)) throw new Error(`The ${channel} channel reports no release`);
+  return release;
 }
 
-// Releases arrive newest first. The previous one is the newest release whose
-// version differs from the one serving now.
-export function pickRollbackTarget(releases) {
-  const [current, ...older] = releases;
+// Every page of the channel's release history. The API documents no ordering, so none is assumed.
+export async function listLiveReleases(rest) {
+  const releases = [];
+  let token = '';
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const response = await rest.get(`${liveChannel}/releases`, `?pageSize=100${token ? `&pageToken=${encodeURIComponent(token)}` : ''}`);
+    releases.push(...(response.releases ?? []));
+    token = response.nextPageToken ?? '';
+    if (!token) return releases;
+  }
+  throw new Error(`Release history has more than ${MAX_PAGES} pages; refusing to guess`);
+}
+
+// The previous release is the newest other, finalized version released no later than the current one.
+// Candidates are ordered by their validated releaseTime, never by response order.
+export function pickRollbackTarget(current, releases) {
   if (!current?.version?.name) throw new Error('No live release found');
-  const target = older.find((release) => release.version?.name && release.version.name !== current.version.name && (release.version.status ?? 'FINALIZED') === 'FINALIZED');
+  const currentTime = Date.parse(current.releaseTime);
+  const candidates = releases
+    .filter((release) => versionPattern.test(release.version?.name ?? '') && release.version.status === 'FINALIZED' && release.type !== 'SITE_DISABLE' && Number.isFinite(Date.parse(release.releaseTime)))
+    .filter((release) => !Number.isFinite(currentTime) || Date.parse(release.releaseTime) <= currentTime)
+    .sort((a, b) => Date.parse(b.releaseTime) - Date.parse(a.releaseTime));
+  const target = candidates.find((release) => release.version.name !== current.version.name);
   if (!target) throw new Error('No previous release to roll back to');
   return { current, target };
 }
 
 export async function releaseLive(rest, versionName, message) {
   return rest.post(`${liveChannel}/releases`, `?versionName=${encodeURIComponent(versionName)}`, { message });
+}
+
+// Re-reads the live release and the target version right before the write.
+export async function revalidateRollback(rest, current, target) {
+  const now = await getCurrentRelease(rest);
+  if (now.version.name !== current.version.name) throw new Error('The live release changed while waiting; nothing was written. Run the rollback again.');
+  const version = await rest.get(target.version.name);
+  if (version.status !== 'FINALIZED') throw new Error(`Version ${versionId(target.version.name)} is no longer available (${version.status ?? 'unknown status'}); nothing was written.`);
 }
 
 export const versionId = (name) => name.split('/').at(-1);

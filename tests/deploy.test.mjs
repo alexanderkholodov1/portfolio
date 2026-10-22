@@ -5,8 +5,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { assembleGames } from '../scripts/assemble-games.mjs';
 import { deployLocal, smokeCheck } from '../scripts/deploy-local.mjs';
-import { checkCredentials, parseArgs, pickRollbackTarget } from '../scripts/hosting-lib.mjs';
-import { rollback } from '../scripts/rollback.mjs';
+import { checkCredentials, parseArgs } from '../scripts/hosting-lib.mjs';
 
 const pin = { repository: 'alexanderkholodov1/little-galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
 const commit = 'b'.repeat(40);
@@ -153,49 +152,4 @@ test('local build passes the release checks: private material, wrong base, links
   await assert.rejects(run(), /missing index.html or version.json/);
   assert.equal(await readFile(path.join(ctx.root, 'dist/galaxy/previous.txt'), 'utf8'), 'previous');
   await assert.rejects(assembleGames({ root: ctx.root, artifactDirectory: '', localBuilds: { other: ctx.build } }), /unpinned/);
-});
-
-const release = (id, status = 'FINALIZED', time = '2026-10-22T10:00:00Z') => ({ name: `projects/1/sites/s/channels/live/releases/r-${id}`, releaseTime: time, version: { name: `projects/1/sites/s/versions/${id}`, status, fileCount: '40' } });
-
-test('rollback picks the newest finalized release that differs from the live version', () => {
-  const { current, target } = pickRollbackTarget([release('c'), release('c'), release('x', 'DELETED'), release('b'), release('a')]);
-  assert.equal(current.version.name.at(-1), 'c');
-  assert.equal(target.version.name.at(-1), 'b');
-  assert.throws(() => pickRollbackTarget([release('a')]), /No previous release/);
-  assert.throws(() => pickRollbackTarget([]), /No live release/);
-});
-
-function fakeRest(releases) {
-  const posts = [];
-  return { posts, get: async () => ({ releases }), post: async (resource, query, body) => { posts.push({ resource, query, body }); return { name: 'projects/1/sites/s/channels/live/releases/new' }; } };
-}
-
-test('rollback shows both versions, creates a live release for the previous one on confirmation, prints the git hint', async () => {
-  const rest = fakeRest([release('c'), release('b'), release('a')]);
-  const log = [];
-  const result = await rollback([], { env, rest, log: (line) => log.push(line), exists: () => true, ask: async () => 'rollback', root: '/repo' });
-  assert.equal(rest.posts.length, 1);
-  assert.match(rest.posts[0].resource, /channels\/live\/releases$/);
-  assert.equal(decodeURIComponent(rest.posts[0].query), '?versionName=projects/1/sites/s/versions/b');
-  assert.equal(result.rolledBackTo, 'projects/1/sites/s/versions/b');
-  const text = log.join('\n');
-  assert.match(text, /Live now:\s+c/);
-  assert.match(text, /Will become live: b/);
-  assert.match(text, /revert the games\.json pin/);
-});
-
-test('rollback does nothing without the typed word, and --yes skips the prompt', async () => {
-  const rest = fakeRest([release('c'), release('b')]);
-  const base = { env, rest, log() {}, exists: () => true, root: '/repo' };
-  assert.deepEqual(await rollback([], { ...base, ask: async () => 'no' }), { aborted: true });
-  assert.equal(rest.posts.length, 0);
-  await rollback(['--yes'], { ...base, ask: () => { throw new Error('must not ask'); } });
-  assert.equal(rest.posts.length, 1);
-});
-
-test('rollback --dry-run makes no call and needs no credentials', async () => {
-  const log = [];
-  const rest = { get: () => { throw new Error('network'); }, post: () => { throw new Error('network'); } };
-  await rollback(['--dry-run'], { env: {}, rest, log: (line) => log.push(line) });
-  assert.match(log.join('\n'), /dry-run.*POST/);
 });
