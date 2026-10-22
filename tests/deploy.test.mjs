@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { assembleGames } from '../scripts/assemble-games.mjs';
-import { deployLocal, smokeCheck } from '../scripts/deploy-local.mjs';
+import { deployLocal } from '../scripts/deploy-local.mjs';
 import { checkCredentials, parseArgs } from '../scripts/hosting-lib.mjs';
 
 const pin = { repository: 'alexanderkholodov1/little-galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
@@ -28,77 +28,201 @@ async function workspace(t) {
   return { base, root, build };
 }
 
-// Every external effect is a mock: build commands, firebase CLI and HTTP.
-function harness(t, ctx, { status = {}, served = '0.7.0', answer = 'promote' } = {}) {
-  const calls = { exec: [], firebase: [], fetch: [], log: [] };
+const SITE_ID = 'alexanderkholodov';
+const versionName = (id) => `projects/1/sites/${SITE_ID}/versions/${id}`;
+
+// Every external effect is a mock: build commands, firebase CLI, REST, browser and prompts.
+// `state` is the fake Hosting side: which version the preview channel and live channel serve.
+function harness(t, ctx, { smokeFailures = [], answers = { preview: 'preview', promote: 'promote' }, previewVersion = 'v-tested' } = {}) {
+  const calls = { exec: [], firebase: [], rest: [], smoke: [], asked: [], log: [], browserClosed: 0 };
+  const state = { channelVersion: null, liveVersion: 'v-live-before' };
   const deps = {
     root: ctx.root, env, exists: () => true,
     log: (line) => calls.log.push(line),
     exec: async (command, args, options) => { calls.exec.push([command, ...args, options.cwd]); },
     firebase: async (args) => {
       calls.firebase.push(args);
-      return args[0] === 'hosting:channel:deploy' ? JSON.stringify({ status: 'success', result: { alexanderkholodov: { url: 'https://alexanderkholodov--local-x-abc.web.app' } } }) : '';
+      if (args[0] === 'hosting:channel:deploy') {
+        state.channelVersion = previewVersion;
+        return JSON.stringify({ status: 'success', result: { [SITE_ID]: { site: SITE_ID, url: 'https://alexanderkholodov--local-x-abc.web.app', version: previewVersion } } });
+      }
+      const source = args[1];
+      state.liveVersion = source.includes('@') ? source.split('@')[1] : state.channelVersion; // a channel source follows the channel
+      return '';
     },
-    fetch: async (url) => {
-      calls.fetch.push(url);
-      const route = new URL(url).pathname;
-      const code = status[route] ?? 200;
-      return route === '/galaxy/version.json' ? new Response(JSON.stringify({ version: served }), { status: code }) : new Response('ok', { status: code });
+    rest: { get: async (resource) => {
+      calls.rest.push(resource);
+      return { release: { version: { name: versionName(resource.endsWith('/channels/live') ? state.liveVersion : state.channelVersion) } } };
+    } },
+    launchBrowser: async () => ({ close: async () => { calls.browserClosed++; } }),
+    smoke: async (origin, expected) => { calls.smoke.push({ origin, expected }); return smokeFailures; },
+    ask: async (prompt) => {
+      const phrase = /"(\w+)"/.exec(prompt)[1];
+      calls.asked.push(phrase);
+      if (deps.whileAsking) deps.whileAsking(phrase);
+      return answers[phrase] ?? 'no';
     },
-    ask: async () => answer,
   };
   t.after(() => { process.exitCode = initialExitCode; });
-  return { calls, deps };
+  return { calls, state, deps };
 }
+
+const withAssembly = (deps) => { deps.assemble = (options) => assembleGames({ ...options, allowedPublicKeys: [] }); return deps; };
+const hostingWrites = (calls) => calls.firebase.length;
 
 test('dry-run prints every action and runs nothing', async (t) => {
   const ctx = await workspace(t);
   const { calls, deps } = harness(t, ctx);
   deps.assemble = () => { throw new Error('must not run'); };
   await deployLocal(['--dry-run', '--channel', 'rehearsal'], deps);
-  assert.deepEqual([calls.exec, calls.firebase, calls.fetch], [[], [], []]);
+  assert.deepEqual([calls.exec, calls.firebase, calls.rest, calls.smoke, calls.asked], [[], [], [], [], []]);
   const text = calls.log.join('\n');
-  for (const needle of ['build:site', 'hosting:channel:deploy rehearsal', 'hosting:clone alexanderkholodov:rehearsal alexanderkholodov:live', 'promote', 'no network call']) assert.ok(text.includes(needle), needle);
+  for (const needle of ['build:site', 'hosting:channel:deploy rehearsal', 'hosting:clone alexanderkholodov@<version ID> alexanderkholodov:live', '"preview"', 'promote', 'headless Chromium', 'no network call']) assert.ok(text.includes(needle), needle);
 });
 
-test('previews, passes smoke, promotes only after typed confirmation, and the dist is labelled local', async (t) => {
+test('previews after confirmation, passes the browser smoke, promotes the tested version ID after a second confirmation, and the dist is labelled local', async (t) => {
   const ctx = await workspace(t);
-  const { calls, deps } = harness(t, ctx);
-  deps.assemble = (options) => assembleGames({ ...options, allowedPublicKeys: [] });
+  const { calls, state, deps } = harness(t, ctx);
+  withAssembly(deps);
   const result = await deployLocal(['--galaxy', path.join(ctx.base, 'little-galaxy'), '--channel', 'rehearsal'], deps);
   assert.equal(result.promoted, true);
-  assert.deepEqual(calls.firebase.map((args) => args[0]), ['hosting:channel:deploy', 'hosting:clone']);
-  assert.deepEqual(calls.firebase[1], ['hosting:clone', 'alexanderkholodov:rehearsal', 'alexanderkholodov:live']);
+  assert.deepEqual(calls.asked, ['preview', 'promote']);
+  assert.deepEqual(calls.firebase, [
+    ['hosting:channel:deploy', 'rehearsal', '--expires', '1d', '--json'],
+    ['hosting:clone', 'alexanderkholodov@v-tested', 'alexanderkholodov:live'],
+  ]);
+  assert.equal(state.liveVersion, 'v-tested');
   assert.deepEqual(calls.exec.map((call) => call.slice(0, 3).join(' ')), ['pnpm run build:site', 'pnpm run build']);
-  assert.ok(calls.fetch.slice(0, 5).every((url) => url.startsWith('https://alexanderkholodov--local-x-abc.web.app/')));
-  assert.ok(calls.fetch.slice(5).every((url) => url.startsWith('https://alexanderkholodov.web.app/')));
+  assert.deepEqual(calls.smoke.map((call) => call.origin), ['https://alexanderkholodov--local-x-abc.web.app', 'https://alexanderkholodov.web.app']);
+  assert.deepEqual(calls.smoke[0].expected, { version: '0.7.0', commit });
+  assert.equal(calls.browserClosed, 1);
   const receipt = JSON.parse(await readFile(path.join(ctx.root, 'dist/assembly.json'), 'utf8'));
   assert.equal(receipt.games.galaxy.source, 'local-build');
   assert.equal(receipt.games.galaxy.tag, 'v0.7.0');
   assert.equal(await readFile(path.join(ctx.root, 'dist/galaxy/version.json'), 'utf8'), version);
 });
 
-test('any answer other than "promote" leaves live untouched', async (t) => {
+test('declining the preview prompt makes zero Hosting writes and zero Hosting reads', async (t) => {
+  for (const answer of ['no', 'promote', 'yes', '']) {
+    const ctx = await workspace(t);
+    const { calls, deps } = harness(t, ctx, { answers: { preview: answer, promote: 'promote' } });
+    withAssembly(deps);
+    const result = await deployLocal(['--galaxy', path.join(ctx.base, 'little-galaxy'), '--yes'], deps);
+    assert.equal(result.promoted, false, answer);
+    assert.deepEqual([calls.firebase, calls.rest, calls.smoke], [[], [], []], answer);
+    assert.deepEqual(calls.asked, ['preview']);
+    assert.equal(calls.browserClosed, 1);
+  }
+});
+
+test('a non-interactive run without --yes-preview stops before building or uploading anything', async (t) => {
   const ctx = await workspace(t);
-  const { calls, deps } = harness(t, ctx, { answer: 'yes' });
-  deps.assemble = (options) => assembleGames({ ...options, allowedPublicKeys: [] });
+  const { calls, deps } = harness(t, ctx);
+  delete deps.ask;
+  const tty = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY');
+  Object.defineProperty(process.stdin, 'isTTY', { value: false, configurable: true });
+  t.after(() => (tty ? Object.defineProperty(process.stdin, 'isTTY', tty) : delete process.stdin.isTTY));
+  await assert.rejects(deployLocal(['--yes'], deps), /Not a terminal: pass --yes-preview/);
+  assert.deepEqual([calls.exec, calls.firebase, calls.rest, calls.smoke], [[], [], [], []]);
+});
+
+test('--yes-preview uploads without asking but still asks before promotion; --yes alone never skips the preview question', async (t) => {
+  const ctx = await workspace(t);
+  const first = harness(t, ctx, { answers: { promote: 'nope' } });
+  withAssembly(first.deps);
+  const declined = await deployLocal(['--yes-preview', '--galaxy', path.join(ctx.base, 'little-galaxy')], first.deps);
+  assert.equal(declined.promoted, false);
+  assert.deepEqual(first.calls.asked, ['promote']);
+  assert.deepEqual(first.calls.firebase.map((args) => args[0]), ['hosting:channel:deploy']);
+  const second = harness(t, ctx, { answers: { preview: 'no' } });
+  withAssembly(second.deps);
+  await deployLocal(['--yes', '--galaxy', path.join(ctx.base, 'little-galaxy')], second.deps);
+  assert.deepEqual(second.calls.asked, ['preview']);
+  assert.equal(hostingWrites(second.calls), 0);
+});
+
+test('any promotion answer other than "promote" leaves live untouched', async (t) => {
+  const ctx = await workspace(t);
+  const { calls, deps } = harness(t, ctx, { answers: { preview: 'preview', promote: 'yes' } });
+  withAssembly(deps);
   const result = await deployLocal(['--galaxy', path.join(ctx.base, 'little-galaxy')], deps);
   assert.equal(result.promoted, false);
   assert.deepEqual(calls.firebase.map((args) => args[0]), ['hosting:channel:deploy']);
 });
 
-test('--yes promotes without asking, but never past a failed smoke check', async (t) => {
+test('--yes --yes-preview run unattended, but never past a failed browser smoke', async (t) => {
   const ctx = await workspace(t);
   const good = harness(t, ctx);
-  good.deps.assemble = (options) => assembleGames({ ...options, allowedPublicKeys: [] });
+  withAssembly(good.deps);
   good.deps.ask = () => { throw new Error('must not ask'); };
-  assert.equal((await deployLocal(['--yes', '--galaxy', path.join(ctx.base, 'little-galaxy')], good.deps)).promoted, true);
-  for (const bad of [{ status: { '/links/': 500 } }, { served: '0.6.0' }]) {
-    const { calls, deps } = harness(t, ctx, bad);
-    deps.assemble = (options) => assembleGames({ ...options, allowedPublicKeys: [] });
-    const result = await deployLocal(['--yes', '--galaxy', path.join(ctx.base, 'little-galaxy')], deps);
-    assert.equal(result.promoted, false);
-    assert.ok(!calls.firebase.some((args) => args[0] === 'hosting:clone'));
+  assert.equal((await deployLocal(['--yes', '--yes-preview', '--galaxy', path.join(ctx.base, 'little-galaxy')], good.deps)).promoted, true);
+  const { calls, deps } = harness(t, ctx, { smokeFailures: ['/galaxy/screen: the app root never rendered'] });
+  withAssembly(deps);
+  const result = await deployLocal(['--yes', '--yes-preview', '--galaxy', path.join(ctx.base, 'little-galaxy')], deps);
+  assert.equal(result.promoted, false);
+  assert.ok(!calls.firebase.some((args) => args[0] === 'hosting:clone'));
+  assert.ok(calls.log.some((line) => line.includes('never rendered')));
+  assert.equal(process.exitCode, 1);
+});
+
+test('interleaving: the preview channel changes while waiting for confirmation, and live still gets the tested version ID', async (t) => {
+  const ctx = await workspace(t);
+  const { calls, state, deps } = harness(t, ctx);
+  withAssembly(deps);
+  deps.whileAsking = (phrase) => { if (phrase === 'promote') state.channelVersion = 'v-other-run'; }; // run B deploys to the same channel
+  const result = await deployLocal(['--galaxy', path.join(ctx.base, 'little-galaxy'), '--channel', 'shared'], deps);
+  assert.equal(result.promoted, true);
+  assert.deepEqual(calls.firebase[1], ['hosting:clone', 'alexanderkholodov@v-tested', 'alexanderkholodov:live']);
+  assert.equal(state.liveVersion, 'v-tested');
+  assert.ok(!calls.log.some((line) => line.includes('live serves version')));
+});
+
+test('interleaving: the channel changes before or during the smoke test, so nothing is promoted', async (t) => {
+  for (const when of ['before', 'during']) {
+    const ctx = await workspace(t);
+    const { calls, state, deps } = harness(t, ctx);
+    withAssembly(deps);
+    const firebase = deps.firebase;
+    if (when === 'before') deps.firebase = async (args) => { const out = await firebase(args); state.channelVersion = 'v-other-run'; return out; };
+    else deps.smoke = async () => { state.channelVersion = 'v-other-run'; return []; };
+    const result = await deployLocal(['--yes', '--yes-preview', '--galaxy', path.join(ctx.base, 'little-galaxy')], deps);
+    assert.equal(result.promoted, false, when);
+    assert.ok(!calls.firebase.some((args) => args[0] === 'hosting:clone'), when);
+    assert.ok(calls.log.some((line) => line.includes('serves version v-other-run, not v-tested')), when);
+  }
+});
+
+test('a preview deploy that reports no version ID is never promoted', async (t) => {
+  const ctx = await workspace(t);
+  const { calls, deps } = harness(t, ctx);
+  withAssembly(deps);
+  deps.firebase = async (args) => { calls.firebase.push(args); return JSON.stringify({ result: { [SITE_ID]: { url: 'https://x.web.app' } } }); };
+  await assert.rejects(deployLocal(['--yes', '--yes-preview', '--galaxy', path.join(ctx.base, 'little-galaxy')], deps), /no version ID/);
+  assert.deepEqual(calls.firebase.map((args) => args[0]), ['hosting:channel:deploy']);
+});
+
+test('--no-smoke is preview-only: it cannot promote, with or without --yes', async (t) => {
+  const ctx = await workspace(t);
+  const { calls, deps } = harness(t, ctx);
+  withAssembly(deps);
+  const result = await deployLocal(['--no-smoke', '--yes-preview', '--galaxy', path.join(ctx.base, 'little-galaxy')], deps);
+  assert.equal(result.promoted, false);
+  assert.deepEqual(calls.firebase.map((args) => args[0]), ['hosting:channel:deploy']);
+  assert.deepEqual(calls.smoke, []);
+  assert.deepEqual(calls.asked, []);
+  const refused = harness(t, ctx);
+  await assert.rejects(deployLocal(['--no-smoke', '--yes', '--yes-preview'], refused.deps), /cannot be combined with --yes/);
+  assert.deepEqual([refused.calls.exec, refused.calls.firebase], [[], []]);
+});
+
+test('false or malformed confirmation arguments cannot reach any Hosting write', async (t) => {
+  const ctx = await workspace(t);
+  const argvs = [['--yes=false'], ['--yes=0'], ['--yes=no'], ['--yes='], ['--yes=true'], ['--yes', 'false'], ['--yes-preview=false'], ['--yes-preview=0'], ['--no-smoke=false'], ['--no-smoke=true'], ['--dry-run=false'], ['--skip-galaxy-build=false'], ['--YES'], ['-y'], ['yes'], ['--yes-preview', '--yes=false']];
+  for (const argv of argvs) {
+    const { calls, deps } = harness(t, ctx);
+    withAssembly(deps);
+    await assert.rejects(deployLocal(argv, deps), /takes no value|Unexpected argument|Unknown flag/, argv.join(' '));
+    assert.deepEqual([calls.exec, calls.firebase, calls.rest, calls.smoke, calls.asked], [[], [], [], [], []], argv.join(' '));
   }
 });
 
@@ -111,25 +235,27 @@ test('pinned artifact mode skips the galaxy build', async (t) => {
     await writeFile(path.join(ctx.root, 'dist/galaxy/version.json'), version);
     return { games: { galaxy: { tag: 'v0.1.0', source: 'local-rehearsal', commit } } };
   };
-  await deployLocal(['--artifact-dir', '/some/artifacts', '--no-smoke', '--yes'], deps);
+  await deployLocal(['--artifact-dir', '/some/artifacts', '--no-smoke', '--yes-preview'], deps);
   assert.deepEqual(calls.exec.map((call) => call.slice(0, 3).join(' ')), ['pnpm run build:site']);
-  assert.deepEqual(calls.fetch, []);
+  assert.deepEqual(calls.smoke, []);
 });
 
-test('rejects bad channels, live as a channel, and unsafe credential locations', async (t) => {
+test('rejects bad channels, live as a channel, and unsafe credential locations; default channels are unique', async (t) => {
   const ctx = await workspace(t);
   const { deps } = harness(t, ctx);
   for (const channel of ['live', 'Bad_Name', '../x']) await assert.rejects(deployLocal(['--dry-run', '--channel', channel], deps), /Invalid channel/);
+  const names = [];
+  for (let i = 0; i < 2; i++) {
+    const { calls, deps: again } = harness(t, ctx);
+    await deployLocal(['--dry-run'], again);
+    names.push(/hosting:channel:deploy (\S+)/.exec(calls.log.join('\n'))[1]);
+  }
+  assert.match(names[0], /^local-\d{14}-[0-9a-f]{6}$/);
+  assert.notEqual(names[0], names[1]);
   assert.throws(() => checkCredentials({}, ctx.root), /GOOGLE_APPLICATION_CREDENTIALS/);
   assert.throws(() => checkCredentials({ GOOGLE_APPLICATION_CREDENTIALS: path.join(ctx.root, 'key.json') }, ctx.root, () => true), /under private/);
   assert.doesNotThrow(() => checkCredentials({ GOOGLE_APPLICATION_CREDENTIALS: path.join(ctx.root, 'private/key.json') }, ctx.root, () => true));
   assert.throws(() => parseArgs(['--nope'], {}), /Unknown flag/);
-});
-
-test('smoke check reports the wrong version and failing routes', async () => {
-  const fetch = async (url) => new Response(url.endsWith('version.json') ? '{"version":"1.0.0"}' : 'ok', { status: url.endsWith('/es/') ? 404 : 200 });
-  const failures = await smokeCheck('https://x.web.app', '0.7.0', fetch);
-  assert.deepEqual(failures, ['/es/: HTTP 404', '/galaxy/version.json: version 1.0.0, expected 0.7.0']);
 });
 
 test('local build passes the release checks: private material, wrong base, links and missing files are rejected', async (t) => {
