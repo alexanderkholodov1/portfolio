@@ -12,7 +12,7 @@ brief prohibits those actions. The roadmap acceptance remains unmet.
 | Ignore rules and privacy build gate | Existing `.gitignore` was committed before implementation. Both build commands gate output; the full build also checks each incoming game before replacement. Negative tests cover private file copies, escaped private JSON values, key material, symlinks, archive traversal and corruption. |
 | Astro shell | EN `/`, ES `/es/`, Projects, About, Links and Galaxy entry in both languages, plus 404. System theme and explicit persisted preference; storage denial is tolerated. Minimal known content, no invented biography or placeholders. Local Chromium verifies navigation, 360px width, theme and no-JS behavior. |
 | Profile and tokens | `/profile.json` derives navigation and known repository links from `src/data/site.ts`. Unknown role/socials are absent. `/tokens.css` implements the Galaxy handoff tokens, light/dark and licensed self-hosted fonts. Browser integration verifies Galaxy consumes them at the same origin. |
-| Manifest and assembly | `games.json` pins `alexanderkholodov1/galaxy` `v0.1.0`. Local release-shaped tarball built from Galaxy's branch output assembles successfully. Real release availability is unverified. Local source is labeled and rejected by the Hosting guard. |
+| Manifest and assembly | `games.json` pins `alexanderkholodov1/little-galaxy` `v0.1.0`. Local release-shaped tarball built from Galaxy's branch output assembles successfully. Real release availability is unverified. Local source is labeled and rejected by the Hosting guard. |
 | Hosting | `firebase.json` follows the plan's static-file and Galaxy rewrite model; `.firebaserc` uses the already approved project. Local config assertions pass; the harness approximates route precedence, not the actual Hosting service. |
 | Actions | Prepared PR preview/main production workflow with full checks, fork deployment exclusion and upstream-source guard. P2 secret, public-key variable, real release and actual Actions/deployed URL verification remain external dependencies. |
 | War council | §3 and §7 reconciled as an unsigned draft. P4 remains operator-only. |
@@ -80,3 +80,39 @@ availability, Firebase rewrite/cache behavior and deployed phones are not
 verified. Chromium's local harness proves local rendering and routing only;
 it is not real-device or production acceptance. Current check results and
 commit hashes belong in the phase report outside the repository.
+
+## Implementation contract (2026-10-22)
+
+`src/data/site.ts` supplies the known name and links for both Astro and the static
+`/profile.json` endpoint. Profile shape: `{ name, nav: [{ href: { en, es },
+label: { en, es } }], links: [{ href, label }], socials: [] }`. Optional `role`
+is omitted until operator content is supplied. All hrefs are single-root-relative
+or `https:` URLs. Galaxy's consumer contract is documented in its
+`docs/portfolio-contract.md`; it accepts these fields and ignores unknown ones.
+
+`/tokens.css` defines `--pf-paper`, `--pf-ink`, `--pf-action`, `--pf-rule`,
+`--pf-warning`, `--pf-confirmed`, `--pf-font-display`, `--pf-font-text` and spacing.
+`:root[data-theme="dark"]` overrides light defaults, with a system-media fallback
+when JavaScript is unavailable. Spectral and Archivo Narrow are self-hosted with
+their OFL notices. These provisional values match the Galaxy fallback palette;
+the unavailable design doctrine still needs review.
+
+Galaxy entry pages are `/projects/galaxy/` and `/es/projects/galaxy/`; the game
+owns `/galaxy{,/**}`. Hosting retains the approved HTML/JSON `no-cache` pattern
+and the immutable asset pattern shown above. Extensionless route and mutable
+token caching still need operator review and deployed verification; no broader
+cache rule is approved by this implementation note.
+
+`games.json` schema 1 pins `games.galaxy.repository`, `tag` and `artifact`.
+`scripts/assemble-games.mjs` downloads that exact release only with explicit
+`GAME_DOWNLOADS=1`; `GAMES_ARTIFACT_DIR` supplies local release-shaped files
+without altering the pin or falling back to network. Both paths check SHA256SUMS,
+archive safety, metadata and privacy. `dist/assembly.json` records the source;
+CI refuses `local-rehearsal` receipts before Hosting. The real artifact's public
+web key must be supplied as portfolio variable `VITE_FIREBASE_API_KEY` so the
+privacy gate can allow that exact public value. No admin key enters the build.
+
+Local foundation implementation is complete, but the real release, P2 credentials,
+Actions execution and deployed acceptance remain blocked. See
+this file and the root README for
+offline commands and limits. Local rehearsals are never release acceptance.

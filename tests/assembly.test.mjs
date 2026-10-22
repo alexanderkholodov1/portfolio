@@ -8,7 +8,7 @@ import { Header } from 'tar';
 import { test } from 'node:test';
 import { assembleGames, validateArchive, validateManifest } from '../scripts/assemble-games.mjs';
 
-const pin = { repository: 'alexanderkholodov1/galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
+const pin = { repository: 'alexanderkholodov1/little-galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
 const manifest = { schemaVersion: 1, games: { galaxy: pin } };
 const version = Buffer.from(JSON.stringify({ version: '0.1.0', commit: 'a'.repeat(40), builtAt: '2026-10-21T00:00:00Z' }));
 const entry = (name, data, type = 'File', linkpath) => ({ name, data: Buffer.from(data), type, linkpath });

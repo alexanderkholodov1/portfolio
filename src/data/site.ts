@@ -15,5 +15,5 @@ export function href(page: Page, lang: Language) { return `${lang === 'es' ? '/e
 export const name = 'Alexander Kholodov';
 export const repositories = [
   { label: 'Portfolio · GitHub', href: 'https://github.com/alexanderkholodov1/portfolio' },
-  { label: 'Collective Galaxy · GitHub', href: 'https://github.com/alexanderkholodov1/galaxy' },
+  { label: 'Collective Galaxy · GitHub', href: 'https://github.com/alexanderkholodov1/little-galaxy' },
 ];

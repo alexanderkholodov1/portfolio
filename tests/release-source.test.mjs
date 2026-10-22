@@ -10,7 +10,7 @@ test('Hosting guard accepts upstream receipts and rejects rehearsal or changed p
   const root = await mkdtemp(path.join(os.tmpdir(), 'portfolio-release-guard-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(path.join(root, 'dist'));
-  const pin = { repository: 'alexanderkholodov1/galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
+  const pin = { repository: 'alexanderkholodov1/little-galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
   await writeFile(path.join(root, 'games.json'), JSON.stringify({ schemaVersion: 1, games: { galaxy: pin } }));
   const script = fileURLToPath(new URL('../scripts/verify-release-source.mjs', import.meta.url));
   for (const [source, tag, expected] of [['github-release', 'v0.1.0', 0], ['local-rehearsal', 'v0.1.0', 1], ['github-release', 'v0.2.0', 1]]) {
