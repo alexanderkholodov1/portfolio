@@ -1,0 +1,39 @@
+/* Shared with Collective Galaxy: see docs/plan/02-architecture.md. */
+@font-face { font-family: Spectral; src: url('/fonts/spectral-latin-400.woff2') format('woff2'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Archivo Narrow'; src: url('/fonts/archivo-narrow-latin-400.woff2') format('woff2'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Archivo Narrow'; src: url('/fonts/archivo-narrow-latin-700.woff2') format('woff2'); font-style: normal; font-weight: 700; font-display: swap; }
+:root, :root[data-theme='light'] {
+  color-scheme: light;
+  --pf-paper: #f1f5f9;
+  --pf-ink: #102e4c;
+  --pf-action: #0050ae;
+  --pf-rule: #6b819a;
+  --pf-warning: #805000;
+  --pf-confirmed: #226640;
+  --pf-font-display: 'Spectral', Georgia, serif;
+  --pf-font-text: 'Archivo Narrow', 'Trebuchet MS', sans-serif;
+  --pf-space-1: .5rem;
+  --pf-space-2: 1rem;
+  --pf-space-3: 2rem;
+  --pf-space-4: 4rem;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --pf-paper: #071421;
+  --pf-ink: #e1eaf4;
+  --pf-action: #5fccf3;
+  --pf-rule: #60788e;
+  --pf-warning: #e7bd70;
+  --pf-confirmed: #82cda2;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --pf-paper: #071421;
+    --pf-ink: #e1eaf4;
+    --pf-action: #5fccf3;
+    --pf-rule: #60788e;
+    --pf-warning: #e7bd70;
+    --pf-confirmed: #82cda2;
+  }
+}
