@@ -41,9 +41,10 @@ brief prohibits those actions. The roadmap acceptance remains unmet.
   private payloads, and stage validation before replacing an existing game.
   SHA checks detect corruption; they do not independently authenticate a
   compromised upstream release or make a mutable release tag immutable.
-- Default all URLs to `no-cache`, then apply immutable caching to hashed game
-  assets. This also covers extensionless HTML routes and mutable `/tokens.css`;
-  the plan's original HTML-extension-only rule misses those request URLs.
+- Retain the approved HTML/JSON `no-cache` rule and immutable asset rule. Review
+  removed an unauthorized catch-all cache rule that overlapped asset caching.
+  Extensionless route and mutable `/tokens.css` caching need operator review
+  and verification on Hosting; the local harness cannot prove those headers.
 - CI uses conventional versioned upstream action references (`@v4`, Hosting
   `@v0`). Their current availability has not been contacted/verified during the
   no-GitHub night. They are not SHA-pinned. Local YAML/Bash lint is not GitHub

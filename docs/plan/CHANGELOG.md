@@ -3,6 +3,12 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-10-22 — Restored the main plan's HTML/JSON cache pattern in the plan and
+  Hosting config; corrected the implementation note and handoff. The earlier
+  agent-selected catch-all cache change exceeded implementation authority and
+  overlapped immutable assets. Extensionless route/token caching remains a
+  question for the operator and a deployed check — correction by agent during review.
+
 - 2026-10-22 — Recorded P v0.1.0 local foundations, shared profile/token schema,
   explicit offline release assembly, full-output privacy checks and extensionless
   route/token cache behavior. P v0.1.0 remains unaccepted pending real G release,

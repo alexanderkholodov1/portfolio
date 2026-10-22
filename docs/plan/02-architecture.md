@@ -88,7 +88,7 @@ First matching rewrite wins; brace globs are supported.
       { "source": "**", "destination": "/404.html" }
     ],
     "headers": [
-      { "source": "**", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "**/*.@(html|json)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
       { "source": "**/assets/**", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
     ]
   }
@@ -170,8 +170,10 @@ their OFL notices. These provisional values match the Galaxy fallback palette;
 the unavailable design doctrine still needs review.
 
 Galaxy entry pages are `/projects/galaxy/` and `/es/projects/galaxy/`; the game
-owns `/galaxy{,/**}`. All request URLs default to `no-cache`, including extensionless
-pages and mutable runtime tokens, with hashed assets receiving immutable caching.
+owns `/galaxy{,/**}`. Hosting retains the approved HTML/JSON `no-cache` pattern
+and the immutable asset pattern shown above. Extensionless route and mutable
+token caching still need operator review and deployed verification; no broader
+cache rule is approved by this implementation note.
 
 `games.json` schema 1 pins `games.galaxy.repository`, `tag` and `artifact`.
 `scripts/assemble-games.mjs` downloads that exact release only with explicit
