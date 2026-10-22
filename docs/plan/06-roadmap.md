@@ -32,14 +32,15 @@ so it remains a should milestone. No scope or acceptance criteria change unless 
 
 ## Remaining work
 
-Status at this update: every version is **not started**. Completed setup tasks in `07` do not
-mean a version has met its acceptance criteria. Next: G v0.1.0 and P v0.1.0, coordinated; P2 remains
-open for the portfolio CI deploy.
+Status at the portfolio night update (2026-10-22): P v0.1.0 foundations are implemented
+locally; its acceptance is blocked by a real Galaxy release, P2/CI and deployed verification.
+See `../foundations-status.md`. No version is accepted by this update. Completed setup
+tasks in `07` do not mean a version has met its acceptance criteria. P2 remains open.
 
 | Version | Status |
 |---|---|
 | G v0.1.0 | not started |
-| P v0.1.0 | not started |
+| P v0.1.0 | local foundations implemented; acceptance blocked |
 | G v0.2.0 | not started |
 | G v0.3.0 | not started |
 | G v0.4.0 | not started |
