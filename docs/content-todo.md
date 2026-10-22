@@ -6,9 +6,14 @@ there. Run
 
     pnpm run content:todo
 
-to print the current list with exactly what each item needs. Pages never show a TODO: a section
-whose content is missing is omitted or shows a short honest state (for example `/links` has no
-rows until links are supplied).
+to print the current list with exactly what each item needs. Pages never show a TODO or any editorial
+status: a section or entry whose content is missing is omitted (for example Projects lists only the
+complete projects, About has no biography block until it is written). This file and the command are
+the only place the gaps are explained.
+
+The Collective Galaxy pitch claims only what the pinned galaxy release delivers (design, launch and
+orbit of planets, stars and moons). The "kept as a keepsake" claim returns once G v0.6.0 (Memory) is
+the pinned release.
 
 ## What to send
 

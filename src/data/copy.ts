@@ -10,12 +10,10 @@ export const copy = {
     },
     projects: {
       eyebrow: 'Projects', description: 'Projects by Alexander Kholodov, starting with Collective Galaxy.',
-      entry: 'Entry', open: 'Open', source: 'Source', emptySlot: 'Next entry', emptyNote: 'Not yet entered in the log.',
+      entry: 'Entry', open: 'Open', source: 'Source',
     },
     about: {
       eyebrow: 'About', description: 'About Alexander Kholodov.',
-      pendingTitle: 'The full profile is not written yet.',
-      pendingNote: 'Until it is, the work speaks first: Collective Galaxy is the project to see.',
     },
     links: { eyebrow: 'Links', description: 'Where to find Alexander Kholodov and Collective Galaxy.' },
     galaxy: {
@@ -34,12 +32,10 @@ export const copy = {
     },
     projects: {
       eyebrow: 'Proyectos', description: 'Proyectos de Alexander Kholodov, empezando por Galaxia Colectiva.',
-      entry: 'Entrada', open: 'Abrir', source: 'Código', emptySlot: 'Próxima entrada', emptyNote: 'Aún no registrada en el cuaderno.',
+      entry: 'Entrada', open: 'Abrir', source: 'Código',
     },
     about: {
       eyebrow: 'Acerca de', description: 'Acerca de Alexander Kholodov.',
-      pendingTitle: 'El perfil completo aún no está escrito.',
-      pendingNote: 'Mientras tanto, habla el trabajo: Galaxia Colectiva es el proyecto para ver.',
     },
     links: { eyebrow: 'Enlaces', description: 'Dónde encontrar a Alexander Kholodov y Galaxia Colectiva.' },
     galaxy: {

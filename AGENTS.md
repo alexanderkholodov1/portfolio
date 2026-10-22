@@ -54,8 +54,12 @@ the telescope, where each night's observations are entered as numbered lines.
   a status lamp. Lamp colours are semantic: grey = not read, green = a fresh reading, amber = the
   last reading is old. A count is printed only when it was actually read (R9).
 - **Numbers are set as figures in a log**: `tabular-nums`, aligned at the right margin of a row.
-- **Missing content is a blank ruled line**, labelled honestly, never filler text.
-- **`/links` is the call-sign list**: one big ruled row per link, nothing else, no JavaScript.
+- **Missing content is omitted.** Visitors never see editorial status ("not yet entered", "profile not written"); the explanation lives only in `pnpm run content:todo` and the PR report. Never filler text.
+- **`/links` is the call-sign list**: one big ruled row per link, nothing else. Its only script is the
+  inline preference initializer shared by every page (about 700 bytes, render-blocking, no external
+  JS, no module): it applies the saved theme before paint and drives the theme control. This is the
+  accepted exception to "zero JS" on `/links`; without JavaScript the page follows the system theme and
+  the control is hidden.
 - Type: Spectral (display, a book face with a bookish register) against Archivo Narrow (the narrow
   sans of instrument labels and ledger columns). Two weights far apart for labels.
 - Rhythm: tight inside a ledger row (0.25-0.5rem), wide between sections (4-7rem).
@@ -64,5 +68,5 @@ the telescope, where each night's observations are entered as numbered lines.
 
 All operator content lives in typed modules under `src/data/` (`content.ts`, EN and ES side by
 side). Anything not yet supplied is a `todo(...)` entry there. `pnpm run content:todo` prints
-the list; `docs/content-todo.md` explains it. Pages omit or show an honest empty state for
-pending items; they never print a TODO.
+the list; `docs/content-todo.md` explains it. Pages omit
+pending items, with no replacement text; they never print a TODO or editorial status.

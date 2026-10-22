@@ -1,6 +1,6 @@
 // Operator content: the one place where it lives (EN and ES together).
 // Rule: nothing here may be invented. What is not supplied yet is `todo(...)`, which
-// `pnpm run content:todo` prints. Pages omit or show an honest empty state for it.
+// `pnpm run content:todo` prints. Pages omit it: visitors never see editorial status.
 // Keep this file free of imports so the build-time script can load it directly.
 
 export type Localized = { en: string; es: string };
@@ -41,10 +41,12 @@ export const projects: List<Project> = {
     id: 'galaxy',
     title: { en: 'Collective Galaxy', es: 'Galaxia Colectiva' },
     context: { en: 'Be a Dragon 2026 · USFQ', es: 'Be a Dragon 2026 · USFQ' },
-    // docs/plan/01-product-spec.md (Concept) and 00-context.md (application text).
+    // docs/plan/01-product-spec.md (Concept) and 00-context.md (application text). It claims only what
+    // the pinned galaxy release delivers (G v0.3.0: design, launch, orbit). The keepsake/replay claim
+    // belongs here again once G v0.6.0 (Memory) is the pinned release.
     pitch: {
-      en: 'A solar system that starts empty. Every visitor designs a planet, star or moon on their phone and launches it into orbit; together they grow it into a galaxy. Each object was made by one person, and the day is kept as a keepsake.',
-      es: 'Un sistema solar que empieza vacío. Cada visitante diseña un planeta, estrella o luna en su celular y lo lanza a órbita; entre todos lo convierten en una galaxia. Cada objeto lo hizo una sola persona y el día queda guardado como recuerdo.',
+      en: 'A solar system that starts empty. Every visitor designs a planet, star or moon on their phone and launches it into orbit; together they grow it into a galaxy. Each object was made by one person.',
+      es: 'Un sistema solar que empieza vacío. Cada visitante diseña un planeta, estrella o luna en su celular y lo lanza a órbita; entre todos lo convierten en una galaxia. Cada objeto lo hizo una sola persona.',
     },
     href: '/galaxy/',
     source: {
