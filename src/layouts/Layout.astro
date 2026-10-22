@@ -22,6 +22,9 @@ const own = page ? href(page, lang) : undefined;
     {own && <link rel="alternate" hreflang={lang} href={origin + own} />}
     <link rel="alternate" hreflang={other} href={origin + counterpart} />
     {page === 'home' && <link rel="alternate" hreflang="x-default" href={origin + href('home', 'en')} />}
+    {['spectral-latin-400', 'archivo-narrow-latin-400', 'archivo-narrow-latin-700'].map((font) => (
+      <link rel="preload" as="font" type="font/woff2" href={`/fonts/${font}.woff2`} crossorigin />
+    ))}
     <link rel="stylesheet" href="/tokens.css" />
     {scripts && <script is:inline>
       (() => {
