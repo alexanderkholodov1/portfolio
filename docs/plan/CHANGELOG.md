@@ -3,6 +3,7 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-10-22 — Marked P v0.3.0 "built; local tests only, live verification with G v0.7.0 pending" in the roadmap status table; documented `deploy-local` and `rollback` in `docs/deploy-and-rollback.md`; in `05` item 8 replaced "verify exact command" with the verified mechanism (REST release of the previous version, no CLI command); recorded the verified clone/channel/release facts in `09-sources.md`, flagging that docs were not fetched and the release-list response shape is unverified — implementation-level, decided by agent.
 - 2026-10-22 — Marked P v0.2.0 "built; content pending P3" in the 06-roadmap.md status table — shell, banner and tests exist but acceptance needs the operator's content — decided by agent.
 - 2026-10-22 — Recorded the operator's decisions of 2026-10-22 in `08-decisions.md` with his
   words: objective "todo el juego y todo lo planificado listo" for 2026-10-23; the assistant is out

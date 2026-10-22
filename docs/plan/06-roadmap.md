@@ -48,7 +48,7 @@ tasks in `07` do not mean a version has met its acceptance criteria. P2 remains 
 | G v0.6.0 | not started |
 | P v0.2.0 | built; content pending P3 |
 | G v0.7.0 | not started |
-| P v0.3.0 | not started |
+| P v0.3.0 | built; local tests only, live verification with G v0.7.0 pending |
 | G v0.8.0 | deferred to CASPIAN (operator, 2026-10-22); not built |
 | G v1.0.0 | not started |
 | P v1.0.0 | not started |

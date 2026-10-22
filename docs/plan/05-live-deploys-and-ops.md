@@ -23,8 +23,9 @@ anything, no matter what the screen and the phones are doing at that moment.**
    turn a feature off instantly without a deploy.
 7. **Preview first.** Every change goes to a preview channel and passes the smoke test before
    promotion.
-8. **One-command rollback.** Restore the previous Hosting release (script wraps the Firebase CLI /
-   Hosting API; verify exact command at implementation) + `git revert`. For a game, reverting the
+8. **One-command rollback.** Restore the previous Hosting release (`pnpm run rollback` creates a live
+   release of the previous version through the Hosting REST API, as the CLI has no rollback command;
+   see `docs/deploy-and-rollback.md` and `09-sources.md`) + `git revert`. For a game, reverting the
    `games.json` pin is the CI-path rollback.
 9. **Rules deploys are separate** and always operator-confirmed (N3). A bad rules deploy can lock
    everyone out; test against the emulator first, keep the previous rules file for instant restore.
