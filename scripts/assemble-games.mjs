@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { access, lstat, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { access, cp, lstat, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { list, extract } from 'tar';
@@ -70,37 +70,73 @@ export async function validateArchive(file) {
   if (!names.has('index.html') || !names.has('version.json')) throw new Error('Release archive is missing index.html or version.json');
 }
 
-export async function assembleGames({ root = process.cwd(), artifactDirectory = process.env.GAMES_ARTIFACT_DIR, allowDownload = process.env.GAME_DOWNLOADS === '1', allowedPublicKeys = [process.env.VITE_FIREBASE_API_KEY].filter(Boolean) } = {}) {
+async function treeSize(directory) {
+  let size = 0;
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const file = path.join(directory, entry.name);
+    size += entry.isDirectory() ? await treeSize(file) : (await lstat(file)).size;
+  }
+  return size;
+}
+
+// Copies a game's local build directory into `output` after the same checks a
+// release archive gets: no links, no private or key material, size cap, and the
+// entrypoint and metadata a release must carry. Returns the parsed version.json.
+async function takeLocalBuild(source, output, { root, allowedPublicKeys }) {
+  const stat = await lstat(source);
+  if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error('Local game build must be a directory');
+  const missing = () => { throw new Error('Local game build is missing index.html or version.json'); };
+  await access(path.join(source, 'index.html')).catch(missing);
+  await access(path.join(source, 'version.json')).catch(missing);
+  // Scan the source first: the privacy gate rejects symbolic links and unsupported files.
+  await checkPrivacy({ root, dist: source, allowedPublicKeys });
+  if (await treeSize(source) > unpackedLimit) throw new Error('Local game build exceeds size limit');
+  await cp(source, output, { recursive: true, verbatimSymlinks: true });
+  return JSON.parse(await readFile(path.join(output, 'version.json'), 'utf8'));
+}
+
+export async function assembleGames({ root = process.cwd(), artifactDirectory = process.env.GAMES_ARTIFACT_DIR, allowDownload = process.env.GAME_DOWNLOADS === '1', allowedPublicKeys = [process.env.VITE_FIREBASE_API_KEY].filter(Boolean), localBuilds = {} } = {}) {
   const manifest = JSON.parse(await readFile(path.join(root, 'games.json'), 'utf8'));
   const games = validateManifest(manifest);
   // Network use is explicit. Missing local inputs never fall back to downloads.
-  if (!artifactDirectory && !allowDownload) throw new Error('Game assembly needs GAMES_ARTIFACT_DIR for local archives or GAME_DOWNLOADS=1 for authorized release downloads');
+  for (const game of Object.keys(localBuilds)) if (!games[game]) throw new Error(`Local build given for unpinned game: ${game}`);
+  if (!artifactDirectory && !allowDownload && Object.keys(games).some((game) => !localBuilds[game])) throw new Error('Game assembly needs GAMES_ARTIFACT_DIR for local archives or GAME_DOWNLOADS=1 for authorized release downloads');
   const dist = path.join(root, 'dist');
   await access(path.join(dist, 'index.html'));
   const receipt = { schemaVersion: 1, games: {} };
   for (const [game, pin] of Object.entries(games)) {
-    const source = `https://github.com/${pin.repository}/releases/download/${pin.tag}`;
-    const get = (filename, limit) => artifactDirectory
-      ? localFile(path.resolve(artifactDirectory), filename, limit)
-      : download(`${source}/${filename}`, limit);
-    const archive = await get(pin.artifact, archiveLimit);
-    const sums = (await get('SHA256SUMS', 64 * 1024)).toString('utf8');
-    const metadata = await get('version.json', 16 * 1024);
-    verifyChecksum(archive, sums, pin.artifact);
-    verifyChecksum(metadata, sums, 'version.json');
     const scratch = await mkdtemp(path.join(dist, '.assembly-'));
     try {
-      const archivePath = path.join(scratch, 'release.tar.gz');
       const output = path.join(scratch, 'output');
-      await writeFile(archivePath, archive);
-      await validateArchive(archivePath);
-      await mkdir(output);
-      await extract({ file: archivePath, cwd: output, strict: true, noChmod: true, noMtime: true });
-      const packedMetadata = await readFile(path.join(output, 'version.json'));
-      if (!metadata.equals(packedMetadata)) throw new Error('Archive and release version.json differ');
-      const version = JSON.parse(metadata.toString('utf8'));
-      if (version.version !== pin.tag.slice(1) || !/^[a-f0-9]{40}$/.test(version.commit) || !Number.isFinite(Date.parse(version.builtAt))) {
-        throw new Error('Release metadata does not match the pinned version');
+      let version; let archive; let local = false;
+      if (localBuilds[game]) {
+        // A local build is labelled as such in the receipt and is never accepted by the Hosting input guard.
+        local = true;
+        version = await takeLocalBuild(path.resolve(localBuilds[game]), output, { root, allowedPublicKeys });
+        if (typeof version.version !== 'string' || !/^\d+\.\d+\.\d+/.test(version.version) || !/^[a-f0-9]{40}$/.test(version.commit) || !Number.isFinite(Date.parse(version.builtAt))) {
+          throw new Error('Local build metadata is invalid');
+        }
+      } else {
+        const source = `https://github.com/${pin.repository}/releases/download/${pin.tag}`;
+        const get = (filename, limit) => artifactDirectory
+          ? localFile(path.resolve(artifactDirectory), filename, limit)
+          : download(`${source}/${filename}`, limit);
+        archive = await get(pin.artifact, archiveLimit);
+        const sums = (await get('SHA256SUMS', 64 * 1024)).toString('utf8');
+        const metadata = await get('version.json', 16 * 1024);
+        verifyChecksum(archive, sums, pin.artifact);
+        verifyChecksum(metadata, sums, 'version.json');
+        const archivePath = path.join(scratch, 'release.tar.gz');
+        await writeFile(archivePath, archive);
+        await validateArchive(archivePath);
+        await mkdir(output);
+        await extract({ file: archivePath, cwd: output, strict: true, noChmod: true, noMtime: true });
+        const packedMetadata = await readFile(path.join(output, 'version.json'));
+        if (!metadata.equals(packedMetadata)) throw new Error('Archive and release version.json differ');
+        version = JSON.parse(metadata.toString('utf8'));
+        if (version.version !== pin.tag.slice(1) || !/^[a-f0-9]{40}$/.test(version.commit) || !Number.isFinite(Date.parse(version.builtAt))) {
+          throw new Error('Release metadata does not match the pinned version');
+        }
       }
       const html = await readFile(path.join(output, 'index.html'), 'utf8');
       if (!html.includes(`/${game}/assets/`)) throw new Error('Game HTML does not use its mounted asset base');
@@ -108,7 +144,9 @@ export async function assembleGames({ root = process.cwd(), artifactDirectory = 
       const destination = path.join(dist, game);
       await rm(destination, { recursive: true, force: true });
       await rename(output, destination);
-      receipt.games[game] = { ...pin, sha256: sha256(archive), commit: version.commit, source: artifactDirectory ? 'local-rehearsal' : 'github-release' };
+      receipt.games[game] = local
+        ? { repository: pin.repository, tag: `v${version.version}`, commit: version.commit, source: 'local-build' }
+        : { ...pin, sha256: sha256(archive), commit: version.commit, source: artifactDirectory ? 'local-rehearsal' : 'github-release' };
     } finally { await rm(scratch, { recursive: true, force: true }); }
   }
   await writeFile(path.join(dist, 'assembly.json'), `${JSON.stringify(receipt, null, 2)}\n`);

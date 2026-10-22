@@ -1,0 +1,4 @@
+allowBuilds:
+  protobufjs: false
+minimumReleaseAgeExclude:
+  - firebase-tools@15.34.1
