@@ -69,5 +69,7 @@ test('assembled Galaxy uses the real same-origin profile and shared tokens on de
   const version = await page.request.get('/galaxy/version.json');
   expect((await version.json()).version).toBe('0.1.0');
   const missing = await page.request.get('/a-page-that-does-not-exist');
-  expect(missing.status()).toBe(404);
+  // Only rendering is under test here; Hosting rewrite status needs a preview.
+  expect(await missing.text()).toContain('<html lang="en"');
+  expect(await missing.text()).toContain('404');
 });

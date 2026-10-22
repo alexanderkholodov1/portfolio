@@ -16,12 +16,13 @@ const server = createServer(async (request, response) => {
     if (pathname.includes('\\') || pathname.split('/').some((part) => part.startsWith('.'))) { response.writeHead(400).end(); return; }
     let file = await existing(path.join(root, pathname));
     if (!file) file = await existing(path.join(root, `${pathname}.html`));
-    let status = 200;
     if (!file) {
       if (/^\/galaxy(?:\/|$)/.test(pathname)) file = path.join(root, 'galaxy/index.html');
-      else { file = path.join(root, '404.html'); status = 404; }
+      else file = path.join(root, '404.html');
     }
-    response.writeHead(status, { 'Content-Type': `${types[path.extname(file)] || 'application/octet-stream'}; charset=utf-8`, 'Cache-Control': pathname.includes('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache' });
+    // Both fallbacks model explicit content rewrites in the approved config.
+    // This harness supplies no evidence about Hosting HTTP status or caching.
+    response.writeHead(200, { 'Content-Type': `${types[path.extname(file)] || 'application/octet-stream'}; charset=utf-8` });
     response.end(await readFile(file));
   } catch { response.writeHead(500).end('Local fixture failed'); }
 });

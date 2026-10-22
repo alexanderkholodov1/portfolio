@@ -69,6 +69,7 @@ brief prohibits those actions. The roadmap acceptance remains unmet.
 | War-council P4 | Sign the updated draft, or amend §3 before signing. | Review and sign personally. No signature was inferred from implementation authorization. |
 | Custom domain | Retain the approved Hosting URL, or choose/reserve a custom domain later. | Keep the existing URL for foundations; no name reservation now. |
 | External verification | Authorize CI/preview/production and real-browser/device verification later, or retain blocked acceptance. | Verify the assembled real-config release through CI before accepting P/G v0.1.0. |
+| Catch-all 404 rewrite | Keep the approved rewrite, or approve removing it so Hosting can use its missing-file response. | Review removal and verify actual unknown-path HTTP status on a preview in an authorized session. Local tests cover missing-page rendering only. |
 
 ## Limits and uncertainty
 
