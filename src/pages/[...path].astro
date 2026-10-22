@@ -1,0 +1,13 @@
+---
+import PageContent from '../components/Page.astro';
+import { pages, paths } from '../data/site';
+
+export function getStaticPaths() {
+  return (['en', 'es'] as const).flatMap((lang) => pages.map((page) => ({
+    params: { path: `${lang === 'es' ? 'es/' : ''}${paths[page]}`.replace(/\/$/, '') || undefined },
+    props: { lang, page },
+  })));
+}
+const { lang, page } = Astro.props;
+---
+<PageContent lang={lang} page={page} />
