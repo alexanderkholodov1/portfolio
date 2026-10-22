@@ -1,11 +1,9 @@
 ---
 import { copy } from '../data/copy';
-import { galaxyHref, live, type Language } from '../data/site';
-import { projects } from '../data/content';
+import { galaxy, galaxyHref, live, type Language } from '../data/site';
 interface Props { lang: Language; }
 const { lang } = Astro.props;
 const t = copy[lang].banner;
-const galaxy = projects.items[0];
 const enabled = Boolean(live.apiKey);
 ---
 <a class="live" href={galaxyHref(lang)} data-live data-state="idle"

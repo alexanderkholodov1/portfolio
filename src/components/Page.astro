@@ -1,13 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LiveBanner from './LiveBanner.astro';
+import Mark from './Mark.astro';
 import { copy } from '../data/copy';
 import { isPending, links, profile, projects, socials } from '../data/content';
-import { galaxyHref, href, labels, name, resolveHref, type Language, type Page } from '../data/site';
+import { galaxy, galaxyHref, href, labels, name, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; }
 const { lang, page } = Astro.props;
 const t = copy[lang];
-const galaxy = projects.items[0];
 const role = isPending(profile.role) ? null : profile.role[lang];
 const bio = isPending(profile.bio) ? null : profile.bio[lang].split(/\n{2,}/);
 const cv = isPending(profile.cv) ? null : profile.cv;
@@ -20,9 +20,11 @@ const record = [
 ].filter((row): row is [string, string] => row[1] !== null);
 const image = isPending(galaxy.image) ? null : galaxy.image;
 const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[lang] : labels[lang][page];
+// Each project row opens that project's own entry; only the galaxy has an entry page on this site.
+const entryHref = (project: (typeof projects.items)[number]) => (project.id === galaxy.id ? href('galaxy', lang) : resolveHref(project.href, lang));
 const description = page === 'home' ? t.home.description : t[page === 'galaxy' ? 'galaxy' : page].description;
 ---
-<Layout lang={lang} page={page} title={title} description={description} scripts={page !== 'links'}>
+<Layout lang={lang} page={page} title={title} description={description}>
   {page === 'home' && <>
     <LiveBanner lang={lang} />
     <h1>{name}</h1>
@@ -31,7 +33,8 @@ const description = page === 'home' ? t.home.description : t[page === 'galaxy' ?
       <h2 class="label" id="on-now">{t.home.featured}</h2>
       <a class="entry feature" href={href('galaxy', lang)}>
         <span class="figure number">01</span>
-        <span class="body"><span class="title">{galaxy.title[lang]} <span aria-hidden="true">→</span></span><span class="pitch">{galaxy.pitch[lang]}</span></span>
+        <span class="title">{galaxy.title[lang]} <Mark /></span>
+        <span class="pitch">{galaxy.pitch[lang]}</span>
         <span class="orbit" aria-hidden="true"><i></i><b></b></span>
       </a>
     </section>
@@ -39,7 +42,7 @@ const description = page === 'home' ? t.home.description : t[page === 'galaxy' ?
       <h2 class="label" id="index">{t.home.index}</h2>
       <ul class="ledger">
         {(['projects', 'about', 'links'] as const).map((item, index) => (
-          <li><a class="entry slim" href={href(item, lang)}><span class="figure number">{pad(index + 2)}</span><span class="title">{labels[lang][item]}</span><span class="arrow" aria-hidden="true">→</span></a></li>
+          <li><a class="entry slim numbered" href={href(item, lang)}><span class="figure number">{pad(index + 2)}</span><span class="title">{labels[lang][item]}</span><span class="arrow"><Mark /></span></a></li>
         ))}
       </ul>
     </section>
@@ -49,16 +52,17 @@ const description = page === 'home' ? t.home.description : t[page === 'galaxy' ?
     <div class="eyebrow">{t.projects.eyebrow}</div>
     <h1>{labels[lang].projects}</h1>
     <ol class="ledger">
-      <li class="entry">
-        <span class="figure number">01</span>
-        <div class="body">
-          <h2><a href={href('galaxy', lang)}>{galaxy.title[lang]}</a></h2>
-          <p class="meta">{galaxy.context[lang]}</p>
-          <p>{galaxy.pitch[lang]}</p>
-          <p class="actions"><a class="tap" href={href('galaxy', lang)}>{t.projects.open} →</a>{galaxy.source && <a class="tap" href={galaxy.source.href}>{t.projects.source} ↗</a>}</p>
-        </div>
-      </li>
-      {projects.todo && <li class="entry blank"><span class="figure number">02</span><div class="body"><p class="title">{t.projects.emptySlot}</p><p class="meta">{t.projects.emptyNote}</p></div></li>}
+      {projects.items.map((project, index) => (
+        <li class="entry project">
+          <span class="figure number">{pad(index + 1)}</span>
+          <div class="body">
+            <h2><a class="tap" href={entryHref(project)}>{project.title[lang]}</a></h2>
+            <p class="meta">{project.context[lang]}</p>
+            <p>{project.pitch[lang]}</p>
+            <p class="actions"><a class="tap" href={resolveHref(project.href, lang)}>{t.projects.open} <Mark /></a>{project.source && <a class="tap" href={project.source.href}>{t.projects.source} <Mark external /></a>}</p>
+          </div>
+        </li>
+      ))}
     </ol>
   </>}
 
@@ -66,12 +70,12 @@ const description = page === 'home' ? t.home.description : t[page === 'galaxy' ?
     <div class="eyebrow">{t.about.eyebrow}</div>
     <h1>{name}</h1>
     {role && <p class="role">{role}</p>}
-    {bio ? bio.map((paragraph) => <p>{paragraph}</p>) : <div class="blank-block"><h2>{t.about.pendingTitle}</h2><p>{t.about.pendingNote}</p></div>}
+    {bio && bio.map((paragraph) => <p>{paragraph}</p>)}
     <ul class="ledger">
-      {cv && <li><a class="entry slim" href={cv.href}><span class="title">{cv.label[lang]}</span><span class="arrow" aria-hidden="true">↗</span></a></li>}
-      {socials.items.map((social) => <li><a class="entry slim" href={social.href}><span class="title">{social.label}</span><span class="meta">{social.handle}</span></a></li>)}
-      <li><a class="entry slim" href={href('projects', lang)}><span class="title">{labels[lang].projects}</span><span class="arrow" aria-hidden="true">→</span></a></li>
-      <li><a class="entry slim" href={href('links', lang)}><span class="title">{labels[lang].links}</span><span class="arrow" aria-hidden="true">→</span></a></li>
+      {cv && <li><a class="entry slim" href={cv.href}><span class="title">{cv.label[lang]}</span><span class="arrow"><Mark external /></span></a></li>}
+      {socials.items.map((social) => <li><a class="entry slim" href={social.href}><span class="title">{social.label}</span><span class="meta">{social.handle}</span><span class="arrow"><Mark external /></span></a></li>)}
+      <li><a class="entry slim" href={href('projects', lang)}><span class="title">{labels[lang].projects}</span><span class="arrow"><Mark /></span></a></li>
+      <li><a class="entry slim" href={href('links', lang)}><span class="title">{labels[lang].links}</span><span class="arrow"><Mark /></span></a></li>
     </ul>
   </>}
 
@@ -82,10 +86,10 @@ const description = page === 'home' ? t.home.description : t[page === 'galaxy' ?
         <li><a class="entry slim" href={resolveHref(link.href, lang)}>
           <span class="title">{link.label[lang]}</span>
           {link.detail && <span class="meta">{link.detail[lang]}</span>}
-          <span class="arrow" aria-hidden="true">{link.external ? '↗' : '→'}</span>
+          <span class="arrow"><Mark external={link.external} /></span>
         </a></li>
       ))}
-      {socials.items.map((social) => <li><a class="entry slim" href={social.href}><span class="title">{social.label}</span><span class="meta">{social.handle}</span><span class="arrow" aria-hidden="true">↗</span></a></li>)}
+      {socials.items.map((social) => <li><a class="entry slim" href={social.href}><span class="title">{social.label}</span><span class="meta">{social.handle}</span><span class="arrow"><Mark external /></span></a></li>)}
     </ul>
   </>}
 
@@ -95,10 +99,10 @@ const description = page === 'home' ? t.home.description : t[page === 'galaxy' ?
     <div class="galaxy-entry">
       {image ? <img src={image.src} alt={image.alt[lang]} width="960" height="540" /> : <div class="orbit" aria-hidden="true"><i></i><b></b></div>}
       <p>{galaxy.pitch[lang]}</p>
-      <a class="entry-link" href={galaxyHref(lang)}>{t.galaxy.open} <span aria-hidden="true">→</span></a>
+      <a class="entry-link" href={galaxyHref(lang)}>{t.galaxy.open} <Mark /></a>
       <h2 class="label">{t.galaxy.facts}</h2>
       <dl class="record">{record.map(([term, value]) => <><dt>{term}</dt><dd>{value}</dd></>)}</dl>
-      {galaxy.source && <p class="actions"><a class="tap" href={galaxy.source.href}>{galaxy.source.label[lang]} ↗</a></p>}
+      {galaxy.source && <p class="actions"><a class="tap" href={galaxy.source.href}>{galaxy.source.label[lang]} <Mark external /></a></p>}
     </div>
   </>}
 </Layout>

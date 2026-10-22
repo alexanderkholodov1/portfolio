@@ -2,8 +2,8 @@
 import { copy } from '../data/copy';
 import { href, labels, name, origin, pages, type Language, type Page } from '../data/site';
 import '../styles/site.css';
-interface Props { lang: Language; page?: Page; title: string; description?: string; scripts?: boolean; }
-const { lang, page, title, description, scripts = true } = Astro.props;
+interface Props { lang: Language; page?: Page; title: string; description?: string; }
+const { lang, page, title, description } = Astro.props;
 const other = lang === 'en' ? 'es' : 'en';
 const t = copy[lang];
 const counterpart = page ? href(page, other) : href('home', other);
@@ -26,15 +26,14 @@ const own = page ? href(page, lang) : undefined;
       <link rel="preload" as="font" type="font/woff2" href={`/fonts/${font}.woff2`} crossorigin />
     ))}
     <link rel="stylesheet" href="/tokens.css" />
-    {scripts && <script is:inline>
-      (() => {
-        let saved;
-        try { saved = localStorage.getItem('portfolio.theme'); } catch {}
-        const dark = saved === 'dark' || (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-        document.querySelector('meta[name="theme-color"]').content = dark ? '#071421' : '#f1f5f9';
-      })();
-    </script>}
+    <script is:inline>
+      (()=>{const d=document.documentElement,m=matchMedia('(prefers-color-scheme: dark)'),q=(x)=>document.querySelector(x);let s;try{s=localStorage.getItem('portfolio.theme')}catch{}
+      const a=(k)=>{d.dataset.theme=k?'dark':'light';q('meta[name=theme-color]').content=k?'#071421':'#f1f5f9';const b=q('#theme');b&&b.setAttribute('aria-pressed',k)};
+      a(s=='dark'||s!='light'&&m.matches);d.dataset.js='';
+      addEventListener('DOMContentLoaded',()=>a(d.dataset.theme=='dark'));
+      addEventListener('click',(e)=>{if(e.target.closest('#theme')){const k=d.dataset.theme!='dark';s=k?'dark':'light';a(k);try{localStorage.setItem('portfolio.theme',s)}catch{}}});
+      m.onchange=(e)=>{s||a(e.matches)}})()
+    </script>
   </head>
   <body>
     <a class="skip" href="#main">{t.skip}</a>
@@ -42,7 +41,7 @@ const own = page ? href(page, lang) : undefined;
       <a class="signature" href={href('home', lang)}>{name}<span>{t.brand}</span></a>
       <div class="preferences">
         <a class="tap" href={counterpart} lang={other} hreflang={other} aria-label={t.language}>{other === 'es' ? 'Español' : 'English'}</a>
-        {scripts && <button id="theme" hidden aria-pressed="false">{t.theme}</button>}
+        <button id="theme" aria-pressed="false">{t.theme}</button>
       </div>
     </header>
     <nav aria-label={t.nav}>
@@ -50,27 +49,5 @@ const own = page ? href(page, lang) : undefined;
     </nav>
     <main id="main" tabindex="-1"><slot /></main>
     <footer><span>{name}</span><a class="tap" href={href('links', lang)}>{t.footerLinks} →</a></footer>
-    {scripts && <script is:inline>
-      (() => {
-        const button = document.getElementById('theme');
-        const system = matchMedia('(prefers-color-scheme: dark)');
-        let explicit = false;
-        try { explicit = ['light', 'dark'].includes(localStorage.getItem('portfolio.theme')); } catch {}
-        const apply = (dark) => {
-          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-          document.querySelector('meta[name="theme-color"]').content = dark ? '#071421' : '#f1f5f9';
-          button.setAttribute('aria-pressed', String(dark));
-        };
-        apply(document.documentElement.dataset.theme === 'dark');
-        button.hidden = false;
-        button.addEventListener('click', () => {
-          const dark = document.documentElement.dataset.theme !== 'dark';
-          explicit = true;
-          apply(dark);
-          try { localStorage.setItem('portfolio.theme', dark ? 'dark' : 'light'); } catch {}
-        });
-        system.addEventListener('change', (event) => { if (!explicit) apply(event.matches); });
-      })();
-    </script>}
   </body>
 </html>

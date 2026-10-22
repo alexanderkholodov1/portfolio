@@ -1,0 +1,9 @@
+---
+// The row mark: an arrow for places on this site, a drawn corner-arrow for places that leave it.
+// The external mark is a shape, not a glyph, so it never depends on a platform font.
+interface Props { external?: boolean; }
+const { external = false } = Astro.props;
+---
+{external
+  ? <svg class="mark" viewBox="0 0 12 12" width="14" height="14" aria-hidden="true" focusable="false"><path d="M3 1.5h7.5V9M10.5 1.5 1.5 10.5" fill="none" stroke="currentColor" stroke-width="1.5" /></svg>
+  : <span class="mark" aria-hidden="true">→</span>}

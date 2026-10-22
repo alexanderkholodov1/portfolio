@@ -34,6 +34,7 @@ test.describe('live banner', () => {
     const url = new URL(requests[0]);
     expect(url.pathname).toBe('/v1/projects/little-galaxy/databases/(default)/documents/snapshots/live');
     expect(url.searchParams.get('key')).toBeTruthy();
+    expect(url.searchParams.getAll('mask.fieldPaths')).toEqual(['creators', 'at']);
 
     await page.unroute(ENDPOINT);
     await answer(page, json(snapshot(1, 1000)));
@@ -87,16 +88,19 @@ test('without JavaScript the banner links to the galaxy and prints no number', a
   } finally { await context.close(); }
 });
 
-test('/links ships no script, has 44px targets and no horizontal scroll at 360px', async ({ page }) => {
+test('/links ships only the tiny inline preference initializer, has 44px targets and no horizontal scroll at 360px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   for (const route of ['/links/', '/es/links/']) {
     const html = await (await page.request.get(route)).text();
-    expect(html).not.toMatch(/<script/i);
+    const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+    expect(scripts).toHaveLength(1);
+    expect(scripts[0][1]).not.toMatch(/\bsrc=|type="module"/);
+    expect(Buffer.byteLength(scripts[0][2])).toBeLessThan(900);
     expect(html).not.toMatch(/<link[^>]+rel="modulepreload"/i);
     await page.goto(route);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    const heights = await page.locator('main a, nav a, footer a, .masthead a').evaluateAll((links) => links.map((link) => Math.round(link.getBoundingClientRect().height)));
-    expect(heights.length).toBeGreaterThanOrEqual(8);
+    const heights = await page.locator('main a, nav a, footer a, .masthead a, .masthead button').evaluateAll((links) => links.map((link) => Math.round(link.getBoundingClientRect().height)));
+    expect(heights.length).toBeGreaterThanOrEqual(9);
     for (const height of heights) expect(height).toBeGreaterThanOrEqual(44);
   }
 });
@@ -122,28 +126,125 @@ test('visitors never see placeholders, pending markers or the private repository
   expect(profile).not.toHaveProperty('role');
 });
 
-test('empty content shows designed states, in both languages', async ({ page }) => {
-  await page.goto('/projects/');
-  await expect(page.getByText('Not yet entered in the log.')).toBeVisible();
-  await page.goto('/es/projects/');
-  await expect(page.getByText('Aún no registrada en el cuaderno.')).toBeVisible();
-  await page.goto('/about/');
-  await expect(page.getByRole('heading', { name: 'The full profile is not written yet.' })).toBeVisible();
-  await page.goto('/es/about/');
-  await expect(page.getByRole('heading', { name: 'El perfil completo aún no está escrito.' })).toBeVisible();
+test('visitors never see editorial status: unfilled entries are omitted, in both languages', async ({ page }) => {
+  const editorial = /not yet|not written|yet entered|next entry|aún no|todavía no|no está escrito|próxima entrada|pending|pendiente/i;
+  for (const prefix of ['', '/es']) {
+    for (const route of ['/', '/projects/', '/about/', '/links/', '/projects/galaxy/']) {
+      await page.goto(`${prefix}${route}`);
+      expect(await page.locator('body').innerText(), `${prefix}${route}`).not.toMatch(editorial);
+    }
+    await page.goto(`${prefix}/projects/`);
+    await expect(page.locator('li.entry.project')).toHaveCount(1);
+    await expect(page.locator('.blank, .blank-block')).toHaveCount(0);
+    await page.goto(`${prefix}/about/`);
+    await expect(page.locator('main h2')).toHaveCount(0);
+  }
 });
 
 test('every page works in light and dark at phone width without horizontal scroll', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });
   for (const scheme of ['light', 'dark']) {
     await page.emulateMedia({ colorScheme: scheme });
-    for (const route of ['/', '/projects/', '/about/', '/links/', '/projects/galaxy/', '/es/', '/es/projects/galaxy/']) {
+    for (const route of ['/', '/projects/', '/about/', '/links/', '/projects/galaxy/', '/es/', '/es/links/', '/es/projects/galaxy/']) {
       await page.goto(route);
-      await expect(page.locator('html')).toHaveAttribute('data-theme', scheme).catch(async () => {
-        // /links ships no script, so the theme comes from CSS alone.
-        expect(route).toMatch(/links/);
-      });
+      await expect(page.locator('html')).toHaveAttribute('data-theme', scheme);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});
+
+const paper = { light: 'rgb(241, 245, 249)', dark: 'rgb(7, 20, 33)' };
+for (const [system, chosen] of [['light', 'dark'], ['dark', 'light']]) {
+  test(`a ${chosen} choice against a ${system} system survives Home, Links, reload and Spanish Links`, async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.emulateMedia({ colorScheme: system });
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', system);
+    await page.locator('#theme').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', chosen);
+    await page.locator('nav a', { hasText: 'Links' }).click();
+    await expect(page).toHaveURL(/\/links\/$/);
+    const check = async () => {
+      await expect(page.locator('html')).toHaveAttribute('data-theme', chosen);
+      await expect(page.locator('#theme')).toBeVisible();
+      await expect(page.locator('#theme')).toHaveAttribute('aria-pressed', String(chosen === 'dark'));
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe(paper[chosen]);
+    };
+    await check();
+    await page.reload();
+    await check();
+    await page.getByRole('link', { name: 'Read this page in Spanish' }).click();
+    await expect(page).toHaveURL(/\/es\/links\/$/);
+    await check();
+    // The control on Links changes and persists the choice too.
+    await page.locator('#theme').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', system);
+    expect(await page.evaluate(() => localStorage.getItem('portfolio.theme'))).toBe(system);
+  });
+}
+
+test('without JavaScript Links follows the system theme and shows no dead theme button', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: 'dark' });
+  try {
+    const page = await context.newPage();
+    await page.goto('http://127.0.0.1:4173/links/');
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe(paper.dark);
+    await expect(page.locator('#theme')).toBeHidden();
+  } finally { await context.close(); }
+});
+
+test('ledger rows keep their children apart, arrows at the right margin, at 375px in both languages', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  for (const prefix of ['', '/es']) {
+    for (const route of ['/', '/projects/', '/about/', '/links/', '/projects/galaxy/']) {
+      await page.goto(`${prefix}${route}`);
+      const rows = await page.locator('.entry').evaluateAll((entries) => entries.map((entry) => {
+        const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, kind: element.className || element.tagName }; };
+        return { parent: box(entry), children: [...entry.children].map(box), arrow: entry.querySelector(':scope > .arrow') ? box(entry.querySelector(':scope > .arrow')) : null };
+      }));
+      for (const row of rows) {
+        for (const [i, a] of row.children.entries()) {
+          expect(a.left, `${prefix}${route} child inside row`).toBeGreaterThanOrEqual(row.parent.left - 1);
+          expect(a.right).toBeLessThanOrEqual(row.parent.right + 1);
+          for (const b of row.children.slice(i + 1)) {
+            const overlapX = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+            const overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+            expect(overlapX > 1 && overlapY > 1, `${prefix}${route}: ${a.kind} overlaps ${b.kind}`).toBe(false);
+          }
+        }
+        if (row.arrow) expect(Math.abs(row.arrow.right - row.parent.right)).toBeLessThanOrEqual(1);
+      }
+    }
+  }
+});
+
+test('the Projects title link is a 44px target', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  for (const route of ['/projects/', '/es/projects/']) {
+    await page.goto(route);
+    const height = await page.locator('.entry h2 a').first().evaluate((link) => link.getBoundingClientRect().height);
+    expect(height).toBeGreaterThanOrEqual(44);
+  }
+});
+
+test('the external mark is drawn, not a glyph that may be missing from the font', async ({ page }) => {
+  for (const route of ['/links/', '/projects/', '/projects/galaxy/', '/es/links/']) {
+    await page.goto(route);
+    expect(await page.locator('body').innerText()).not.toContain('↗');
+    expect(await page.locator('a[href^="https://"] svg.mark').count()).toBeGreaterThan(0);
+  }
+});
+
+test('on a phone the ledger and the orbit motif are both visible in the first screen, light and dark', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  for (const scheme of ['light', 'dark']) {
+    await page.emulateMedia({ colorScheme: scheme });
+    for (const route of ['/', '/es/']) {
+      await page.goto(route);
+      for (const selector of ['.entry.feature', '.entry.feature .orbit', '.entry.feature .number']) {
+        const box = await page.locator(selector).boundingBox();
+        expect(box.y + box.height, `${route} ${scheme} ${selector}`).toBeLessThanOrEqual(800);
+      }
     }
   }
 });
