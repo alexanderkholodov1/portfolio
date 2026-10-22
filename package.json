@@ -13,10 +13,11 @@
     "dev": "astro dev --host 127.0.0.1",
     "preview": "astro preview --host 127.0.0.1",
     "build:site": "astro build && pnpm run privacy",
-    "build": "pnpm run build:site",
+    "build": "astro build && pnpm run assemble-games && pnpm run privacy",
     "typecheck": "astro check",
     "lint": "eslint .",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "assemble-games": "node scripts/assemble-games.mjs"
   },
   "dependencies": {
     "astro": "7.4.1"
