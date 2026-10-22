@@ -58,6 +58,7 @@ export async function validateArchive(file) {
     const name = entry.path.replace(/^(\.\/)+/, '').replace(/\/$/, '');
     if (!name || name === '.') { if (entry.type !== 'Directory') invalid.push('root'); return; }
     size += entry.size;
+    // eslint-disable-next-line no-control-regex -- Archive names must reject control bytes.
     if (name.startsWith('/') || name.includes('\\') || /[\x00-\x1f\x7f]/.test(name) || name.split('/').some((part) => !part || part === '..' || part.startsWith('.')) ||
         !['File', 'Directory'].includes(entry.type) || names.has(name) || size > unpackedLimit || names.size >= 10000 ||
         /(^|\/)(private|node_modules)(\/|$)|service[-_]?account|firebase-adminsdk|\.(pem|key|p12|pfx)$/i.test(name)) {
