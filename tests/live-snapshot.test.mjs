@@ -5,8 +5,8 @@ import { interpret, readLive, snapshotUrl, STALE_AFTER_MS } from '../src/lib/liv
 const now = Date.parse('2026-10-22T15:00:00Z');
 const doc = (count, ageMs, kind = 'integerValue') => ({
   fields: {
-    creatorCount: { [kind]: count },
-    updatedAt: { timestampValue: new Date(now - ageMs).toISOString() },
+    creators: { [kind]: count },
+    at: { timestampValue: new Date(now - ageMs).toISOString() },
   },
 });
 
@@ -25,7 +25,7 @@ test('a snapshot older than ten minutes shows no count', () => {
 
 test('missing, malformed or implausible documents never yield a number', () => {
   for (const bad of [null, {}, { fields: {} }, doc('x', 0), doc('-3', 0), doc(2.5, 0, 'doubleValue'), doc('1e3', 0), doc('42', -10 * 60_000),
-    { fields: { creatorCount: { integerValue: '5' } } }, { fields: { creatorCount: { integerValue: '5' }, updatedAt: { timestampValue: 'not a date' } } }]) {
+    { fields: { creators: { integerValue: '5' } } }, { fields: { creators: { integerValue: '5' }, at: { timestampValue: 'not a date' } } }]) {
     assert.deepEqual(interpret(bad, now), { state: 'unavailable' }, JSON.stringify(bad));
   }
 });

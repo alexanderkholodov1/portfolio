@@ -19,11 +19,11 @@ type Field = { integerValue?: string; doubleValue?: number; timestampValue?: str
 // is a whole non-negative count and its timestamp is recent.
 export function interpret(document: unknown, now: number): Reading {
   const fields = (document as { fields?: Record<string, Field> } | null)?.fields;
-  const stamp = fields?.updatedAt?.timestampValue;
+  const stamp = fields?.at?.timestampValue;
   const updatedAt = typeof stamp === 'string' ? Date.parse(stamp) : NaN;
   if (!Number.isFinite(updatedAt) || updatedAt - now > FUTURE_TOLERANCE_MS) return { state: 'unavailable' };
   if (now - updatedAt > STALE_AFTER_MS) return { state: 'stale', updatedAt };
-  const raw = fields?.creatorCount?.integerValue ?? fields?.creatorCount?.doubleValue;
+  const raw = fields?.creators?.integerValue ?? fields?.creators?.doubleValue;
   const count = typeof raw === 'string' && /^\d{1,9}$/.test(raw) ? Number(raw) : raw;
   if (typeof count !== 'number' || !Number.isInteger(count) || count < 0) return { state: 'unavailable' };
   return { state: 'fresh', count, updatedAt };

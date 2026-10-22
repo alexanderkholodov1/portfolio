@@ -14,7 +14,7 @@ test.beforeEach(async ({ context }) => {
 
 const snapshot = (count, ageMs) => ({
   name: 'projects/little-galaxy/databases/(default)/documents/snapshots/live',
-  fields: { creatorCount: { integerValue: String(count) }, updatedAt: { timestampValue: new Date(Date.now() - ageMs).toISOString() } },
+  fields: { creators: { integerValue: String(count) }, at: { timestampValue: new Date(Date.now() - ageMs).toISOString() } },
 });
 const answer = (page, handler) => page.route(ENDPOINT, handler);
 const json = (body, status = 200) => (route) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
@@ -54,8 +54,8 @@ test.describe('live banner', () => {
   for (const [label, handler] of [
     ['an HTTP error', json({ error: { code: 403 } }, 403)],
     ['a network failure', (route) => route.abort()],
-    ['a malformed document', json({ fields: { creatorCount: { stringValue: 'many' } } })],
-    ['a document without a timestamp', json({ fields: { creatorCount: { integerValue: '5' } } })],
+    ['a malformed document', json({ fields: { creators: { stringValue: 'many' } } })],
+    ['a document without a timestamp', json({ fields: { creators: { integerValue: '5' } } })],
   ]) {
     test(`${label} leaves the event without a number`, async ({ page }) => {
       await answer(page, handler);
