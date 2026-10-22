@@ -15,9 +15,11 @@
     "build:site": "astro build && pnpm run privacy",
     "build": "astro build && pnpm run assemble-games && pnpm run privacy",
     "typecheck": "astro check",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/lint-workflows.mjs",
     "test:browser": "playwright test",
-    "assemble-games": "node scripts/assemble-games.mjs"
+    "assemble-games": "node scripts/assemble-games.mjs",
+    "test:site": "node scripts/verify-site.mjs",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run test:site && pnpm run test:browser"
   },
   "dependencies": {
     "astro": "7.4.1"
