@@ -13,12 +13,12 @@ const projectCopy = es ? 'Una galaxia colectiva para Be a Dragon 2026, en la USF
   {page === 'home' && <div class="home-grid">
     <a class="project" href={href('galaxy', lang)}>
       <div class="orbit" aria-hidden="true"><i></i><b></b></div>
-      <div><span class="eyebrow">Be a Dragon 2026 · USFQ</span><h2>{galaxy} <span aria-hidden="true">↗</span></h2><p>{projectCopy}</p></div>
+      <div><span class="eyebrow">Be a Dragon 2026 · USFQ</span><h2>{galaxy} <span aria-hidden="true">→</span></h2><p>{projectCopy}</p></div>
     </a>
     <a class="text-link" href={href('projects', lang)}>{es ? 'Ver proyectos' : 'View projects'} <span aria-hidden="true">→</span></a>
   </div>}
-  {page === 'projects' && <a class="project project-row" href={href('galaxy', lang)}><span class="eyebrow">01 / Be a Dragon 2026</span><div><h2>{galaxy} ↗</h2><p>{projectCopy}</p></div></a>}
+  {page === 'projects' && <a class="project project-row" href={href('galaxy', lang)}><span class="eyebrow">01 / Be a Dragon 2026</span><div><h2>{galaxy} →</h2><p>{projectCopy}</p></div></a>}
   {page === 'about' && <div class="link-list"><a href={href('projects', lang)}>{labels[lang].projects} →</a><a href={href('links', lang)}>{labels[lang].links} →</a></div>}
-  {page === 'links' && <div class="link-list"><a href={href('home', lang)}>{es ? 'Portafolio' : 'Portfolio'} <span>alexanderkholodov.web.app ↗</span></a>{repositories.map((link) => <a href={link.href}>{link.label} <span>↗</span></a>)}</div>}
-  {page === 'galaxy' && <div class="galaxy-entry"><div class="orbit" aria-hidden="true"><i></i><b></b></div><p>{projectCopy}</p><a class="entry-link" href={es ? '/galaxy/?lang=es' : '/galaxy/'}>{es ? 'Abrir la galaxia' : 'Open the galaxy'} <span aria-hidden="true">↗</span></a></div>}
+  {page === 'links' && <div class="link-list"><a href={href('home', lang)}>{es ? 'Portafolio' : 'Portfolio'} <span>alexanderkholodov.web.app →</span></a>{repositories.map((link) => <a href={link.href}>{link.label} <span>→</span></a>)}</div>}
+  {page === 'galaxy' && <div class="galaxy-entry"><div class="orbit" aria-hidden="true"><i></i><b></b></div><p>{projectCopy}</p><a class="entry-link" href={es ? '/galaxy/?lang=es' : '/galaxy/'}>{es ? 'Abrir la galaxia' : 'Open the galaxy'} <span aria-hidden="true">→</span></a></div>}
 </Layout>

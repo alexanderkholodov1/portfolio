@@ -41,7 +41,7 @@ const copy = lang === 'en'
       {pages.map((item) => <a href={href(item, lang)} aria-current={page === item ? 'page' : undefined}>{labels[lang][item]}</a>)}
     </nav>
     <main id="main" tabindex="-1"><slot /></main>
-    <footer><span>{name}</span><a href={href('links', lang)}>{labels[lang].links} ↗</a></footer>
+    <footer><span>{name}</span><a href={href('links', lang)}>{labels[lang].links} →</a></footer>
     <script is:inline>
       (() => {
         const button = document.getElementById('theme');
