@@ -42,3 +42,27 @@
     `docs/plan/08-decisions.md` proceed with their stated default unless the operator overrides.
 14. **Verify on the deployed URL** (preview channel or production) in a real browser before claiming
     anything works. Docs are part of done: update `docs/plan/` when reality diverges from it.
+
+## Design artifact (DESIGN-DOCTRINE R1)
+
+The portfolio borrows its structure from **an observatory logbook**: the bound, ruled ledger kept at
+the telescope, where each night's observations are entered as numbered lines.
+
+- **Entries, not cards.** A project is a numbered ledger line (`01`, `02`, ...) separated by hairline
+  rules; no boxes, shadows or rounded corners. Square edges throughout.
+- **The live banner is tonight's entry.** It sits at the top of Home like the day's header line, with
+  a status lamp. Lamp colours are semantic: grey = not read, green = a fresh reading, amber = the
+  last reading is old. A count is printed only when it was actually read (R9).
+- **Numbers are set as figures in a log**: `tabular-nums`, aligned at the right margin of a row.
+- **Missing content is a blank ruled line**, labelled honestly, never filler text.
+- **`/links` is the call-sign list**: one big ruled row per link, nothing else, no JavaScript.
+- Type: Spectral (display, a book face with a bookish register) against Archivo Narrow (the narrow
+  sans of instrument labels and ledger columns). Two weights far apart for labels.
+- Rhythm: tight inside a ledger row (0.25-0.5rem), wide between sections (4-7rem).
+
+## Content rule (zero invented content)
+
+All operator content lives in typed modules under `src/data/` (`content.ts`, EN and ES side by
+side). Anything not yet supplied is a `todo(...)` entry there. `pnpm run content:todo` prints
+the list; `docs/content-todo.md` explains it. Pages omit or show an honest empty state for
+pending items; they never print a TODO.
