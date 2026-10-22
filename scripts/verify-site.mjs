@@ -10,7 +10,9 @@ for (const prefix of ['', '/es']) {
     const html = await readFile(filename, 'utf8');
     assert.ok(html.includes(`<html lang="${prefix ? 'es' : 'en'}"`), `Wrong language: ${prefix}${route}`);
     assert.match(html, /<h1>/);
-    assert.ok(!/TODO|lorem ipsum|coming soon|href="#"|disabled/i.test(html), `Placeholder in ${route}`);
+    assert.ok(!/\bTODO\b/.test(html) && !/P3:|lorem ipsum|coming soon|href="#"|disabled/i.test(html), `Placeholder in ${route}`);
+    assert.ok(!html.includes('alexanderkholodov1/portfolio'), `Private repository linked in ${route}`);
+    if (route === '/links/') assert.ok(!/<script/i.test(html), `Script on ${prefix}${route}`);
     for (const match of html.matchAll(/(?:href|src)="(\/[^"#?]*)(?:[?#][^"]*)?"/g)) {
       let target = path.join(root, decodeURIComponent(match[1]));
       if (match[1].endsWith('/')) target = path.join(target, 'index.html');
@@ -22,6 +24,7 @@ const profile = JSON.parse(await readFile(path.join(root, 'profile.json'), 'utf8
 assert.equal(profile.name, 'Alexander Kholodov');
 assert.equal(profile.nav.length, 5);
 assert.deepEqual(profile.socials, []);
+assert.ok(!JSON.stringify(profile).includes('alexanderkholodov1/portfolio'));
 const metadata = JSON.parse(await readFile(path.join(root, 'galaxy/version.json'), 'utf8'));
 const pin = JSON.parse(await readFile('games.json', 'utf8')).games.galaxy;
 assert.equal(`v${metadata.version}`, pin.tag);

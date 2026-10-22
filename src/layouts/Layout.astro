@@ -1,24 +1,29 @@
 ---
-import { href, labels, name, pages, type Language, type Page } from '../data/site';
+import { copy } from '../data/copy';
+import { href, labels, name, origin, pages, type Language, type Page } from '../data/site';
 import '../styles/site.css';
-interface Props { lang: Language; page?: Page; title: string; }
-const { lang, page, title } = Astro.props;
+interface Props { lang: Language; page?: Page; title: string; description?: string; scripts?: boolean; }
+const { lang, page, title, description, scripts = true } = Astro.props;
 const other = lang === 'en' ? 'es' : 'en';
-const copy = lang === 'en'
-  ? { skip: 'Skip to content', nav: 'Main navigation', theme: 'Dark theme', footer: 'Portfolio', language: 'Read this page in Spanish' }
-  : { skip: 'Saltar al contenido', nav: 'Navegación principal', theme: 'Tema oscuro', footer: 'Portafolio', language: 'Leer esta página en inglés' };
+const t = copy[lang];
+const counterpart = page ? href(page, other) : href('home', other);
+const own = page ? href(page, lang) : undefined;
 ---
 <!doctype html>
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#f1f5f9" />
+    {description && <meta name="description" content={description} />}
     <title>{title} · {name}</title>
+    {own && <link rel="canonical" href={origin + own} />}
+    {own && <link rel="alternate" hreflang={lang} href={origin + own} />}
+    <link rel="alternate" hreflang={other} href={origin + counterpart} />
+    {page === 'home' && <link rel="alternate" hreflang="x-default" href={origin + href('home', 'en')} />}
     <link rel="stylesheet" href="/tokens.css" />
-    <link rel="alternate" hreflang={other} href={page ? href(page, other) : href('home', other)} />
-    <script is:inline>
+    {scripts && <script is:inline>
       (() => {
         let saved;
         try { saved = localStorage.getItem('portfolio.theme'); } catch {}
@@ -26,23 +31,23 @@ const copy = lang === 'en'
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
         document.querySelector('meta[name="theme-color"]').content = dark ? '#071421' : '#f1f5f9';
       })();
-    </script>
+    </script>}
   </head>
   <body>
-    <a class="skip" href="#main">{copy.skip}</a>
+    <a class="skip" href="#main">{t.skip}</a>
     <header class="masthead">
-      <a class="signature" href={href('home', lang)}>{name}<span>{copy.footer}</span></a>
+      <a class="signature" href={href('home', lang)}>{name}<span>{t.brand}</span></a>
       <div class="preferences">
-        <a href={page ? href(page, other) : href('home', other)} lang={other} hreflang={other} aria-label={copy.language}>{other === 'es' ? 'Español' : 'English'}</a>
-        <button id="theme" hidden aria-pressed="false">{copy.theme}</button>
+        <a class="tap" href={counterpart} lang={other} hreflang={other} aria-label={t.language}>{other === 'es' ? 'Español' : 'English'}</a>
+        {scripts && <button id="theme" hidden aria-pressed="false">{t.theme}</button>}
       </div>
     </header>
-    <nav aria-label={copy.nav}>
+    <nav aria-label={t.nav}>
       {pages.map((item) => <a href={href(item, lang)} aria-current={page === item ? 'page' : undefined}>{labels[lang][item]}</a>)}
     </nav>
     <main id="main" tabindex="-1"><slot /></main>
-    <footer><span>{name}</span><a href={href('links', lang)}>{labels[lang].links} →</a></footer>
-    <script is:inline>
+    <footer><span>{name}</span><a class="tap" href={href('links', lang)}>{t.footerLinks} →</a></footer>
+    {scripts && <script is:inline>
       (() => {
         const button = document.getElementById('theme');
         const system = matchMedia('(prefers-color-scheme: dark)');
@@ -63,6 +68,6 @@ const copy = lang === 'en'
         });
         system.addEventListener('change', (event) => { if (!explicit) apply(event.matches); });
       })();
-    </script>
+    </script>}
   </body>
 </html>

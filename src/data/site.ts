@@ -1,3 +1,5 @@
+import { links, socials, profile, isPending } from './content';
+
 export type Language = 'en' | 'es';
 export type Page = 'home' | 'projects' | 'about' | 'links' | 'galaxy';
 export const pages: Page[] = ['home', 'projects', 'about', 'links', 'galaxy'];
@@ -10,10 +12,26 @@ export const labels = {
 };
 export function href(page: Page, lang: Language) { return `${lang === 'es' ? '/es/' : '/'}${paths[page]}`; }
 
-// Content provenance: docs/plan/README.md, 01-product-spec.md and 02-architecture.md.
-// Unknown role, biography, CV and social profiles are tracked in docs/foundations-status.md.
-export const name = 'Alexander Kholodov';
-export const repositories = [
-  { label: 'Portfolio · GitHub', href: 'https://github.com/alexanderkholodov1/portfolio' },
-  { label: 'Collective Galaxy · GitHub', href: 'https://github.com/alexanderkholodov1/little-galaxy' },
-];
+export const name = profile.name;
+export const origin = 'https://alexanderkholodov.web.app';
+
+// The galaxy owns /galaxy; Spanish is passed as a query because the game is one shared bundle.
+export const galaxyHref = (lang: Language) => (lang === 'es' ? '/galaxy/?lang=es' : '/galaxy/');
+
+// Public links for /profile.json: only entries that are real, public and external.
+export const publicLinks = links.items.filter((link) => link.external).map((link) => ({ label: link.label.en, href: link.href }));
+export const publicRole = isPending(profile.role) ? undefined : profile.role;
+export const publicSocials = socials.items.map(({ label, handle, href: url }) => ({ label, handle, href: url }));
+
+// Internal data hrefs are language-neutral; map them to this language's route.
+export function resolveHref(target: string, lang: Language) {
+  if (target === '/galaxy/') return galaxyHref(lang);
+  if (target === '/') return href('home', lang);
+  return target;
+}
+
+// Build-time configuration of the live banner. The key is the public web key, never an admin key.
+export const live = {
+  projectId: process.env.LIVE_PROJECT_ID || 'little-galaxy',
+  apiKey: process.env.VITE_FIREBASE_API_KEY || '',
+};
