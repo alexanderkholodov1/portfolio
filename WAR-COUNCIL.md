@@ -30,17 +30,23 @@ updating trivially cheap (markdown content files, no CMS ceremony).
 - Domain: personal name domain vs studio domain — depends on StudioBranding Q3 (recommended there:
   portfolio under his own name).
 
-## 3. Decision log (war council — answer once, batched)
+## 3. Decision log — draft reconciliation, unsigned
 
-| # | Question | Operator's answer | Recommendation |
-|---|---|---|---|
-| Q1 | Domain: your own name (.com/.dev/.ec) or under the new studio brand? | — | **Own name** (recruiters/collaborators search the person); studio gets its own site later. Depends on StudioBranding Q3. |
-| Q2 | Content v1: which projects/sections? (MunHub, research, apps, CV page, blog?) | — | MunHub + research + selected projects + /links v1; blog only if you'll actually write. |
-| Q3 | Languages: ES+EN, or +RU too? | — | ES+EN v1 (audience reality); RU if cheap with the chosen i18n setup. |
-| Q4 | Stack: Astro (recommended for pure content) vs Next.js? | — | **Astro** unless you foresee app-like interactivity. |
-| Q5 | Design: from the studio tokens (StudioBranding Q5) or independent personal style? | — | Independent personal style — this site represents YOU, not the studio. |
+This draft reconciles the original questions with the operator's recorded planning
+choices in `docs/plan/`. It does not sign this dossier or approve missing content.
+The 2026-10-21/22 night brief authorizes local P v0.1.0 work only.
 
-Unanswered questions block §7.
+| # | Original question | Recorded plan / draft resolution for operator review |
+|---|---|---|
+| Q1 | Own-name domain or studio brand? | Existing approved Hosting URL: `https://alexanderkholodov.web.app`. A custom domain remains undecided; recommend retaining the existing URL for foundations. No name is reserved. |
+| Q2 | Which projects and sections? | P v0.1.0: Home, Projects, About, Links and Galaxy entry, with known content only. P v0.2.0 adds operator-approved project descriptions, biography and social links (P3). Recommend supplying that content before P v0.2.0. |
+| Q3 | Languages? | Recorded decision: English primary at `/`; Spanish secondary at `/es/`. Russian is later. |
+| Q4 | Stack? | Recorded decision: Astro static site; two game/site repos; portfolio assembles pinned release artifacts and alone deploys production Hosting. Hosting-only project `alexanderkholodov`; data project remains separate. |
+| Q5 | Design source? | Light/dark required. The normative DESIGN-DOCTRINE document is unavailable on Beacon. Draft foundation tokens follow the Galaxy handoff fallbacks; recommend supplying the doctrine for review. No final personal identity/style approval is inferred. |
+
+Outstanding operator choices and missing content are in
+[`docs/foundations-status.md`](docs/foundations-status.md). The original sketch
+below is historical where the plan of record supersedes it.
 
 ## 4. Specification (sketch)
 
@@ -102,6 +108,12 @@ Dependencies: StudioBranding Q3 (domain decision) — soft. Nothing else.
   personal context beyond what he chooses to publish stays out).
 - Notification points: DEPLOY_PREVIEW_READY.
 
-## 7. Approval
+## 7. Approval — draft only
 
-- Operator signature: _pending — blocked on §3 Q1–Q5._
+- Operator signature: _pending — operator only._
+- Draft scope: P v0.1.0 foundations and game assembly as recorded in `docs/plan/06-roadmap.md`.
+- Q1 custom domain, Q5 design review and P3 public content remain open as described above.
+- This draft records the agreed architecture and language decisions. It is not a
+  signature, a release acceptance, or permission to publish/deploy during the night.
+- Operator review: sign this section, or amend the draft choices first. Recommendation:
+  review the existing-URL foundation separately from later content/custom-domain work.
