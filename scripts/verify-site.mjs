@@ -12,7 +12,11 @@ for (const prefix of ['', '/es']) {
     assert.match(html, /<h1>/);
     assert.ok(!/\bTODO\b/.test(html) && !/P3:|lorem ipsum|coming soon|href="#"|disabled/i.test(html), `Placeholder in ${route}`);
     assert.ok(!html.includes('alexanderkholodov1/portfolio'), `Private repository linked in ${route}`);
-    if (route === '/links/') assert.ok(!/<script/i.test(html), `Script on ${prefix}${route}`);
+    if (route === '/links/') {
+      // The only script on Links is the inline theme initializer: no src, no module, under a kilobyte.
+      const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+      assert.ok(scripts.length === 1 && !/src=|module/.test(scripts[0][1]) && scripts[0][2].length < 900, `Unexpected script on ${prefix}${route}`);
+    }
     for (const match of html.matchAll(/(?:href|src)="(\/[^"#?]*)(?:[?#][^"]*)?"/g)) {
       let target = path.join(root, decodeURIComponent(match[1]));
       if (match[1].endsWith('/')) target = path.join(target, 'index.html');

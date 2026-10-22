@@ -1,4 +1,4 @@
-import { links, socials, profile, isPending } from './content';
+import { links, socials, profile, projects, isPending } from './content';
 
 export type Language = 'en' | 'es';
 export type Page = 'home' | 'projects' | 'about' | 'links' | 'galaxy';
@@ -35,3 +35,11 @@ export const live = {
   projectId: process.env.LIVE_PROJECT_ID || 'little-galaxy',
   apiKey: process.env.VITE_FIREBASE_API_KEY || '',
 };
+
+// The featured project is found by its stable id, never by its position in the list.
+export const GALAXY_ID = 'galaxy';
+export const galaxy = (() => {
+  const found = projects.items.find((project) => project.id === GALAXY_ID);
+  if (!found) throw new Error(`content.ts has no project with id "${GALAXY_ID}"`);
+  return found;
+})();

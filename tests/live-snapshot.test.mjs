@@ -36,7 +36,8 @@ test('the request targets only snapshots/live in the configured project', async 
   const reading = await readLive('little-galaxy', 'public-key', fetcher, now);
   assert.equal(reading.count, 3);
   assert.equal(requested[0][0], snapshotUrl('little-galaxy', 'public-key'));
-  assert.match(requested[0][0], /^https:\/\/firestore\.googleapis\.com\/v1\/projects\/little-galaxy\/databases\/\(default\)\/documents\/snapshots\/live\?key=public-key$/);
+  assert.match(requested[0][0], /^https:\/\/firestore\.googleapis\.com\/v1\/projects\/little-galaxy\/databases\/\(default\)\/documents\/snapshots\/live\?mask\.fieldPaths=creators&mask\.fieldPaths=at&key=public-key$/);
+  assert.deepEqual(new URL(requested[0][0]).searchParams.getAll('mask.fieldPaths'), ['creators', 'at']);
   assert.equal(requested[0][1].cache, 'no-store');
 });
 
