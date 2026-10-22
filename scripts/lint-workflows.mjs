@@ -10,6 +10,9 @@ for (const file of await readdir('.github/workflows')) {
   if (!workflow.on || !workflow.jobs || workflow.on.pull_request_target) throw new Error(`Unsupported workflow trigger/shape: ${file}`);
   for (const job of Object.values(workflow.jobs)) {
     for (const step of job.steps ?? []) {
+      if (step.uses && !/^\.\//.test(step.uses) && !/@[a-f0-9]{40}$/.test(step.uses)) {
+        throw new Error(`Workflow action must use a full commit SHA: ${file}`);
+      }
       if (!step.run) continue;
       const result = spawnSync('bash', ['-n'], { input: step.run, encoding: 'utf8' });
       if (result.status !== 0) throw new Error(`Workflow shell syntax failed: ${file}`);

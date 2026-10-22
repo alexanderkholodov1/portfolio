@@ -45,10 +45,11 @@ brief prohibits those actions. The roadmap acceptance remains unmet.
   removed an unauthorized catch-all cache rule that overlapped asset caching.
   Extensionless route and mutable `/tokens.css` caching need operator review
   and verification on Hosting; the local harness cannot prove those headers.
-- CI uses conventional versioned upstream action references (`@v4`, Hosting
-  `@v0`). Their current availability has not been contacted/verified during the
-  no-GitHub night. They are not SHA-pinned. Local YAML/Bash lint is not GitHub
-  workflow execution or actionlint.
+- CI pins every third-party action to a full commit SHA, reusing the exact
+  references already recorded in the Galaxy workflows. Workflow lint rejects
+  moving action tags. The pins' upstream availability and behavior have not
+  been contacted/verified during the no-GitHub night. Local YAML/Bash lint is
+  not GitHub workflow execution or actionlint.
 - The privacy gate compares private file bytes/hashes and private JSON string
   values in memory, suppressing matched values and private names. It rejects
   suspicious output paths and common key patterns. Whole-file equality covers
