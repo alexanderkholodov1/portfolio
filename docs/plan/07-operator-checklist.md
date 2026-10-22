@@ -42,9 +42,9 @@ with work that isn't blocked.
 - [ ] **G4 CI follow-up — needed before G v0.1.0 CI deploy:** add the needed CI secrets to the
       galaxy repo (rules deploy to `little-galaxy`; preview-channel deploy to `alexanderkholodov`).
       Key generation does not confirm CI secrets are configured.
-- [ ] **G5:** sign in once with Google on `/galaxy/talk` so your uid can be set as `config/live.ownerUid`.
+- [ ] **G5 (deferred with the assistant):** sign in once with Google on `/galaxy/talk` so your uid can be set as `config/live.ownerUid`.
 
-## Assistant
+## Assistant (deferred to CASPIAN, operator 2026-10-22: not needed for Be A Dragon)
 - [ ] **A1 — BLOCKER for G v0.8.0:** confirm brain (D2) and provide an Anthropic API key (cost) if
       the default is kept.
       Superseded (2026-10-14, operator decision): nothing paid or able to silently become paid; a strictly free brain or v0.8.0 is cut first.

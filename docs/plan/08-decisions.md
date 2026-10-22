@@ -23,6 +23,10 @@
 | Milestone scheduling (operator, 2026-10-14) | Clear versioned milestones, scope, acceptance and priority; no intermediate schedule dates; retain only the final delivery date |
 | Assistant cost (operator, 2026-10-14) | Strictly free only; nothing paid or able to silently become paid. Anthropic API key not allowed. Cut G v0.8.0 first if no strictly free brain is viable |
 | Data project (operator confirmed) | `little-galaxy` created with Firestore, Authentication and a registered web app; service-account key in the galaxy checkout's git-ignored `private/` |
+| Objective (operator, 2026-10-22) | "todo el juego y todo lo planificado listo" for 2026-10-23: the roadmap from G v0.1.0 to G v1.0.0 and P v0.1.0 to P v1.0.0, in its order and priority; the cut order decides what shrinks first if time or quota runs short |
+| Assistant out of Be A Dragon (operator, 2026-10-22) | "ni hagamos NADA del asistente como parte del galaxy, sino como mas bien parte del CASPIAN ALGUN DIA (no lo elimines ciegamente, pero que los agentes ni se preocupen de hacer un asistente)". G v0.8.0 is not built and work that only serves the assistant (the G v0.5.0 voice spike) is skipped. Its plan text stays, marked deferred to CASPIAN |
+| Merges (operator, 2026-10-22) | "Me avisas cuando este LISTO, y voy a mergearlo". The operator merges every pull request himself. A pull request is opened only when it is ready to merge: verified locally, reviewed, remote CI green |
+| Portfolio content (operator, 2026-10-22) | P3 content will come from the operator's own posts, which he is collecting. Until their location is given, P v0.2.0 content stays as visible TODOs and everything else is built |
 
 ## Pending — proceed with the default unless the operator overrides
 

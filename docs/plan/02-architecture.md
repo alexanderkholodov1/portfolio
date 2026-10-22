@@ -36,7 +36,8 @@ Agreed in planning: **two repos** (each game independent; this is the pattern fo
 
 ### `galaxy` (to be created by the operator)
 
-Status update (operator): `alexanderkholodov1/galaxy` now exists; repository creation is complete.
+Status update (operator): the repository exists as `alexanderkholodov1/little-galaxy` (public; the
+old name `alexanderkholodov1/galaxy` redirects to it).
 
 ```
 apps/web/        Vite + React + TypeScript + React Three Fiber (+ drei, postprocessing), Zustand,
@@ -152,39 +153,3 @@ channel, and promotes to live only on confirmation. Used by the assistant's fix 
 Galaxy pages render a compact portfolio header (name, links to portfolio, socials) built from the
 same-origin `/profile.json` and `/tokens.css` published by the portfolio, so profile data has one
 source of truth.
-
-### P v0.1.0 implementation contract (2026-10-22)
-
-`src/data/site.ts` supplies the known name and links for both Astro and the static
-`/profile.json` endpoint. Profile shape: `{ name, nav: [{ href: { en, es },
-label: { en, es } }], links: [{ href, label }], socials: [] }`. Optional `role`
-is omitted until operator content is supplied. All hrefs are single-root-relative
-or `https:` URLs. Galaxy's consumer contract is documented in its
-`docs/portfolio-contract.md`; it accepts these fields and ignores unknown ones.
-
-`/tokens.css` defines `--pf-paper`, `--pf-ink`, `--pf-action`, `--pf-rule`,
-`--pf-warning`, `--pf-confirmed`, `--pf-font-display`, `--pf-font-text` and spacing.
-`:root[data-theme="dark"]` overrides light defaults, with a system-media fallback
-when JavaScript is unavailable. Spectral and Archivo Narrow are self-hosted with
-their OFL notices. These provisional values match the Galaxy fallback palette;
-the unavailable design doctrine still needs review.
-
-Galaxy entry pages are `/projects/galaxy/` and `/es/projects/galaxy/`; the game
-owns `/galaxy{,/**}`. Hosting retains the approved HTML/JSON `no-cache` pattern
-and the immutable asset pattern shown above. Extensionless route and mutable
-token caching still need operator review and deployed verification; no broader
-cache rule is approved by this implementation note.
-
-`games.json` schema 1 pins `games.galaxy.repository`, `tag` and `artifact`.
-`scripts/assemble-games.mjs` downloads that exact release only with explicit
-`GAME_DOWNLOADS=1`; `GAMES_ARTIFACT_DIR` supplies local release-shaped files
-without altering the pin or falling back to network. Both paths check SHA256SUMS,
-archive safety, metadata and privacy. `dist/assembly.json` records the source;
-CI refuses `local-rehearsal` receipts before Hosting. The real artifact's public
-web key must be supplied as portfolio variable `VITE_FIREBASE_API_KEY` so the
-privacy gate can allow that exact public value. No admin key enters the build.
-
-Local foundation implementation is complete, but the real release, P2 credentials,
-Actions execution and deployed acceptance remain blocked. See
-[`../foundations-status.md`](../foundations-status.md) and the root README for
-offline commands and limits. Local rehearsals are never release acceptance.

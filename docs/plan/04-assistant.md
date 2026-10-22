@@ -1,5 +1,9 @@
 # 04 — The fair assistant ("adjutant")
 
+> **Deferred to CASPIAN (operator, 2026-10-22).** "ni hagamos NADA del asistente como parte del
+> galaxy, sino como mas bien parte del CASPIAN ALGUN DIA". Nothing in this file is built for Be A
+> Dragon; it is kept, not deleted, for that future.
+
 The operator's companion at the booth. **Name: not chosen yet** (candidates floated: Bólido,
 Kepler, Perihelio, Satélite — operator decides; use a config constant until then). The operator calls
 this role his *adjutant*; see `C:\My Files\AKLabs\CASPIAN\governance\ADJUTANT.md` for the broader role contract
