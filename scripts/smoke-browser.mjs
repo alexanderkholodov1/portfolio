@@ -1,3 +1,4 @@
+/* global document -- the evaluated callbacks run inside the browser page */
 // Headless-browser smoke test for a deployed origin (a preview channel or live). Every route is opened in a
 // fresh context so nothing is served from a cache. Only same-origin requests are judged: the checks are about
 // this deploy's own files, not about third-party services the pages may call.
