@@ -63,8 +63,8 @@ export const projects: List<Project> = {
       title: { en: 'Collective Galaxy', es: 'Galaxia Colectiva' },
       context: { en: 'Be a Dragon 2026 · USFQ', es: 'Be a Dragon 2026 · USFQ' },
       pitch: {
-        en: 'A solar system that starts empty. Each visitor designs a planet, star, or moon in the phone hangar, hears its sound fingerprint, and launches it into orbit on the shared screen; celestial bodies orbit in real time and respond to touch.',
-        es: 'Un sistema solar que empieza vacío. Cada visitante diseña un planeta, estrella o luna en el hangar de su celular, escucha su firma sonora y lo lanza a órbita en la pantalla compartida; los cuerpos celestes orbitan en tiempo real y responden a caricias e interacción táctil.',
+        en: 'A solar system that starts empty. Each visitor designs a planet, star, or moon on their phone, hears its sound fingerprint, and launches it into orbit on the shared screen; celestial bodies orbit in real time and respond to touch.',
+        es: 'Un sistema solar que empieza vacío. Cada visitante diseña un planeta, estrella o luna en su celular, escucha su firma sonora y lo lanza a órbita en la pantalla compartida; los cuerpos celestes orbitan en tiempo real y responden a caricias e interacción táctil.',
       },
       href: '/galaxy/',
       source: {
