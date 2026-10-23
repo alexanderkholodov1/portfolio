@@ -17,4 +17,4 @@ const lantern: Project = {
   image: { src: '/fixture.png', alt: { en: 'Fixture image', es: 'Imagen de prueba' } },
 };
 
-export const projects = { items: [lantern, ...real.items], todo: null };
+export const projects = { items: [lantern, real.items.find((p) => p.id === 'galaxy')!], todo: null };

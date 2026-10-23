@@ -27,7 +27,9 @@ for (const prefix of ['', '/es']) {
 const profile = JSON.parse(await readFile(path.join(root, 'profile.json'), 'utf8'));
 assert.equal(profile.name, 'Alexander Kholodov');
 assert.equal(profile.nav.length, 5);
-assert.deepEqual(profile.socials, []);
+assert.equal(profile.socials.length, 4);
+assert.ok(profile.role);
+assert.equal(profile.links.length, 5);
 assert.ok(!JSON.stringify(profile).includes('alexanderkholodov1/portfolio'));
 const metadata = JSON.parse(await readFile(path.join(root, 'galaxy/version.json'), 'utf8'));
 const pin = JSON.parse(await readFile('games.json', 'utf8')).games.galaxy;
