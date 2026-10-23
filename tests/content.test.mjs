@@ -11,8 +11,11 @@ test('every pending item is reported with a path and a P3 description', () => {
     assert.match(needed, /^P3: .{20,}/, path);
   }
   const paths = todos.map((todo) => todo.path);
-  for (const expected of ['profile.role', 'profile.bio', 'profile.cv', 'projects', 'projects.items[0].role', 'projects.items[0].stack', 'projects.items[0].dates', 'projects.items[0].image', 'links', 'socials']) {
+  for (const expected of ['profile.cv', 'projects', 'projects.items[0].image']) {
     assert.ok(paths.includes(expected), expected);
+  }
+  for (const filled of ['profile.role', 'profile.bio', 'links', 'socials', 'projects.items[0].role', 'projects.items[0].stack', 'projects.items[0].dates']) {
+    assert.ok(!paths.includes(filled), `${filled} should be filled`);
   }
 });
 
@@ -30,4 +33,6 @@ test('filled content is bilingual and links are public and safe', () => {
     assert.ok(!/alexanderkholodov1\/portfolio(?![\w-])/.test(link.href), 'the portfolio repository is private');
   }
   assert.equal(content.profile.name, 'Alexander Kholodov');
+  bilingual(content.profile.role);
+  bilingual(content.profile.bio);
 });

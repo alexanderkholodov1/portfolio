@@ -115,26 +115,40 @@ test('visitors never see placeholders, pending markers or the private repository
       expect(html).not.toContain('alexanderkholodov1/portfolio');
       for (const href of await page.locator('a[href]').evaluateAll((links) => links.map((link) => link.getAttribute('href')))) {
         expect(href).not.toBe('#');
-        expect(href).toMatch(/^(\/|#main$|https:\/\/github\.com\/alexanderkholodov1\/little-galaxy$)/);
+        expect(href).toMatch(/^(\/|#main$|https:\/\/(www\.)?(github\.com\/(alexanderkholodov1|AlexanderKholodov1\/zkvote|DhamarAM\/hackathon_sala2026)|linkedin\.com\/in\/alexanderkholodov1\/|instagram\.com\/alexanderkholodov1\/|facebook\.com\/alexanderkholodov0\/|munra-1\.web\.app\/|alexanderkholodov1\.itch\.io\/sublime-airlift))/);
       }
     }
   }
   const profile = await (await page.request.get('/profile.json')).json();
   expect(JSON.stringify(profile)).not.toContain('alexanderkholodov1/portfolio');
-  expect(profile.links).toEqual([{ label: 'Collective Galaxy on GitHub', href: 'https://github.com/alexanderkholodov1/little-galaxy' }]);
-  expect(profile.socials).toEqual([]);
-  expect(profile).not.toHaveProperty('role');
+  expect(profile.links).toEqual([
+    { label: 'Collective Galaxy on GitHub', href: 'https://github.com/alexanderkholodov1/little-galaxy' },
+    { label: 'MunHub Lab', href: 'https://munra-1.web.app/' },
+    { label: 'ZKVote on GitHub', href: 'https://github.com/AlexanderKholodov1/zkvote' },
+    { label: 'Dragon Ocean Analyzer on GitHub', href: 'https://github.com/DhamarAM/hackathon_sala2026' },
+    { label: 'Sublime Airlift on Itch.io', href: 'https://alexanderkholodov1.itch.io/sublime-airlift' },
+  ]);
+  expect(profile.socials).toEqual([
+    { label: 'LinkedIn', handle: 'alexanderkholodov1', href: 'https://www.linkedin.com/in/alexanderkholodov1/' },
+    { label: 'Instagram', handle: 'alexanderkholodov1', href: 'https://www.instagram.com/alexanderkholodov1/' },
+    { label: 'GitHub', handle: 'alexanderkholodov1', href: 'https://github.com/alexanderkholodov1' },
+    { label: 'Facebook', handle: 'alexanderkholodov0', href: 'https://www.facebook.com/alexanderkholodov0/' },
+  ]);
+  expect(profile.role).toEqual({
+    en: 'Computer Science Engineering student at Universidad San Francisco de Quito (2023–2028).',
+    es: 'Estudiante de Ingeniería en Ciencias de la Computación en la Universidad San Francisco de Quito (2023–2028).',
+  });
 });
 
 test('visitors never see editorial status: unfilled entries are omitted, in both languages', async ({ page }) => {
-  const editorial = /not yet|not written|yet entered|next entry|aún no|todavía no|no está escrito|próxima entrada|pending|pendiente/i;
+  const editorial = /\b(not yet|not written|yet entered|next entry|aún no|todavía no|no está escrito|próxima entrada|pending|pendiente)\b/i;
   for (const prefix of ['', '/es']) {
     for (const route of ['/', '/projects/', '/about/', '/links/', '/projects/galaxy/']) {
       await page.goto(`${prefix}${route}`);
       expect(await page.locator('body').innerText(), `${prefix}${route}`).not.toMatch(editorial);
     }
     await page.goto(`${prefix}/projects/`);
-    await expect(page.locator('li.entry.project')).toHaveCount(1);
+    await expect(page.locator('li.entry.project')).toHaveCount(14);
     await expect(page.locator('.blank, .blank-block')).toHaveCount(0);
     await page.goto(`${prefix}/about/`);
     await expect(page.locator('main h2')).toHaveCount(0);

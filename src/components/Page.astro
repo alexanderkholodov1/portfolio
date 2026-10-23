@@ -21,7 +21,7 @@ const record = [
 const image = isPending(galaxy.image) ? null : galaxy.image;
 const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[lang] : labels[lang][page];
 // Each project row opens that project's own entry; only the galaxy has an entry page on this site.
-const entryHref = (project: (typeof projects.items)[number]) => (project.id === galaxy.id ? href('galaxy', lang) : resolveHref(project.href, lang));
+const entryHref = (project: (typeof projects.items)[number]) => (project.id === galaxy.id ? href('galaxy', lang) : project.href ? resolveHref(project.href, lang) : undefined);
 const description = page === 'home' ? t.home.description : t[page === 'galaxy' ? 'galaxy' : page].description;
 ---
 <Layout lang={lang} page={page} title={title} description={description}>
@@ -56,10 +56,23 @@ const description = page === 'home' ? t.home.description : t[page === 'galaxy' ?
         <li class="entry project">
           <span class="figure number">{pad(index + 1)}</span>
           <div class="body">
-            <h2><a class="tap" href={entryHref(project)}>{project.title[lang]}</a></h2>
-            <p class="meta">{project.context[lang]}</p>
+            <h2>{project.href ? <a class="tap" href={entryHref(project)}>{project.title[lang]}</a> : <span class="tap">{project.title[lang]}</span>}</h2>
+            <p class="meta">
+              {[
+                project.context[lang],
+                !isPending(project.dates) ? project.dates[lang] : null,
+              ].filter(Boolean).join(' · ')}
+            </p>
             <p>{project.pitch[lang]}</p>
-            <p class="actions"><a class="tap" href={resolveHref(project.href, lang)}>{t.projects.open} <Mark /></a>{project.source && <a class="tap" href={project.source.href}>{t.projects.source} <Mark external /></a>}</p>
+            {!isPending(project.stack) && project.stack && project.stack.length > 0 && (
+              <p class="meta">{project.stack.join(', ')}</p>
+            )}
+            {(project.href || project.source) && (
+              <p class="actions">
+                {project.href && <a class="tap" href={resolveHref(project.href, lang)}>{t.projects.open} <Mark external={project.id !== galaxy.id && project.href.startsWith('http')} /></a>}
+                {project.source && <a class="tap" href={project.source.href}>{project.source.label ? project.source.label[lang] : t.projects.source} <Mark external /></a>}
+              </p>
+            )}
           </div>
         </li>
       ))}
