@@ -1,24 +1,121 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { href, labels, name, repositories, type Language, type Page } from '../data/site';
+import LiveBanner from './LiveBanner.astro';
+import Mark from './Mark.astro';
+import { copy } from '../data/copy';
+import { isPending, links, profile, projects, socials } from '../data/content';
+import { galaxy, galaxyHref, href, labels, name, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; }
 const { lang, page } = Astro.props;
-const es = lang === 'es';
-const galaxy = es ? 'Galaxia Colectiva' : 'Collective Galaxy';
-const projectCopy = es ? 'Una galaxia colectiva para Be a Dragon 2026, en la USFQ.' : 'A collective galaxy for Be a Dragon 2026 at USFQ.';
+const t = copy[lang];
+const role = isPending(profile.role) ? null : profile.role[lang];
+const bio = isPending(profile.bio) ? null : profile.bio[lang].split(/\n{2,}/);
+const cv = isPending(profile.cv) ? null : profile.cv;
+const pad = (n: number) => String(n).padStart(2, '0');
+const record = [
+  [lang === 'es' ? 'Evento' : 'Event', `${t.banner.event} · USFQ`],
+  [lang === 'es' ? 'Rol' : 'Role', isPending(galaxy.role) ? null : galaxy.role[lang]],
+  [lang === 'es' ? 'Tecnología' : 'Stack', isPending(galaxy.stack) ? null : galaxy.stack.join(', ')],
+  [lang === 'es' ? 'Fechas' : 'Dates', isPending(galaxy.dates) ? null : galaxy.dates[lang]],
+].filter((row): row is [string, string] => row[1] !== null);
+const image = isPending(galaxy.image) ? null : galaxy.image;
+const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[lang] : labels[lang][page];
+// Each project row opens that project's own entry; only the galaxy has an entry page on this site.
+const entryHref = (project: (typeof projects.items)[number]) => (project.id === galaxy.id ? href('galaxy', lang) : project.href ? resolveHref(project.href, lang) : undefined);
+const description = page === 'home' ? t.home.description : t[page === 'galaxy' ? 'galaxy' : page].description;
 ---
-<Layout lang={lang} page={page} title={labels[lang][page]}>
-  <div class="eyebrow">{page === 'home' ? (es ? 'Portafolio' : 'Portfolio') : labels[lang][page]}</div>
-  <h1>{page === 'home' || page === 'about' ? name : page === 'galaxy' ? galaxy : labels[lang][page]}</h1>
-  {page === 'home' && <div class="home-grid">
-    <a class="project" href={href('galaxy', lang)}>
-      <div class="orbit" aria-hidden="true"><i></i><b></b></div>
-      <div><span class="eyebrow">Be a Dragon 2026 · USFQ</span><h2>{galaxy} <span aria-hidden="true">→</span></h2><p>{projectCopy}</p></div>
-    </a>
-    <a class="text-link" href={href('projects', lang)}>{es ? 'Ver proyectos' : 'View projects'} <span aria-hidden="true">→</span></a>
-  </div>}
-  {page === 'projects' && <a class="project project-row" href={href('galaxy', lang)}><span class="eyebrow">01 / Be a Dragon 2026</span><div><h2>{galaxy} →</h2><p>{projectCopy}</p></div></a>}
-  {page === 'about' && <div class="link-list"><a href={href('projects', lang)}>{labels[lang].projects} →</a><a href={href('links', lang)}>{labels[lang].links} →</a></div>}
-  {page === 'links' && <div class="link-list"><a href={href('home', lang)}>{es ? 'Portafolio' : 'Portfolio'} <span>alexanderkholodov.web.app →</span></a>{repositories.map((link) => <a href={link.href}>{link.label} <span>→</span></a>)}</div>}
-  {page === 'galaxy' && <div class="galaxy-entry"><div class="orbit" aria-hidden="true"><i></i><b></b></div><p>{projectCopy}</p><a class="entry-link" href={es ? '/galaxy/?lang=es' : '/galaxy/'}>{es ? 'Abrir la galaxia' : 'Open the galaxy'} <span aria-hidden="true">→</span></a></div>}
+<Layout lang={lang} page={page} title={title} description={description}>
+  {page === 'home' && <>
+    <LiveBanner lang={lang} />
+    <h1>{name}</h1>
+    {role && <p class="role">{role}</p>}
+    <section aria-labelledby="on-now">
+      <h2 class="label" id="on-now">{t.home.featured}</h2>
+      <a class="entry feature" href={href('galaxy', lang)}>
+        <span class="figure number">01</span>
+        <span class="title">{galaxy.title[lang]} <Mark /></span>
+        <span class="pitch">{galaxy.pitch[lang]}</span>
+        <span class="orbit" aria-hidden="true"><i></i><b></b></span>
+      </a>
+    </section>
+    <section aria-labelledby="index">
+      <h2 class="label" id="index">{t.home.index}</h2>
+      <ul class="ledger">
+        {(['projects', 'about', 'links'] as const).map((item, index) => (
+          <li><a class="entry slim numbered" href={href(item, lang)}><span class="figure number">{pad(index + 2)}</span><span class="title">{labels[lang][item]}</span><span class="arrow"><Mark /></span></a></li>
+        ))}
+      </ul>
+    </section>
+  </>}
+
+  {page === 'projects' && <>
+    <div class="eyebrow">{t.projects.eyebrow}</div>
+    <h1>{labels[lang].projects}</h1>
+    <ol class="ledger">
+      {projects.items.map((project, index) => (
+        <li class="entry project">
+          <span class="figure number">{pad(index + 1)}</span>
+          <div class="body">
+            <h2>{project.href ? <a class="tap" href={entryHref(project)}>{project.title[lang]}</a> : <span class="tap">{project.title[lang]}</span>}</h2>
+            <p class="meta">
+              {[
+                project.context[lang],
+                !isPending(project.dates) ? project.dates[lang] : null,
+              ].filter(Boolean).join(' · ')}
+            </p>
+            <p>{project.pitch[lang]}</p>
+            {!isPending(project.stack) && project.stack && project.stack.length > 0 && (
+              <p class="meta">{project.stack.join(', ')}</p>
+            )}
+            {(project.href || project.source) && (
+              <p class="actions">
+                {project.href && <a class="tap" href={resolveHref(project.href, lang)}>{t.projects.open} <Mark external={project.id !== galaxy.id && project.href.startsWith('http')} /></a>}
+                {project.source && <a class="tap" href={project.source.href}>{project.source.label ? project.source.label[lang] : t.projects.source} <Mark external /></a>}
+              </p>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  </>}
+
+  {page === 'about' && <>
+    <div class="eyebrow">{t.about.eyebrow}</div>
+    <h1>{name}</h1>
+    {role && <p class="role">{role}</p>}
+    {bio && bio.map((paragraph) => <p>{paragraph}</p>)}
+    <ul class="ledger">
+      {cv && <li><a class="entry slim" href={cv.href}><span class="title">{cv.label[lang]}</span><span class="arrow"><Mark external /></span></a></li>}
+      {socials.items.map((social) => <li><a class="entry slim" href={social.href}><span class="title">{social.label}</span><span class="meta">{social.handle}</span><span class="arrow"><Mark external /></span></a></li>)}
+      <li><a class="entry slim" href={href('projects', lang)}><span class="title">{labels[lang].projects}</span><span class="arrow"><Mark /></span></a></li>
+      <li><a class="entry slim" href={href('links', lang)}><span class="title">{labels[lang].links}</span><span class="arrow"><Mark /></span></a></li>
+    </ul>
+  </>}
+
+  {page === 'links' && <>
+    <h1>{labels[lang].links}</h1>
+    <ul class="ledger callsigns">
+      {links.items.map((link) => (
+        <li><a class="entry slim" href={resolveHref(link.href, lang)}>
+          <span class="title">{link.label[lang]}</span>
+          {link.detail && <span class="meta">{link.detail[lang]}</span>}
+          <span class="arrow"><Mark external={link.external} /></span>
+        </a></li>
+      ))}
+      {socials.items.map((social) => <li><a class="entry slim" href={social.href}><span class="title">{social.label}</span><span class="meta">{social.handle}</span><span class="arrow"><Mark external /></span></a></li>)}
+    </ul>
+  </>}
+
+  {page === 'galaxy' && <>
+    <div class="eyebrow">{t.galaxy.eyebrow}</div>
+    <h1>{galaxy.title[lang]}</h1>
+    <div class="galaxy-entry">
+      {image ? <img src={image.src} alt={image.alt[lang]} width="960" height="540" /> : <div class="orbit" aria-hidden="true"><i></i><b></b></div>}
+      <p>{galaxy.pitch[lang]}</p>
+      <a class="entry-link" href={galaxyHref(lang)}>{t.galaxy.open} <Mark /></a>
+      <h2 class="label">{t.galaxy.facts}</h2>
+      <dl class="record">{record.map(([term, value]) => <><dt>{term}</dt><dd>{value}</dd></>)}</dl>
+      {galaxy.source && <p class="actions"><a class="tap" href={galaxy.source.href}>{galaxy.source.label[lang]} <Mark external /></a></p>}
+    </div>
+  </>}
 </Layout>

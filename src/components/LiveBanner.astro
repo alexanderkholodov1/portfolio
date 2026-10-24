@@ -1,0 +1,16 @@
+---
+import { copy } from '../data/copy';
+import { galaxy, galaxyHref, live, type Language } from '../data/site';
+interface Props { lang: Language; }
+const { lang } = Astro.props;
+const t = copy[lang].banner;
+const enabled = Boolean(live.apiKey);
+---
+<a class="live" href={galaxyHref(lang)} data-live data-state="idle"
+  data-project={enabled ? live.projectId : undefined} data-key={enabled ? live.apiKey : undefined}
+  data-copy={enabled ? JSON.stringify(t) : undefined}>
+  <span class="lamp" aria-hidden="true"></span>
+  <span class="live-line"><span data-live-before></span>{galaxy.title[lang]} · {t.event}<span data-live-after class="figure"></span></span>
+  <span class="arrow" aria-hidden="true">→</span>
+</a>
+<script>import '../scripts/live-banner';</script>

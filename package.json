@@ -1,6 +1,6 @@
 {
   "name": "portfolio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.5.2",
@@ -17,6 +17,8 @@
     "typecheck": "astro check",
     "lint": "eslint . && node scripts/lint-workflows.mjs",
     "test:browser": "playwright test",
+    "content:todo": "node scripts/content-todo.mjs",
+    "lighthouse": "node scripts/lighthouse.mjs",
     "assemble-games": "node scripts/assemble-games.mjs",
     "test:site": "node scripts/verify-site.mjs",
     "check": "pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run test:site && pnpm run test:browser"
@@ -30,6 +32,7 @@
     "@playwright/test": "1.64.1",
     "eslint": "10.13.0",
     "globals": "17.13.0",
+    "lighthouse": "13.5.0",
     "tar": "7.5.22",
     "typescript": "6.0.3",
     "yaml": "2.9.1"
