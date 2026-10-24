@@ -29,8 +29,33 @@
 | Portfolio content (operator, 2026-10-22) | P3 content will come from the operator's own posts, which he is collecting. Until their location is given, P v0.2.0 content stays as visible TODOs and everything else is built |
 | D6 moons (captain, 2026-10-22, implementing the operator’s D6) | Moons may orbit own or unclaimed planets, never another visitor’s planet. A hangared planet remains visible in its original orbit while hosting an active moon; status stays `hangar`, ownership is unchanged, and it does not count as a creator or active object |
 
-## Release following and rollback (operator, 2026-10-23)
+## Operator decisions (2026-10-23)
 
+### Versioning: v1.0.0-alpha.N
+Operator decision (2026-10-23): "para que sea 1.0.0 debe ser PERFECTA E IMPECABLE"
+Milestones leading up to the final fair delivery use alpha iterations (`v1.0.0-alpha.N`). Releases published on GitHub are pre-releases until the final release is accepted. Release resolution must include pre-releases and order by publication time so that `v1.0.0-alpha.N` is selected over older semver tags (`v1.0.1`, `v1.0.0`).
+
+### Deploy chain: option b (agent branch/preview testing, operator merges final)
+Operator decision (2026-10-23, option b): "que los agentes 'prueben' la produccion en su rama de trabajo o links temporales, y yo quiero ver solo la final-final-final que desplegare haciendo el PR."
+Option b governs production deployment:
+- Agents test production candidates exclusively in their working branch or on ephemeral preview links (PR preview channels).
+- Only the operator's merge / approved release deploy reaches production Hosting.
+- No version pin in `games.json` that requires a PR; `games.json` selects `latest` (`alexanderkholodov1/little-galaxy`).
+- Pushes to `main` build with the most recently published Galaxy release (by publication timestamp, pre-releases included).
+- The Galaxy release workflow sends `repository_dispatch` (event `galaxy-release`, `client_payload.tag` = the exact tag); portfolio builds and verifies that exact tag and deploys production.
+
+### Architecture: the sky in three layers ("las tres cosas")
+Operator decision (2026-10-23): "las tres cosas"
+The runtime architecture operates across three synchronized layers:
+1. Firebase-only for everyone (phones, visitors, public web hosting and Firestore data).
+2. A stand on Beacon (booth screen / physical exhibit display).
+3. The laptop as backup (local stand/server runtime ready to take over if connectivity or external hosting fails).
+
+### Prototypes first: visual craft and interactivity
+Operator decision (2026-10-23): Prototypes first exploring visual craft and feel: liquid glass, passive and active interactivity, "No se debe ver como IA".
+Design must feel human-crafted, tactile, and intentional; machine-default or generic AI aesthetics are strictly defects.
+
+### Release following and rollback
 Operator decision (2026-10-23): "NO, NO FIJEMOS NADA, DEBEMOS PODER PROBARLO Y ACTUALIZAR SIN QUE HAYA NINGUN PROBLEMA, HASTA LA FERIA Y DURANTE LA FERIA TAMBIEN!"
 
 Operator decision (2026-10-23): "Apruebo tu plan de eliminacion de la version y que se haga todo desarrollo futuro flexible y con rollback tambien"
@@ -39,8 +64,8 @@ Operator decision (2026-10-23): "Apruebo tu plan de eliminacion de la version y 
 Each build resolves the latest published release through GitHub's API, verifies the release
 archive and metadata, and records its concrete tag in `dist/assembly.json`,
 `dist/galaxy/version.json`, build logs and the GitHub job summary. Missing releases fail the build.
-Galaxy release publication sends `repository_dispatch: galaxy-released` to portfolio with
-`client_payload.tag`. Portfolio redeploys latest on main; delayed events cannot downgrade it.
+Galaxy release publication sends `repository_dispatch: galaxy-release` to portfolio with
+`client_payload.tag`. Portfolio builds and deploys that exact tag on main.
 Manual `galaxy_tag` / local `GALAXY_TAG` selects a known-good published release for that deploy
 only, with the same integrity checks. Later automatic deploys follow latest again.
 PR previews remain the place to test changes before production. Production deploys share a

@@ -8,9 +8,10 @@ run by CI. Both take `--dry-run`, which prints every action and makes no network
 
 `games.json` selects `latest`, with no standing galaxy version pin. The complete path is:
 **galaxy merge → tag → GitHub Release → portfolio repository dispatch → checks → production**.
-The galaxy release workflow sends `event_type: galaxy-released` with `client_payload.tag` only
-**after** release publication succeeds. Portfolio always resolves `releases/latest` for that event;
-a delayed event cannot downgrade the site to its payload tag. Merge the receiver workflow into
+The galaxy release workflow sends `event_type: galaxy-release` with `client_payload.tag`
+**after** release publication succeeds. Portfolio builds the site with exactly that published galaxy tag
+(`client_payload.tag`), executes full download, checksum verification, assembly, privacy gate, site
+checks and browser tests, and deploys to production Hosting. Merge the receiver workflow into
 portfolio's default branch before enabling the sender.
 
 Sender setup (captain: separate change to `little-galaxy`): after the release publication step,
@@ -23,7 +24,7 @@ Contents: write, stored as `PORTFOLIO_DISPATCH_TOKEN` in galaxy. The galaxy repo
   env:
     GH_TOKEN: ${{ secrets.PORTFOLIO_DISPATCH_TOKEN }}
   run: |
-    jq -n --arg tag "$GITHUB_REF_NAME" '{event_type:"galaxy-released",client_payload:{tag:$tag}}' |
+    jq -n --arg tag "$GITHUB_REF_NAME" '{event_type:"galaxy-release",client_payload:{tag:$tag}}' |
       gh api --method POST repos/alexanderkholodov1/portfolio/dispatches --input -
 ```
 

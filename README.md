@@ -52,8 +52,8 @@ variable of the same name in CI). The portfolio privacy gate does not load
 No other Firebase config or client SDK is needed by the portfolio shell.
 
 The workflow prepares same-repository PR previews and production on pushes to
-`main`, galaxy `repository_dispatch` events (`galaxy-released`), and manual runs on main.
-Galaxy merge → tag → release → dispatch → portfolio redeploys latest automatically once the
+`main`, galaxy `repository_dispatch` events (`galaxy-release`), and manual runs on main.
+Galaxy merge → tag → release → dispatch → portfolio deploys that exact release automatically once the
 sender is configured. Actions → Portfolio checks and Hosting → Run workflow → `galaxy_tag`
 rolls back for one deploy; leave it empty to follow latest. PR previews test before production.
 See the [deploy runbook](docs/deploy-and-rollback.md) for sender setup and local release rollback.

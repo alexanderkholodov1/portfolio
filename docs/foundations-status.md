@@ -103,8 +103,8 @@ and the immutable asset pattern shown above. Extensionless route and mutable
 token caching still need operator review and deployed verification; no broader
 cache rule is approved by this implementation note.
 
-`games.json` schema 1 selects `games.galaxy.repository` and `tag: "latest"`.
-`scripts/assemble-games.mjs` resolves the latest published release at build time; `GALAXY_TAG`
+`games.json` schema 1 selects `games.galaxy.repository` and `tag: "latest"` (no fixed version pin or fixed artifact property; artifact naming `galaxy-dist-<tag>.tar.gz` is derived from the resolved release).
+`scripts/resolve-galaxy-release.mjs` resolves the most recently published release at build time (by publication timestamp, pre-releases included); `GALAXY_TAG`
 overrides it for that build only. Downloads require explicit `GAME_DOWNLOADS=1`;
 `GAMES_ARTIFACT_DIR` supplies local release-shaped files without falling back to network. Both paths check SHA256SUMS,
 archive safety, metadata and privacy. `dist/assembly.json` records the source;

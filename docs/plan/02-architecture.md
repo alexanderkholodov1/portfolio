@@ -114,8 +114,8 @@ cross-origin isolation for Godot web exports) scoped to their path.
 **portfolio repo (GitHub Actions):**
 - On PR: build Astro + assemble games from `games.json` → preview channel.
 - On merge to `main`: same build → deploy production (`FIREBASE_SERVICE_ACCOUNT` secret).
-- Galaxy merge → tag → release → `repository_dispatch` (`galaxy-released`, `client_payload.tag`)
-  → portfolio resolves `releases/latest` and redeploys automatically. Sender setup is in
+- Galaxy merge → tag → release → `repository_dispatch` (`galaxy-release`, `client_payload.tag`)
+  → portfolio builds that exact tag and deploys production automatically. Sender setup is in
   `../deploy-and-rollback.md`; both repos' workflows must be merged and its token provisioned.
 - `workflow_dispatch` input `galaxy_tag` (empty = latest) or local `GALAXY_TAG=vX.Y.Z`
   selects a published release for this deploy only (rollback). No manifest edit or persistent pin.
