@@ -9,9 +9,10 @@ run by CI. Both take `--dry-run`, which prints every action and makes no network
 `games.json` selects `latest`, with no standing galaxy version pin. The complete path is:
 **galaxy merge → tag → GitHub Release → portfolio repository dispatch → checks → production**.
 The galaxy release workflow sends `event_type: galaxy-release` with `client_payload.tag`
-**after** release publication succeeds. Portfolio builds the site with exactly that published galaxy tag
+**after** release publication succeeds. Portfolio validates that `client_payload.tag` is a valid,
+nonempty release tag (failing closed if absent or invalid), builds the site with exactly that published galaxy tag
 (`client_payload.tag`), executes full download, checksum verification, assembly, privacy gate, site
-checks and browser tests, and deploys to production Hosting. Merge the receiver workflow into
+checks and browser tests, verifies release freshness (newest published wins), and deploys to production Hosting. Merge the receiver workflow into
 portfolio's default branch before enabling the sender.
 
 Sender setup (captain: separate change to `little-galaxy`): after the release publication step,
@@ -29,9 +30,13 @@ Contents: write, stored as `PORTFOLIO_DISPATCH_TOKEN` in galaxy. The galaxy repo
 ```
 
 Portfolio builds PRs with latest Galaxy and deploys same-repository PR previews. Open the preview
-and verify changes before merging; fork PRs run checks without uploading. A production push to
-main, dispatch or manual run shares one concurrency group: one active production run, newest
-pending request wins. Active Hosting writes finish rather than being interrupted.
+and verify changes before merging; fork PRs run checks without uploading. Production runs serialize
+without dropping pending releases: repository dispatches use tag-scoped queues so multiple arriving
+releases (e.g. active-plus-two-pending) are each checked and tested. A release freshness check
+before production deployment enforces that newest published wins: if a newer release has been
+published, an older or delayed automatic dispatch skips deployment to prevent regressing production
+(reverse arrival). Manual rollback via `workflow_dispatch` remains an explicit operator override.
+Active Hosting writes finish rather than being interrupted.
 
 Each build resolves one concrete published tag via GitHub's API (authenticated with `GITHUB_TOKEN`
 when present), downloads `galaxy-dist-<tag>.tar.gz`, `SHA256SUMS` and `version.json`, and verifies

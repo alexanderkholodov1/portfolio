@@ -18,9 +18,9 @@ permissions:
   contents: read
 
 concurrency:
-  # All production triggers share one queue; a newer pending run replaces the older one.
-  # Do not interrupt an in-flight Hosting write. PRs have independent, cancellable queues.
-  group: portfolio-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || (github.ref == 'refs/heads/main' && 'production' || format('branch-{0}', github.ref)) }}
+  # Tag-scoped queues for release dispatches ensure pending releases are never dropped (active-plus-two-pending).
+  # Production pushes share the production queue. PRs have independent, cancellable queues.
+  group: portfolio-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || (github.event_name == 'repository_dispatch' && format('dispatch-{0}', github.event.client_payload.tag) || (github.event_name == 'workflow_dispatch' && format('manual-{0}', inputs.galaxy_tag || 'latest') || (github.ref == 'refs/heads/main' && 'production' || format('branch-{0}', github.ref)))) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -35,9 +35,6 @@ jobs:
       ASTRO_TELEMETRY_DISABLED: '1'
       GAME_DOWNLOADS: '1'
       GITHUB_TOKEN: ${{ github.token }}
-      # Release dispatch builds the exact published tag; manual rollback passes galaxy_tag.
-      # Pushes to main and PRs leave GALAXY_TAG empty to resolve latest published release.
-      GALAXY_TAG: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.tag || (github.event_name == 'workflow_dispatch' && inputs.galaxy_tag || '') }}
       # Public web config only: the privacy gate permits this exact key in the
       # resolved game bundle. This is not a Hosting credential.
       VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
@@ -45,6 +42,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Validate deployment payload and event
+        run: node scripts/validate-dispatch-payload.mjs
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          CLIENT_PAYLOAD_JSON: ${{ toJson(github.event.client_payload) }}
+          INPUT_GALAXY_TAG: ${{ inputs.galaxy_tag }}
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -67,8 +70,15 @@ jobs:
           projectId: alexanderkholodov
           channelId: pr-${{ github.event.pull_request.number }}
           expires: 7d
+      - name: Verify release freshness for production deploy
+        id: freshness
+        run: node scripts/verify-release-freshness.mjs
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GALAXY_TAG: ${{ env.GALAXY_TAG }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy production
-        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch')
+        if: github.ref == 'refs/heads/main' && steps.freshness.outputs.deploy == 'true' && (github.event_name == 'push' || github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch')
         uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a # v0.11.0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

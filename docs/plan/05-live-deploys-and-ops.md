@@ -28,7 +28,7 @@ anything, no matter what the screen and the phones are doing at that moment.**
    see `docs/deploy-and-rollback.md` and `09-sources.md`). For a game, run the portfolio workflow
    on main with `galaxy_tag=vX.Y.Z`, or use local `rollback --galaxy-tag vX.Y.Z` (preview, smoke,
    promotion). No persistent pin: next automatic deployment follows latest again. PR previews
-   test changes before production; galaxy release dispatches automatically redeploy latest.
+   test changes before production; galaxy release dispatches automatically deploy the exact dispatched tag.
 9. **Rules deploys are separate** and always operator-confirmed (N3). A bad rules deploy can lock
    everyone out; test against the emulator first, keep the previous rules file for instant restore.
 
