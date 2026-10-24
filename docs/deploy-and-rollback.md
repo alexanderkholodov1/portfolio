@@ -1,8 +1,63 @@
-# Deploy and rollback (local)
+# Deploy and rollback
 
-Runbook section for the fair; it feeds `docs/RUNBOOK.md` in the galaxy repo (G v1.0.0). Both
+Runbook section for the fair; it feeds `docs/RUNBOOK.md` in the galaxy repo (G v1.0.0). Local
 commands are Node scripts using the pinned `firebase-tools` and the Hosting REST API. Neither is
 run by CI. Both take `--dry-run`, which prints every action and makes no network call.
+
+## Automatic production updates and PR previews
+
+`games.json` selects `latest`, with no standing galaxy version pin. The complete path is:
+**galaxy merge → tag → GitHub Release → portfolio repository dispatch → checks → production**.
+The galaxy release workflow sends `event_type: galaxy-release` with `client_payload.tag`
+**after** release publication succeeds. Portfolio validates that `client_payload.tag` is a valid,
+nonempty release tag (failing closed if absent or invalid), builds the site with exactly that published galaxy tag
+(`client_payload.tag`), executes full download, checksum verification, assembly, privacy gate, site
+checks and browser tests, verifies release freshness (newest published wins), and deploys to production Hosting. Merge the receiver workflow into
+portfolio's default branch before enabling the sender.
+
+Sender setup (captain: separate change to `little-galaxy`): after the release publication step,
+use a GitHub App token or fine-grained token with access to private `portfolio` and repository
+Contents: write, stored as `PORTFOLIO_DISPATCH_TOKEN` in galaxy. The galaxy repository's default
+`GITHUB_TOKEN` cannot access another private repository. Example step:
+
+```yaml
+- name: Redeploy portfolio after galaxy publication
+  env:
+    GH_TOKEN: ${{ secrets.PORTFOLIO_DISPATCH_TOKEN }}
+  run: |
+    jq -n --arg tag "$GITHUB_REF_NAME" '{event_type:"galaxy-release",client_payload:{tag:$tag}}' |
+      gh api --method POST repos/alexanderkholodov1/portfolio/dispatches --input -
+```
+
+Portfolio builds PRs with latest Galaxy and deploys same-repository PR previews. Open the preview
+and verify changes before merging; fork PRs run checks without uploading. Production runs serialize
+under one shared concurrency group (`production-deploy`) with cancel-in-progress false to prevent
+overlapping live writes. A release freshness check immediately before production deployment enforces
+that newest published wins: every automatic production run (main pushes and release dispatches)
+re-resolves the latest published galaxy release; if a newer release has been published, an older or
+delayed automatic build skips deployment to prevent regressing production (reverse arrival or stale main
+overwrites). Manual rollback via `workflow_dispatch` remains an explicit operator override. PR previews
+keep independent, cancellable per-PR queues. Active Hosting writes finish rather than being interrupted.
+
+Each build resolves one concrete published tag via GitHub's API (authenticated with `GITHUB_TOKEN`
+when present), downloads `galaxy-dist-<tag>.tar.gz`, `SHA256SUMS` and `version.json`, and verifies
+every checksum, archive path, metadata/base path and privacy check. Release lookup or download
+failure fails CI; there is no fallback to an old version. Build logs, `/assembly.json`,
+`/galaxy/version.json` and the GitHub job summary identify the served release.
+
+## Roll back a galaxy release from GitHub
+
+Actions → **Portfolio checks and Hosting** (CI, `.github/workflows/ci.yml`) → **Run workflow** →
+select **main** → set **galaxy_tag** to a published tag such as `v1.0.1` → Run workflow.
+Leave `galaxy_tag` empty to deploy latest. Invalid or missing releases fail before Hosting.
+The tag overrides **this deployment only**. No commit or manifest edit is needed; the next
+normal build/release dispatch follows latest again. If a release is bad, fix and publish a new
+release before relying on automatic deploys; a rollback does not pause release following.
+Manual runs on other branches check/build but cannot deploy production.
+
+References: [GitHub Releases API](https://docs.github.com/en/rest/releases/releases#get-the-latest-release),
+[repository dispatch](https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event),
+[workflow concurrency](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency).
 
 ## Credentials
 
@@ -11,6 +66,21 @@ or under git-ignored `private/`. The scripts refuse any other location inside th
 open, print or copy the file.
 
 ## Deploy: `pnpm run deploy-local`
+
+Published release mode uses the same preview, browser smoke and immutable-version promotion:
+
+```sh
+pnpm run deploy-local --release                       # latest published release
+GALAXY_TAG=v1.0.1 pnpm run deploy-local                # one-deploy rollback override
+pnpm run rollback --galaxy-tag v1.0.1                 # equivalent known-good release path
+pnpm run rollback --galaxy-tag v1.0.1 --dry-run        # inspect without any external effect
+```
+
+Release mode skips the local galaxy build and downloads the verified published release.
+`--galaxy-tag` also selects release mode. It cannot be mixed with local input flags.
+Both uploads and promotion retain their existing separate confirmations and smoke checks.
+For non-interactive tagged rollback, supply `--yes-preview --yes` explicitly.
+Without release mode, local source rehearsal remains available:
 
 ```sh
 export GOOGLE_APPLICATION_CREDENTIALS=/path/outside/repo/key.json
@@ -23,7 +93,7 @@ Steps, in order, stopping at the first failure:
 
 1. Non-interactive runs without `--yes-preview` stop here, before anything is built or uploaded.
 2. `pnpm run build:site` (Astro build + privacy gate).
-3. Galaxy: `pnpm run build` in the local galaxy checkout, then its output directory is assembled as
+3. Galaxy (local mode): `pnpm run build` in the local galaxy checkout, then its output directory is assembled as
    `dist/galaxy` with the same validation and privacy gate as `scripts/assemble-games.mjs`.
    `dist/assembly.json` records `source: "local-build"`, so CI's Hosting input guard rejects it.
 4. Privacy gate over the whole `dist/`. Headless Chromium is started, so a missing browser stops the
@@ -49,10 +119,12 @@ Steps, in order, stopping at the first failure:
 
 | Flag | Meaning |
 |---|---|
+| `--release` | download latest published release, skipping local galaxy build |
+| `--galaxy-tag <vX.Y.Z>` | download a specific published release for this deploy only; also `$GALAXY_TAG` |
 | `--galaxy <dir>` | galaxy checkout (default `$GALAXY_DIR`, else `../little-galaxy`) |
 | `--galaxy-dist <dir>` | build output inside the checkout (default `apps/web/dist`) |
 | `--skip-galaxy-build` | assemble the existing build output without rebuilding |
-| `--artifact-dir <dir>` | use the pinned release artifact files instead (default `$GAMES_ARTIFACT_DIR`); labelled `local-rehearsal` |
+| `--artifact-dir <dir>` | use explicit local release files instead (latest is resolved from their version.json, or set `GALAXY_TAG`) (default `$GAMES_ARTIFACT_DIR`); labelled `local-rehearsal` |
 | `--channel <id>` | preview channel (default unique `local-...`; `live` is refused) |
 | `--expires <12h\|2d>` | channel lifetime (default `1d`, CLI maximum 30d) |
 | `--yes-preview` | authorize the preview upload without typing |
@@ -84,8 +156,9 @@ longer finalized it stops without writing. Only then it creates a new live relea
 Rollback button makes; the Firebase CLI has no rollback command. Rollback is atomic and does not
 rebuild anything. `--yes` is presence-only (see above). Sources: `docs/plan/09-sources.md`.
 
-Rollback restores the site only. For the CI path, **revert the `games.json` pin** (git revert the
-commit that bumped it) and merge, otherwise the next `main` deploy ships the bad game again.
+Previous-Hosting-release rollback restores the whole site without rebuilding. Tagged rollback
+(`--galaxy-tag`) rebuilds the portfolio with a specific published galaxy release through the preview
+path above. Neither creates a permanent pin: the next normal CI build follows latest again.
 
 If Hosting no longer keeps the previous version (version retention is finite), the script fails with
 "No previous release to roll back to"; use the console or redeploy a known-good build.

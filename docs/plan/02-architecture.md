@@ -6,8 +6,8 @@
  GitHub: alexanderkholodov1/galaxy            GitHub: alexanderkholodov1/portfolio
  ┌──────────────────────────────┐              ┌──────────────────────────────────────┐
  │ apps/web   (Vite+React+R3F)  │  release     │ apps: Astro site (/, /es/, /links…)   │
- │ apps/stand (Node, laptop)    │  artifact    │ games.json  { "galaxy": "v0.3.0" }    │
- │ packages/shared (types,math) │ ───────────► │ CI: fetch pinned artifacts →          │
+ │ apps/stand (Node, laptop)    │  artifact    │ games.json  { "galaxy": "latest" }    │
+ │ packages/shared (types,math) │ ───────────► │ CI: resolve latest artifacts →        │
  │ firestore.rules + tests      │  vX.Y.Z      │     dist/galaxy/ → deploy whole site  │
  └──────────────────────────────┘              └──────────────────────────────────────┘
           │ preview channels only                         │ ONLY deployer of production
@@ -28,9 +28,9 @@ Agreed in planning: **two repos** (each game independent; this is the pattern fo
 - Publishes two same-origin runtime files consumed by games (single source of truth):
   - `/profile.json` — name, role line, social links, nav links (EN/ES labels).
   - `/tokens.css` — design tokens (colour, type, spacing) for light/dark.
-- `games.json` — manifest pinning each game to a release tag of its repo.
-- `scripts/assemble-games.*` — downloads each pinned release artifact and unpacks it into
-  `dist/<game>/` after the Astro build.
+- `games.json` — manifest selecting the latest published release of each game (no standing version pin).
+- `scripts/assemble-games.*` — resolves each game's release through GitHub's API, downloads its
+  checksummed artifact and unpacks it into `dist/<game>/` after the Astro build.
 - `firebase.json` — Hosting config (rewrites, headers, caching), see below.
 - The **only** repo that deploys to production Hosting.
 
@@ -114,11 +114,18 @@ cross-origin isolation for Godot web exports) scoped to their path.
 **portfolio repo (GitHub Actions):**
 - On PR: build Astro + assemble games from `games.json` → preview channel.
 - On merge to `main`: same build → deploy production (`FIREBASE_SERVICE_ACCOUNT` secret).
-- Bumping a game = a PR changing `games.json`. **Rollback of a game = revert the pin.**
+- Galaxy merge → tag → release → `repository_dispatch` (`galaxy-release`, `client_payload.tag`)
+  → portfolio builds that exact tag and deploys production automatically. Sender setup is in
+  `../deploy-and-rollback.md`; both repos' workflows must be merged and its token provisioned.
+- `workflow_dispatch` input `galaxy_tag` (empty = latest) or local `GALAXY_TAG=vX.Y.Z`
+  selects a published release for this deploy only (rollback). No manifest edit or persistent pin.
+- Every build logs and serves the resolved tag (`/assembly.json`, `/galaxy/version.json`) and
+  records it in the GitHub job summary. Missing releases fail; no cached-release fallback.
+- All production triggers share one serial queue; newest pending wins, active deploys finish.
 
 **At the fair (local, no CI round-trip):** `portfolio/scripts/deploy-local` builds the portfolio,
-takes the galaxy build from the local `galaxy` checkout (or a pinned artifact), deploys a preview
-channel, and promotes to live only on confirmation. Used by the assistant's fix pipeline (04, 05).
+takes the galaxy build from the local `galaxy` checkout (or a selected published release via
+`--release` / `--galaxy-tag`), deploys a preview channel, and promotes to live only on confirmation. Used by the assistant's fix pipeline (04, 05).
 
 ## Orbital model (deterministic)
 

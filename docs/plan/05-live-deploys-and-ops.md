@@ -25,8 +25,10 @@ anything, no matter what the screen and the phones are doing at that moment.**
    promotion.
 8. **One-command rollback.** Restore the previous Hosting release (`pnpm run rollback` creates a live
    release of the previous version through the Hosting REST API, as the CLI has no rollback command;
-   see `docs/deploy-and-rollback.md` and `09-sources.md`) + `git revert`. For a game, reverting the
-   `games.json` pin is the CI-path rollback.
+   see `docs/deploy-and-rollback.md` and `09-sources.md`). For a game, run the portfolio workflow
+   on main with `galaxy_tag=vX.Y.Z`, or use local `rollback --galaxy-tag vX.Y.Z` (preview, smoke,
+   promotion). No persistent pin: next automatic deployment follows latest again. PR previews
+   test changes before production; galaxy release dispatches automatically deploy the exact dispatched tag.
 9. **Rules deploys are separate** and always operator-confirmed (N3). A bad rules deploy can lock
    everyone out; test against the emulator first, keep the previous rules file for instant restore.
 

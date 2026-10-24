@@ -78,7 +78,7 @@ test('rollback revalidates after confirmation: a changed live release or a delet
   assert.equal(gone.calls.post.length, 0);
 });
 
-test('rollback shows both versions, confirms with the typed word, prints the git hint', async () => {
+test('rollback shows both versions, confirms with the typed word, prints the deploy-only rollback hint', async () => {
   const rest = fakeRest({ current: C, pages: { '': { releases: [C, B, A] } } });
   const log = [];
   const result = await rollback([], { ...base, rest, log: (line) => log.push(line), ask: async () => 'rollback' });
@@ -88,7 +88,7 @@ test('rollback shows both versions, confirms with the typed word, prints the git
   const text = log.join('\n');
   assert.match(text, /Live now:\s+c/);
   assert.match(text, /Will become live: b/);
-  assert.match(text, /revert the games\.json pin/);
+  assert.match(text, /galaxy_tag set to a known-good release/);
 });
 
 test('rollback does nothing without the typed word, and --yes skips the prompt', async () => {
@@ -112,4 +112,13 @@ test('rollback --dry-run makes no call and needs no credentials', async () => {
   const rest = { get: () => { throw new Error('network'); }, post: () => { throw new Error('network'); } };
   await rollback(['--dry-run'], { env: {}, rest, log: (line) => log.push(line) });
   assert.match(log.join('\n'), /dry-run.*POST/);
+});
+
+test('tagged rollback uses the preview and smoke deployment path without changing the manifest', async () => {
+  let called = false;
+  await rollback(['--galaxy-tag', 'v1.0.1', '--dry-run'], { deploy: async (argv) => {
+    called = true;
+    assert.deepEqual(argv, ['--release', '--galaxy-tag', 'v1.0.1', '--dry-run']);
+  } });
+  assert.ok(called);
 });

@@ -3,8 +3,7 @@
   "games": {
     "galaxy": {
       "repository": "alexanderkholodov1/little-galaxy",
-      "tag": "v0.6.0",
-      "artifact": "galaxy-dist-v0.6.0.tar.gz"
+      "tag": "latest"
     }
   }
 }

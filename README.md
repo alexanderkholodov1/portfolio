@@ -15,7 +15,7 @@ Local offline rehearsal, with a release-shaped directory containing
 `galaxy-dist-v0.1.0.tar.gz`, `version.json` and `SHA256SUMS`:
 
 ```sh
-GAMES_ARTIFACT_DIR=/absolute/path/to/release-files pnpm run check
+GALAXY_TAG=v0.1.0 GAMES_ARTIFACT_DIR=/absolute/path/to/release-files pnpm run check
 ```
 
 Pack the Galaxy branch's built `apps/web/dist` using its release workflow:
@@ -37,7 +37,10 @@ portfolio shell; a full build plus the static test harness is used to exercise
 the assembled Galaxy and its deep routes.
 
 In an authorized network-enabled CI run, `GAME_DOWNLOADS=1 pnpm run check`
-downloads the manifest's pinned GitHub Release. There is no silent network
+resolves and downloads the latest published Galaxy release through the GitHub API (`GITHUB_TOKEN`
+when present). `GALAXY_TAG=vX.Y.Z` selects a release for that build only. The resolved tag is
+printed, served in `/assembly.json` and `/galaxy/version.json`, and recorded in the CI job summary.
+There is no silent network
 fallback if local files are absent. `GAMES_ARTIFACT_DIR` takes precedence, marks
 `dist/assembly.json` as `local-rehearsal`, and fails CI's Hosting input guard.
 The workflow never sets that local override.
@@ -49,7 +52,12 @@ variable of the same name in CI). The portfolio privacy gate does not load
 No other Firebase config or client SDK is needed by the portfolio shell.
 
 The workflow prepares same-repository PR previews and production on pushes to
-`main`. It needs operator-provisioned `FIREBASE_SERVICE_ACCOUNT` for the approved
+`main`, galaxy `repository_dispatch` events (`galaxy-release`), and manual runs on main.
+Galaxy merge → tag → release → dispatch → portfolio deploys that exact release automatically once the
+sender is configured. Actions → Portfolio checks and Hosting → Run workflow → `galaxy_tag`
+rolls back for one deploy; leave it empty to follow latest. PR previews test before production.
+See the [deploy runbook](docs/deploy-and-rollback.md) for sender setup and local release rollback.
+It needs operator-provisioned `FIREBASE_SERVICE_ACCOUNT` for the approved
 Hosting project `alexanderkholodov`. Fork PRs run checks without deploying.
 Neither local checks nor the night phase accept a release or exercise these
 external steps.
@@ -60,7 +68,9 @@ external steps.
 (`../little-galaxy`, or `--galaxy`/`GALAXY_DIR`), assembles it with the same
 checks as `assemble-games`, deploys a preview channel on `alexanderkholodov`,
 smoke checks it and promotes it to live only after you type `promote` (or pass
-`--yes`). `pnpm run rollback` restores the previous live Hosting release. Both
+`--yes`). `pnpm run deploy-local --release` uses latest published Galaxy; `GALAXY_TAG=vX.Y.Z pnpm run deploy-local`
+uses a specific release. `pnpm run rollback --galaxy-tag vX.Y.Z` previews and redeploys a known-good
+release; without a tag it restores the previous live Hosting release. Both
 need `GOOGLE_APPLICATION_CREDENTIALS` (a file outside the repo or in `private/`)
 and both support `--dry-run`, which prints every action and makes no network
 call. Usage, flags and the CI-path rollback are in

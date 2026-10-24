@@ -12,7 +12,7 @@ brief prohibits those actions. The roadmap acceptance remains unmet.
 | Ignore rules and privacy build gate | Existing `.gitignore` was committed before implementation. Both build commands gate output; the full build also checks each incoming game before replacement. Negative tests cover private file copies, escaped private JSON values, key material, symlinks, archive traversal and corruption. |
 | Astro shell | EN `/`, ES `/es/`, Projects, About, Links and Galaxy entry in both languages, plus 404. System theme and explicit persisted preference; storage denial is tolerated. Minimal known content, no invented biography or placeholders. Local Chromium verifies navigation, 360px width, theme and no-JS behavior. |
 | Profile and tokens | `/profile.json` derives navigation and known repository links from `src/data/site.ts`. Unknown role/socials are absent. `/tokens.css` implements the Galaxy handoff tokens, light/dark and licensed self-hosted fonts. Browser integration verifies Galaxy consumes them at the same origin. |
-| Manifest and assembly | `games.json` pins `alexanderkholodov1/little-galaxy` `v0.1.0`. Local release-shaped tarball built from Galaxy's branch output assembles successfully. Real release availability is unverified. Local source is labeled and rejected by the Hosting guard. |
+| Manifest and assembly | `games.json` follows `alexanderkholodov1/little-galaxy` latest published release (operator, 2026-10-23). Local release-shaped tarball built from Galaxy's branch output assembles successfully. Real release availability is unverified. Local source is labeled and rejected by the Hosting guard. |
 | Hosting | `firebase.json` follows the plan's static-file and Galaxy rewrite model; `.firebaserc` uses the already approved project. Local config assertions pass; the harness approximates route precedence, not the actual Hosting service. |
 | Actions | Prepared PR preview/main production workflow with full checks, fork deployment exclusion and upstream-source guard. P2 secret, public-key variable, real release and actual Actions/deployed URL verification remain external dependencies. |
 | War council | §3 and §7 reconciled as an unsigned draft. P4 remains operator-only. |
@@ -63,7 +63,7 @@ brief prohibits those actions. The roadmap acceptance remains unmet.
 |---|---|---|
 | P2 CI Hosting credential | Provide a least-privilege Hosting service account as `FIREBASE_SERVICE_ACCOUNT`, or keep external deployment blocked. | Provision only Hosting access for the approved project in an authorized session; do not commit a key. |
 | Real G v0.1.0 release | Supply G's real public configuration, address the later Galaxy review, then release after review; or keep the milestone blocked. | Complete that sequence in the Galaxy/fixes phases and an authorized delivery session; do not publish rehearsal bytes. |
-| Public web key for portfolio gate | Set portfolio repository variable `VITE_FIREBASE_API_KEY` and the matching local process environment, or leave real-artifact builds blocked. | Use the exact public web key that was built into the pinned release; no admin credentials. |
+| Public web key for portfolio gate | Set portfolio repository variable `VITE_FIREBASE_API_KEY` and the matching local process environment, or leave real-artifact builds blocked. | Use the exact public web key that was built into the resolved release; no admin credentials. |
 | Role, biography, CV, social profiles and other portfolio project content | Supply approved EN/ES content/links; or retain the minimal known-content shell. | Supply via P3 before P v0.2.0; omit unknown public data now. No inferred social URL is published. |
 | DESIGN-DOCTRINE | Supply the document for review, or explicitly approve this provisional visual treatment. | Supply it; do not claim doctrine compliance from unavailable text. |
 | War-council P4 | Sign the updated draft, or amend §3 before signing. | Review and sign personally. No signature was inferred from implementation authorization. |
@@ -103,10 +103,10 @@ and the immutable asset pattern shown above. Extensionless route and mutable
 token caching still need operator review and deployed verification; no broader
 cache rule is approved by this implementation note.
 
-`games.json` schema 1 pins `games.galaxy.repository`, `tag` and `artifact`.
-`scripts/assemble-games.mjs` downloads that exact release only with explicit
-`GAME_DOWNLOADS=1`; `GAMES_ARTIFACT_DIR` supplies local release-shaped files
-without altering the pin or falling back to network. Both paths check SHA256SUMS,
+`games.json` schema 1 selects `games.galaxy.repository` and `tag: "latest"` (no fixed version pin or fixed artifact property; artifact naming `galaxy-dist-<tag>.tar.gz` is derived from the resolved release).
+`scripts/resolve-galaxy-release.mjs` resolves the most recently published release at build time (by publication timestamp, pre-releases included); `GALAXY_TAG`
+overrides it for that build only. Downloads require explicit `GAME_DOWNLOADS=1`;
+`GAMES_ARTIFACT_DIR` supplies local release-shaped files without falling back to network. Both paths check SHA256SUMS,
 archive safety, metadata and privacy. `dist/assembly.json` records the source;
 CI refuses `local-rehearsal` receipts before Hosting. The real artifact's public
 web key must be supplied as portfolio variable `VITE_FIREBASE_API_KEY` so the
