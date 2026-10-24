@@ -63,9 +63,14 @@ test('pages and language links remain usable without JavaScript', async ({ brows
   } finally { await context.close(); }
 });
 
-test('assembled Galaxy uses the real same-origin profile and shared tokens on deep links', async ({ page }) => {
+test('assembled Galaxy keeps the author in a small credits card and uses shared tokens on deep links', async ({ page }) => {
   await page.goto('/galaxy/create?lang=es');
-  await expect(page.getByRole('link', { name: 'Alexander Kholodov', exact: true })).toBeVisible();
+  // Operator, 2026-10-24: no personal data or links in the game except a tiny credits control.
+  await expect(page.getByRole('link', { name: 'Alexander Kholodov', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Créditos' }).click();
+  const credits = page.getByRole('dialog', { name: 'Créditos' });
+  await expect(credits).toContainText('Alexander Kholodov · USFQ');
+  await expect(credits.getByRole('link', { name: 'Portafolio' })).toHaveAttribute('href', '/es/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   await expect(page.locator('link[href="/tokens.css"]')).toHaveCount(1);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--pf-paper').trim())).toBeTruthy();
