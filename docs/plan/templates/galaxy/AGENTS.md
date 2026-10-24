@@ -15,7 +15,7 @@
    delivers — no process narration, no "as requested", no apologies.
 4. **English** in code, comments, docs, commits. English is the primary UI language; Spanish secondary.
 5. **This repo never deploys to production Hosting.** Only preview channels; production goes through
-   the portfolio repo's `games.json` pin (a Hosting deploy replaces the whole site).
+   the portfolio repo's latest-release assembly and release dispatch (a Hosting deploy replaces the whole site).
 6. **Secrets:** the data project's admin key is server-side only (`apps/stand`), used by path via
    `GOOGLE_APPLICATION_CREDENTIALS`; never printed, committed or bundled. A privacy test gates the
    build. The web Firebase config is public by design.

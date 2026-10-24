@@ -2,6 +2,15 @@ name: Portfolio checks and Hosting
 
 on:
   pull_request:
+  repository_dispatch:
+    types: [galaxy-released]
+  workflow_dispatch:
+    inputs:
+      galaxy_tag:
+        description: 'Galaxy release tag for this deploy only (empty = latest)'
+        required: false
+        default: ''
+        type: string
   push:
     branches: [main]
 
@@ -9,7 +18,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: portfolio-${{ github.event.pull_request.number || github.ref }}
+  # All production triggers share one queue; a newer pending run replaces the older one.
+  # Do not interrupt an in-flight Hosting write. PRs have independent, cancellable queues.
+  group: portfolio-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || (github.ref == 'refs/heads/main' && 'production' || format('branch-{0}', github.ref)) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -23,8 +34,11 @@ jobs:
     env:
       ASTRO_TELEMETRY_DISABLED: '1'
       GAME_DOWNLOADS: '1'
+      GITHUB_TOKEN: ${{ github.token }}
+      # Dispatch tags are informational: even delayed release events follow latest.
+      GALAXY_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.galaxy_tag || '' }}
       # Public web config only: the privacy gate permits this exact key in the
-      # pinned game bundle. This is not a Hosting credential.
+      # resolved game bundle. This is not a Hosting credential.
       VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -52,8 +66,8 @@ jobs:
           projectId: alexanderkholodov
           channelId: pr-${{ github.event.pull_request.number }}
           expires: 7d
-      - name: Deploy main to production
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Deploy production
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch')
         uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a # v0.11.0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

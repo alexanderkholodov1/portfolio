@@ -3,6 +3,12 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-10-24 — Applied the operator's 2026-10-23 no-pin decisions: latest published galaxy at build time, release-triggered portfolio deploys, PR previews, per-deploy tag rollback, resolved release receipts and job summaries, serialized production deploys and fail-closed release resolution. Updated `02`, `05`, `06`, the galaxy contract template and `08`; no milestone acceptance or live verification claimed — decided by operator.
+
+Operator decision (2026-10-23): "NO, NO FIJEMOS NADA, DEBEMOS PODER PROBARLO Y ACTUALIZAR SIN QUE HAYA NINGUN PROBLEMA, HASTA LA FERIA Y DURANTE LA FERIA TAMBIEN!"
+
+Operator decision (2026-10-23): "Apruebo tu plan de eliminacion de la version y que se haga todo desarrollo futuro flexible y con rollback tambien"
+
 - 2026-10-23 — Recorded galaxy schema 2/legacy defaults, moon hosts and unclaimed ownership, bounded EN/ES name keys, edit budget/write cost, signed/public read boundaries and G v0.4.0 sound contract in `03`; recorded D6 in `08`; updated G v0.1.0–v0.4.0 status rows in `06` without acceptance — align the plan with implemented contracts — implementation facts decided by agent; D6 visibility decided by captain on 2026-10-22, implementing the operator’s D6.
 
 - 2026-10-22 — Marked P v0.3.0 "built; local tests only, live verification with G v0.7.0 pending" in the roadmap status table; documented `deploy-local` and `rollback` in `docs/deploy-and-rollback.md`; in `05` item 8 replaced "verify exact command" with the verified mechanism (REST release of the previous version, no CLI command); recorded the verified clone/channel/release facts in `09-sources.md`, flagging that docs were not fetched and the release-list response shape is unverified — implementation-level, decided by agent.

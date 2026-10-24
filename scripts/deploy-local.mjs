@@ -29,10 +29,14 @@ export async function deployLocal(argv, deps = {}) {
   const assemble = deps.assemble ?? assembleGames;
   const smoke = deps.smoke ?? browserSmoke;
   const flags = parseArgs(argv, {
-    booleans: ['yes', 'yes-preview', 'dry-run', 'no-smoke', 'skip-galaxy-build'],
-    strings: ['galaxy', 'galaxy-dist', 'artifact-dir', 'channel', 'expires'],
+    booleans: ['yes', 'yes-preview', 'dry-run', 'no-smoke', 'skip-galaxy-build', 'release'],
+    strings: ['galaxy', 'galaxy-dist', 'artifact-dir', 'channel', 'expires', 'galaxy-tag'],
   });
   const artifactDirectory = flags['artifact-dir'] ?? env.GAMES_ARTIFACT_DIR;
+  const galaxyTag = flags['galaxy-tag'] ?? env.GALAXY_TAG ?? '';
+  const releaseMode = flags.release || Boolean(flags['galaxy-tag']) || (Boolean(galaxyTag) && !artifactDirectory);
+  if (galaxyTag && !/^v\d+\.\d+\.\d+$/.test(galaxyTag)) throw new Error('--galaxy-tag / GALAXY_TAG must be a release tag like v1.2.3');
+  if (releaseMode && (artifactDirectory || flags.galaxy || flags['galaxy-dist'] || flags['skip-galaxy-build'])) throw new Error('Release mode cannot be combined with local galaxy inputs');
   const galaxyDir = path.resolve(root, flags.galaxy ?? env.GALAXY_DIR ?? '../little-galaxy');
   const galaxyDist = path.resolve(galaxyDir, flags['galaxy-dist'] ?? 'apps/web/dist');
   // Seconds plus random bits: two runs never share a default channel.
@@ -43,15 +47,17 @@ export async function deployLocal(argv, deps = {}) {
   if (flags['no-smoke'] && flags.yes) throw new Error('--no-smoke is for preview-only diagnostics and cannot be combined with --yes: promotion always needs the smoke test');
   const deploy = ['hosting:channel:deploy', channel, '--expires', expires, '--json'];
   const cloneFor = (version) => ['hosting:clone', `${SITE}@${version}`, `${SITE}:live`];
-  const galaxyStep = artifactDirectory
-    ? `take the pinned release artifact from ${path.resolve(artifactDirectory)}`
+  const galaxyStep = releaseMode
+    ? `download published galaxy release ${galaxyTag || 'latest'} with checksums and metadata validation`
+    : artifactDirectory
+    ? `take the selected release artifact from ${path.resolve(artifactDirectory)}`
     : `${flags['skip-galaxy-build'] ? 'use the existing' : 'build'} galaxy in ${galaxyDir} (pnpm run build), assemble ${galaxyDist} as a local build`;
 
   if (flags['dry-run']) {
     const steps = [
       'pnpm run build:site (Astro build + privacy gate)',
       galaxyStep,
-      'assemble into dist/galaxy with the release checks and privacy gate; dist/assembly.json source = ' + (artifactDirectory ? 'local-rehearsal' : 'local-build'),
+      'assemble into dist/galaxy with the release checks and privacy gate; dist/assembly.json source = ' + (releaseMode ? 'github-release' : artifactDirectory ? 'local-rehearsal' : 'local-build'),
       'privacy gate over the whole dist/',
       `require GOOGLE_APPLICATION_CREDENTIALS outside the repository or in private/`,
       flags['no-smoke'] ? 'no headless browser (--no-smoke: preview only, promotion is impossible)' : 'start headless Chromium before anything is uploaded',
@@ -74,8 +80,11 @@ export async function deployLocal(argv, deps = {}) {
   checkCredentials(env, root, deps.exists);
   log(`Building the portfolio`);
   await exec('pnpm', ['run', 'build:site'], { cwd: root, env });
-  const options = { root };
-  if (artifactDirectory) options.artifactDirectory = artifactDirectory;
+  const options = { root, galaxyTag, token: env.GITHUB_TOKEN };
+  if (releaseMode) {
+    options.artifactDirectory = '';
+    options.allowDownload = true;
+  } else if (artifactDirectory) options.artifactDirectory = artifactDirectory;
   else {
     if (!flags['skip-galaxy-build']) {
       log(`Building galaxy in ${galaxyDir}`);

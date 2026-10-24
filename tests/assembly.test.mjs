@@ -6,7 +6,7 @@ import path from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { Header } from 'tar';
 import { test } from 'node:test';
-import { assembleGames, validateArchive, validateManifest } from '../scripts/assemble-games.mjs';
+import { assembleGames, resolveGameRelease, validateArchive, validateManifest } from '../scripts/assemble-games.mjs';
 
 const pin = { repository: 'alexanderkholodov1/little-galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
 const manifest = { schemaVersion: 1, games: { galaxy: pin } };
@@ -38,7 +38,7 @@ async function fixture(t, entries = valid(), metadata = version) {
   await writeFile(path.join(artifactDirectory, 'version.json'), metadata);
   const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
   await writeFile(path.join(artifactDirectory, 'SHA256SUMS'), `${hash(archive)}  ${pin.artifact}\n${hash(metadata)}  version.json\n`);
-  return { root, artifactDirectory, allowDownload: false };
+  return { root, artifactDirectory, allowDownload: false, galaxyTag: '', summaryFile: '' };
 }
 
 test('assembles a release-shaped local tarball, preserves portfolio and records its source', async (t) => {
@@ -94,23 +94,73 @@ test('rejects missing entrypoint, wrong base and private payload before replacem
   assert.equal(await readFile(path.join(secret.root, 'dist/galaxy/previous.txt'), 'utf8'), 'previous known build');
 });
 
-test('rejects unpinned versions and unsafe mount paths', () => {
-  for (const games of [{ galaxy: { ...pin, tag: 'latest' } }, { '../galaxy': pin }, { assets: pin }]) {
+test('rejects invalid selections and unsafe mount paths', () => {
+  for (const games of [{ galaxy: { ...pin, tag: 'main' } }, { '../galaxy': pin }, { assets: pin }]) {
     assert.throws(() => validateManifest({ schemaVersion: 1, games }), /Invalid/);
   }
 });
 
-test('authorized download uses only the configured pinned release URLs (mock transport)', async (t) => {
+test('authorized download uses only the selected published release URLs (mock transport)', async (t) => {
   const options = await fixture(t);
   const requested = [];
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (url) => {
     requested.push(url);
+    if (url.includes('api.github.com')) return Response.json({ tag_name: pin.tag });
     const bytes = await readFile(path.join(options.artifactDirectory, url.split('/').at(-1)));
     return new Response(bytes);
   };
   t.after(() => { globalThis.fetch = originalFetch; });
   const result = await assembleGames({ ...options, artifactDirectory: '', allowDownload: true });
-  assert.deepEqual(requested, [pin.artifact, 'SHA256SUMS', 'version.json'].map((file) => `https://github.com/${pin.repository}/releases/download/${pin.tag}/${file}`));
+  assert.deepEqual(requested, [`https://api.github.com/repos/${pin.repository}/releases/tags/${pin.tag}`, ...[pin.artifact, 'SHA256SUMS', 'version.json'].map((file) => `https://github.com/${pin.repository}/releases/download/${pin.tag}/${file}`)]);
   assert.equal(result.games.galaxy.source, 'github-release');
+});
+
+const latest = { repository: pin.repository, tag: 'latest' };
+
+test('latest resolves through GitHub with optional authentication; override selects a specific published release', async () => {
+  validateManifest({ schemaVersion: 1, games: { galaxy: latest } });
+  for (const [galaxyTag, endpoint, token] of [['', 'latest', 'test-token'], ['v0.1.0', 'tags/v0.1.0', '']]) {
+    const resolved = await resolveGameRelease('galaxy', latest, { galaxyTag, token, fetchRelease: async (url, options) => {
+      assert.equal(url, `https://api.github.com/repos/${pin.repository}/releases/${endpoint}`);
+      assert.equal(options.headers.Authorization, token ? `Bearer ${token}` : undefined);
+      return Response.json({ tag_name: pin.tag });
+    } });
+    assert.deepEqual(resolved, pin);
+  }
+});
+
+test('missing latest or override, API outage, draft and invalid tags fail without fallback', async () => {
+  for (const galaxyTag of ['', 'v9.9.9']) {
+    let requests = 0;
+    await assert.rejects(resolveGameRelease('galaxy', latest, { galaxyTag, fetchRelease: async () => { requests++; return new Response('', { status: 404 }); } }), /Cannot resolve.*HTTP 404.*no fallback/);
+    assert.equal(requests, 1);
+  }
+  await assert.rejects(resolveGameRelease('galaxy', latest, { galaxyTag: 'main' }), /GALAXY_TAG/);
+  await assert.rejects(resolveGameRelease('galaxy', latest, { galaxyTag: '', fetchRelease: async () => { throw new Error('offline'); } }), /Cannot resolve.*offline/);
+  for (const release of [{ tag_name: 'main' }, { tag_name: pin.tag, draft: true }, { tag_name: pin.tag, prerelease: true }]) {
+    await assert.rejects(resolveGameRelease('galaxy', latest, { galaxyTag: '', fetchRelease: async () => Response.json(release) }), /Invalid/);
+  }
+});
+
+test('latest assembly records the resolved tag in output and summary; a missing latest never reuses it', async (t) => {
+  const options = await fixture(t);
+  await writeFile(path.join(options.root, 'games.json'), JSON.stringify({ schemaVersion: 1, games: { galaxy: latest } }));
+  const originalFetch = globalThis.fetch;
+  let missing = false;
+  globalThis.fetch = async (url) => {
+    if (url.includes('api.github.com')) return missing ? new Response('', { status: 404 }) : Response.json({ tag_name: pin.tag });
+    return new Response(await readFile(path.join(options.artifactDirectory, url.split('/').at(-1))));
+  };
+  t.after(() => { globalThis.fetch = originalFetch; });
+  const summaryFile = path.join(options.root, 'summary.md');
+  const online = { ...options, artifactDirectory: '', allowDownload: true, summaryFile };
+  const receipt = await assembleGames(online);
+  assert.equal(receipt.games.galaxy.tag, pin.tag);
+  assert.match(await readFile(summaryFile, 'utf8'), /galaxy: v0.1.0 \(github-release\)/);
+  assert.deepEqual(JSON.parse(await readFile(path.join(options.root, 'dist/assembly.json'), 'utf8')), receipt);
+  missing = true;
+  await assert.rejects(assembleGames(online), /Cannot resolve.*404/);
+  // An explicitly supplied offline rehearsal remains offline and cannot pass Hosting's guard.
+  assert.equal((await assembleGames(options)).games.galaxy.source, 'local-rehearsal');
 });

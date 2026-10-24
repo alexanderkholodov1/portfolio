@@ -29,6 +29,25 @@
 | Portfolio content (operator, 2026-10-22) | P3 content will come from the operator's own posts, which he is collecting. Until their location is given, P v0.2.0 content stays as visible TODOs and everything else is built |
 | D6 moons (captain, 2026-10-22, implementing the operator’s D6) | Moons may orbit own or unclaimed planets, never another visitor’s planet. A hangared planet remains visible in its original orbit while hosting an active moon; status stays `hangar`, ownership is unchanged, and it does not count as a creator or active object |
 
+## Release following and rollback (operator, 2026-10-23)
+
+Operator decision (2026-10-23): "NO, NO FIJEMOS NADA, DEBEMOS PODER PROBARLO Y ACTUALIZAR SIN QUE HAYA NINGUN PROBLEMA, HASTA LA FERIA Y DURANTE LA FERIA TAMBIEN!"
+
+Operator decision (2026-10-23): "Apruebo tu plan de eliminacion de la version y que se haga todo desarrollo futuro flexible y con rollback tambien"
+
+`games.json` follows `latest`; no standing galaxy pin, before or during the fair.
+Each build resolves the latest published release through GitHub's API, verifies the release
+archive and metadata, and records its concrete tag in `dist/assembly.json`,
+`dist/galaxy/version.json`, build logs and the GitHub job summary. Missing releases fail the build.
+Galaxy release publication sends `repository_dispatch: galaxy-released` to portfolio with
+`client_payload.tag`. Portfolio redeploys latest on main; delayed events cannot downgrade it.
+Manual `galaxy_tag` / local `GALAXY_TAG` selects a known-good published release for that deploy
+only, with the same integrity checks. Later automatic deploys follow latest again.
+PR previews remain the place to test changes before production. Production deploys share a
+serial queue; the newest pending request replaces older pending requests without interrupting
+an active Hosting write. Local preview/smoke/promotion and previous-Hosting-release rollback
+remain available. See `../deploy-and-rollback.md` for commands and sender setup.
+
 ## Pending — proceed with the default unless the operator overrides
 
 | # | Question | Default |

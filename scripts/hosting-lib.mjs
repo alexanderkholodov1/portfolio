@@ -129,4 +129,4 @@ export async function revalidateRollback(rest, current, target) {
 
 export const versionId = (name) => name.split('/').at(-1);
 
-export const ROLLBACK_HINT = 'CI path: revert the games.json pin (git revert the commit that changed it) and merge; the main workflow redeploys the previous game release.';
+export const ROLLBACK_HINT = 'CI path: run the portfolio workflow on main with galaxy_tag set to a known-good release. This deploy-only override expires on the next latest deploy.';

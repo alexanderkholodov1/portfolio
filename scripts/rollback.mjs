@@ -1,11 +1,15 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { deployLocal } from './deploy-local.mjs';
 import { PROJECT, ROLLBACK_HINT, SITE, checkCredentials, confirm, getCurrentRelease, googleToken, listLiveReleases, parseArgs, pickRollbackTarget, releaseLive, restClient, revalidateRollback, versionId } from './hosting-lib.mjs';
 
 const describe = (release) => `${versionId(release.version.name)} (released ${release.releaseTime ?? 'unknown time'}${release.version.fileCount ? `, ${release.version.fileCount} files` : ''})`;
 
-export async function rollback(argv, { env = process.env, root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), log = console.log, rest, ask, exists } = {}) {
-  const flags = parseArgs(argv, { booleans: ['yes', 'dry-run'] });
+export async function rollback(argv, { env = process.env, root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), log = console.log, rest, ask, exists, deploy = deployLocal } = {}) {
+  const flags = parseArgs(argv, { booleans: ['yes', 'yes-preview', 'dry-run'], strings: ['galaxy-tag'] });
+  if (flags['galaxy-tag']) {
+    return deploy(['--release', '--galaxy-tag', flags['galaxy-tag'], ...['yes', 'yes-preview', 'dry-run'].filter((flag) => flags[flag]).map((flag) => `--${flag}`)], { env, root, log, ask, exists });
+  }
   if (flags['dry-run']) {
     log(`[dry-run] would require GOOGLE_APPLICATION_CREDENTIALS (outside the repository or in private/)`);
     log(`[dry-run] GET ${PROJECT}/${SITE} live channel (current release) and its releases (all pages, ordered by releaseTime)`);

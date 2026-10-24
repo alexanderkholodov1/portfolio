@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 
-const pinnedGalaxy = JSON.parse(readFileSync(new URL('../../games.json', import.meta.url), 'utf8')).games.galaxy.tag.replace(/^v/, '');
+const resolvedGalaxy = JSON.parse(readFileSync(new URL('../../dist/assembly.json', import.meta.url), 'utf8')).games.galaxy.tag.replace(/^v/, '');
 
 test.beforeEach(async ({ context }) => {
   // Enforce the local-only boundary even if the assembled game initializes SDKs.
@@ -70,7 +70,7 @@ test('assembled Galaxy uses the real same-origin profile and shared tokens on de
   await expect(page.locator('link[href="/tokens.css"]')).toHaveCount(1);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--pf-paper').trim())).toBeTruthy();
   const version = await page.request.get('/galaxy/version.json');
-  expect((await version.json()).version).toBe(pinnedGalaxy);
+  expect((await version.json()).version).toBe(resolvedGalaxy);
   const missing = await page.request.get('/a-page-that-does-not-exist');
   // Only rendering is under test here; Hosting rewrite status needs a preview.
   expect(await missing.text()).toContain('<html lang="en"');

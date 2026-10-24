@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { access, cp, lstat, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { access, appendFile, cp, lstat, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { list, extract } from 'tar';
@@ -16,11 +16,46 @@ export function validateManifest(manifest) {
   for (const [game, pin] of Object.entries(manifest.games)) {
     if (!pin || typeof pin !== 'object' || !/^[a-z][a-z0-9-]*$/.test(game) || ['assets', 'fonts', 'es', 'projects', 'about', 'links', 'private'].includes(game) ||
         !/^[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(pin.repository) ||
-        !/^v\d+\.\d+\.\d+$/.test(pin.tag) || pin.artifact !== `${game}-dist-${pin.tag}.tar.gz`) {
-      throw new Error('Invalid game release pin');
+        !(pin.tag === 'latest' || isReleaseTag(pin.tag)) ||
+        (pin.tag === 'latest' ? pin.artifact !== undefined : pin.artifact !== `${game}-dist-${pin.tag}.tar.gz`)) {
+      throw new Error('Invalid game release selection');
     }
   }
   return manifest.games;
+}
+
+export const isReleaseTag = (tag) => typeof tag === 'string' && /^v\d+\.\d+\.\d+$/.test(tag);
+
+// Resolve once per build. An unavailable release is fatal; never reuse an old receipt.
+export async function resolveGameRelease(game, selection, { galaxyTag = process.env.GALAXY_TAG ?? '', token = process.env.GITHUB_TOKEN, fetchRelease = globalThis.fetch, artifactDirectory } = {}) {
+  if (galaxyTag && !isReleaseTag(galaxyTag)) throw new Error('GALAXY_TAG must be a release tag like v1.2.3');
+  const requested = game === 'galaxy' && galaxyTag ? galaxyTag : selection.tag;
+  let tag = requested;
+  if (artifactDirectory) {
+    // Offline rehearsals resolve only their explicitly supplied metadata, never the network.
+    if (requested === 'latest') {
+      const metadata = JSON.parse((await localFile(path.resolve(artifactDirectory), 'version.json', 16 * 1024)).toString('utf8'));
+      tag = `v${metadata.version}`;
+    }
+  } else {
+    const endpoint = requested === 'latest' ? 'latest' : `tags/${requested}`;
+    const url = `https://api.github.com/repos/${selection.repository}/releases/${endpoint}`;
+    let response;
+    try {
+      response = await fetchRelease(url, { signal: AbortSignal.timeout(60_000), headers: {
+        Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      } });
+    } catch (error) { throw new Error(`Cannot resolve ${game} release ${requested}: ${error.message}`, { cause: error }); }
+    if (!response.ok) throw new Error(`Cannot resolve ${game} release ${requested}: HTTP ${response.status}; no fallback release will be used`);
+    const release = await response.json();
+    tag = release.tag_name;
+    if (release.draft || (requested === 'latest' && release.prerelease) || (requested !== 'latest' && tag !== requested)) {
+      throw new Error(`Invalid published ${game} release for ${requested}`);
+    }
+  }
+  if (!isReleaseTag(tag)) throw new Error(`Invalid resolved ${game} release tag: ${tag}`);
+  return { repository: selection.repository, tag, artifact: `${game}-dist-${tag}.tar.gz` };
 }
 
 export function verifyChecksum(bytes, sums, filename) {
@@ -95,16 +130,17 @@ async function takeLocalBuild(source, output, { root, allowedPublicKeys }) {
   return JSON.parse(await readFile(path.join(output, 'version.json'), 'utf8'));
 }
 
-export async function assembleGames({ root = process.cwd(), artifactDirectory = process.env.GAMES_ARTIFACT_DIR, allowDownload = process.env.GAME_DOWNLOADS === '1', allowedPublicKeys = [process.env.VITE_FIREBASE_API_KEY].filter(Boolean), localBuilds = {} } = {}) {
+export async function assembleGames({ root = process.cwd(), artifactDirectory = process.env.GAMES_ARTIFACT_DIR, allowDownload = process.env.GAME_DOWNLOADS === '1', allowedPublicKeys = [process.env.VITE_FIREBASE_API_KEY].filter(Boolean), localBuilds = {}, galaxyTag = process.env.GALAXY_TAG ?? '', token = process.env.GITHUB_TOKEN, summaryFile } = {}) {
   const manifest = JSON.parse(await readFile(path.join(root, 'games.json'), 'utf8'));
   const games = validateManifest(manifest);
   // Network use is explicit. Missing local inputs never fall back to downloads.
-  for (const game of Object.keys(localBuilds)) if (!games[game]) throw new Error(`Local build given for unpinned game: ${game}`);
+  for (const game of Object.keys(localBuilds)) if (!games[game]) throw new Error(`Local build given for unconfigured game: ${game}`);
   if (!artifactDirectory && !allowDownload && Object.keys(games).some((game) => !localBuilds[game])) throw new Error('Game assembly needs GAMES_ARTIFACT_DIR for local archives or GAME_DOWNLOADS=1 for authorized release downloads');
   const dist = path.join(root, 'dist');
   await access(path.join(dist, 'index.html'));
   const receipt = { schemaVersion: 1, games: {} };
-  for (const [game, pin] of Object.entries(games)) {
+  for (const [game, selection] of Object.entries(games)) {
+    const pin = localBuilds[game] ? selection : await resolveGameRelease(game, selection, { galaxyTag, token, artifactDirectory });
     const scratch = await mkdtemp(path.join(dist, '.assembly-'));
     try {
       const output = path.join(scratch, 'output');
@@ -135,7 +171,7 @@ export async function assembleGames({ root = process.cwd(), artifactDirectory = 
         if (!metadata.equals(packedMetadata)) throw new Error('Archive and release version.json differ');
         version = JSON.parse(metadata.toString('utf8'));
         if (version.version !== pin.tag.slice(1) || !/^[a-f0-9]{40}$/.test(version.commit) || !Number.isFinite(Date.parse(version.builtAt))) {
-          throw new Error('Release metadata does not match the pinned version');
+          throw new Error('Release metadata does not match the resolved version');
         }
       }
       const html = await readFile(path.join(output, 'index.html'), 'utf8');
@@ -150,12 +186,15 @@ export async function assembleGames({ root = process.cwd(), artifactDirectory = 
     } finally { await rm(scratch, { recursive: true, force: true }); }
   }
   await writeFile(path.join(dist, 'assembly.json'), `${JSON.stringify(receipt, null, 2)}\n`);
+  if (summaryFile) {
+    await appendFile(summaryFile, `### Assembled game releases\n\n${Object.entries(receipt.games).map(([game, entry]) => `- ${game}: ${entry.tag} (${entry.source}), commit ${entry.commit}`).join('\n')}\n`);
+  }
   return receipt;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    const receipt = await assembleGames();
+    const receipt = await assembleGames({ summaryFile: process.env.GITHUB_STEP_SUMMARY });
     for (const [game, entry] of Object.entries(receipt.games)) console.log(`Assembled ${game} ${entry.tag} (${entry.source})`);
   } catch (error) { console.error(`Game assembly failed: ${error.message}`); process.exitCode = 1; }
 }

@@ -226,7 +226,7 @@ test('false or malformed confirmation arguments cannot reach any Hosting write',
   }
 });
 
-test('pinned artifact mode skips the galaxy build', async (t) => {
+test('selected artifact mode skips the galaxy build', async (t) => {
   const ctx = await workspace(t);
   const { calls, deps } = harness(t, ctx);
   deps.assemble = async (options) => {
@@ -277,5 +277,22 @@ test('local build passes the release checks: private material, wrong base, links
   await rm(path.join(ctx.build, 'version.json'));
   await assert.rejects(run(), /missing index.html or version.json/);
   assert.equal(await readFile(path.join(ctx.root, 'dist/galaxy/previous.txt'), 'utf8'), 'previous');
-  await assert.rejects(assembleGames({ root: ctx.root, artifactDirectory: '', localBuilds: { other: ctx.build } }), /unpinned/);
+  await assert.rejects(assembleGames({ root: ctx.root, artifactDirectory: '', localBuilds: { other: ctx.build } }), /unconfigured/);
+});
+
+test('release mode passes the deploy-only override to assembly and skips local galaxy builds', async (t) => {
+  const ctx = await workspace(t);
+  const { calls, deps } = harness(t, ctx);
+  deps.assemble = async (options) => {
+    assert.equal(options.galaxyTag, 'v0.7.0');
+    assert.equal(options.allowDownload, true);
+    assert.equal(options.artifactDirectory, '');
+    await mkdir(path.join(ctx.root, 'dist/galaxy'), { recursive: true });
+    await writeFile(path.join(ctx.root, 'dist/galaxy/version.json'), version);
+    return { games: { galaxy: { tag: 'v0.7.0', source: 'github-release', commit } } };
+  };
+  await deployLocal(['--galaxy-tag', 'v0.7.0', '--yes-preview', '--yes'], deps);
+  assert.deepEqual(calls.exec.map((call) => call.slice(0, 3).join(' ')), ['pnpm run build:site']);
+  assert.equal(calls.smoke.length, 2);
+  assert.equal(calls.browserClosed, 1);
 });

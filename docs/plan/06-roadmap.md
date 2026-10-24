@@ -26,7 +26,7 @@ so it remains a should milestone. No scope or acceptance criteria change unless 
 | P v0.3.0 | Required for the fair (never cut) | Deploy and rollback scripts needed to verify live safety and support G v0.8.0. |
 | G v0.8.0 | Deferred to CASPIAN (operator, 2026-10-22) | Not built for Be A Dragon; the assistant may become part of CASPIAN some day. |
 | G v1.0.0 | Required for the fair (never cut) | Integrated fair verification after retained galaxy milestones. |
-| P v1.0.0 | Required for the fair (never cut) | Pin the verified galaxy release and verify production and rehearsal. |
+| P v1.0.0 | Required for the fair (never cut) | Follow latest galaxy releases with previews and per-deploy rollback; verify production and rehearsal. |
 | G v1.1.0 | After the fair | Close and freeze the season. |
 | P v1.1.0 | After the fair | Serve the frozen season statically. |
 
@@ -68,7 +68,7 @@ Blockers: P1 (push access), P2 (`FIREBASE_SERVICE_ACCOUNT` secret).
   with placeholder-free skeleton pages (Home, Projects, About, Links, Galaxy entry).
 - `/profile.json` and `/tokens.css` published (initial values from the operator's known public
   links; anything unknown → TODO in PR, not invented).
-- `games.json` + `scripts/assemble-games` (download pinned GitHub Release artifact → `dist/galaxy/`).
+- `games.json` + `scripts/assemble-games` (resolve latest published GitHub Release and download its verified artifact → `dist/galaxy/`).
 - `firebase.json` per `02-architecture.md`; `.firebaserc` → `alexanderkholodov`.
 - GitHub Actions: PR → preview channel; merge to `main` → production.
 - `WAR-COUNCIL.md` §3/§7 updated to reflect the agreed plan (operator signs).
@@ -164,7 +164,8 @@ Blockers: A1 (strictly free brain decision D2; paid API keys are not allowed), A
 ## G v1.0.0 · P v1.0.0 — Fair-ready
 - Load test (100 simulated phones) + quota report; failure-mode drills from `05`.
 - `docs/RUNBOOK.md` (galaxy repo) per `05`; backup video recorded.
-- Pin `games.json` to `galaxy v1.0.0`; production verified on real devices.
+- Keep `games.json` on `latest`; each galaxy release redeploys portfolio, with a manual per-deploy
+  tag override for rollback and PR previews before production. Production verified on real devices.
 - Operator: rehearsal on campus Wi-Fi with real phones.
 - **Accept:** runbook dry-run passes end to end on the booth hardware.
 
