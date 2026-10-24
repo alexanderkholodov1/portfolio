@@ -52,4 +52,16 @@ The workflow prepares same-repository PR previews and production on pushes to
 `main`. It needs operator-provisioned `FIREBASE_SERVICE_ACCOUNT` for the approved
 Hosting project `alexanderkholodov`. Fork PRs run checks without deploying.
 Neither local checks nor the night phase accept a release or exercise these
-external steps. There are no local deploy/rollback scripts in this milestone.
+external steps.
+
+## Local deploy and rollback
+
+`pnpm run deploy-local` builds the site and the local galaxy checkout
+(`../little-galaxy`, or `--galaxy`/`GALAXY_DIR`), assembles it with the same
+checks as `assemble-games`, deploys a preview channel on `alexanderkholodov`,
+smoke checks it and promotes it to live only after you type `promote` (or pass
+`--yes`). `pnpm run rollback` restores the previous live Hosting release. Both
+need `GOOGLE_APPLICATION_CREDENTIALS` (a file outside the repo or in `private/`)
+and both support `--dry-run`, which prints every action and makes no network
+call. Usage, flags and the CI-path rollback are in
+[docs/deploy-and-rollback.md](docs/deploy-and-rollback.md).

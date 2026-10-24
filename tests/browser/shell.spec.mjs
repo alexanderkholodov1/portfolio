@@ -105,6 +105,25 @@ test('/links ships only the tiny inline preference initializer, has 44px targets
   }
 });
 
+test('navigation and preference controls are at least 44 by 44 px at 375px in English and Spanish, with no horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  for (const prefix of ['', '/es']) {
+    for (const route of ['/', '/projects/', '/about/', '/links/']) {
+      await page.goto(`${prefix}${route}`);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${prefix}${route} overflows`).toBe(true);
+      const boxes = await page.locator('.masthead a, .masthead button, nav a, footer a').evaluateAll((items) => items.map((item) => {
+        const { width, height } = item.getBoundingClientRect();
+        return { name: (item.getAttribute('aria-label') || item.textContent).trim().slice(0, 24), width: Math.round(width * 10) / 10, height: Math.round(height * 10) / 10 };
+      }));
+      expect(boxes.length, `${prefix}${route}`).toBeGreaterThanOrEqual(7);
+      for (const box of boxes) {
+        expect(box.width, `${prefix}${route} ${box.name} width`).toBeGreaterThanOrEqual(44);
+        expect(box.height, `${prefix}${route} ${box.name} height`).toBeGreaterThanOrEqual(44);
+      }
+    }
+  }
+});
+
 test('visitors never see placeholders, pending markers or the private repository', async ({ page }) => {
   for (const prefix of ['', '/es']) {
     for (const route of ['/', '/projects/', '/about/', '/links/', '/projects/galaxy/']) {

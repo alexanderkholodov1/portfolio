@@ -39,16 +39,16 @@ tasks in `07` do not mean a version has met its acceptance criteria. P2 remains 
 
 | Version | Status |
 |---|---|
-| G v0.1.0 | not started |
+| G v0.1.0 | built and reviewed; PR open, awaiting operator merge and device acceptance |
 | P v0.1.0 | local foundations implemented; acceptance blocked |
-| G v0.2.0 | not started |
-| G v0.3.0 | not started |
-| G v0.4.0 | not started |
+| G v0.2.0 | built and reviewed; PR open, awaiting operator merge and device acceptance |
+| G v0.3.0 | built and reviewed; PR open, awaiting operator merge and device acceptance |
+| G v0.4.0 | built; review in progress |
 | G v0.5.0 | not started |
 | G v0.6.0 | not started |
 | P v0.2.0 | built; content pending P3 |
 | G v0.7.0 | not started |
-| P v0.3.0 | not started |
+| P v0.3.0 | built; local tests only, live verification with G v0.7.0 pending |
 | G v0.8.0 | deferred to CASPIAN (operator, 2026-10-22); not built |
 | G v1.0.0 | not started |
 | P v1.0.0 | not started |
