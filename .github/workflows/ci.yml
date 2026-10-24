@@ -3,7 +3,7 @@ name: Portfolio checks and Hosting
 on:
   pull_request:
   repository_dispatch:
-    types: [galaxy-released]
+    types: [galaxy-release, galaxy-released]
   workflow_dispatch:
     inputs:
       galaxy_tag:
@@ -35,8 +35,9 @@ jobs:
       ASTRO_TELEMETRY_DISABLED: '1'
       GAME_DOWNLOADS: '1'
       GITHUB_TOKEN: ${{ github.token }}
-      # Dispatch tags are informational: even delayed release events follow latest.
-      GALAXY_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.galaxy_tag || '' }}
+      # Release dispatch builds the exact published tag; manual rollback passes galaxy_tag.
+      # Pushes to main and PRs leave GALAXY_TAG empty to resolve latest published release.
+      GALAXY_TAG: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.tag || (github.event_name == 'workflow_dispatch' && inputs.galaxy_tag || '') }}
       # Public web config only: the privacy gate permits this exact key in the
       # resolved game bundle. This is not a Hosting credential.
       VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
