@@ -31,12 +31,13 @@ Contents: write, stored as `PORTFOLIO_DISPATCH_TOKEN` in galaxy. The galaxy repo
 
 Portfolio builds PRs with latest Galaxy and deploys same-repository PR previews. Open the preview
 and verify changes before merging; fork PRs run checks without uploading. Production runs serialize
-without dropping pending releases: repository dispatches use tag-scoped queues so multiple arriving
-releases (e.g. active-plus-two-pending) are each checked and tested. A release freshness check
-before production deployment enforces that newest published wins: if a newer release has been
-published, an older or delayed automatic dispatch skips deployment to prevent regressing production
-(reverse arrival). Manual rollback via `workflow_dispatch` remains an explicit operator override.
-Active Hosting writes finish rather than being interrupted.
+under one shared concurrency group (`production-deploy`) with cancel-in-progress false to prevent
+overlapping live writes. A release freshness check immediately before production deployment enforces
+that newest published wins: every automatic production run (main pushes and release dispatches)
+re-resolves the latest published galaxy release; if a newer release has been published, an older or
+delayed automatic build skips deployment to prevent regressing production (reverse arrival or stale main
+overwrites). Manual rollback via `workflow_dispatch` remains an explicit operator override. PR previews
+keep independent, cancellable per-PR queues. Active Hosting writes finish rather than being interrupted.
 
 Each build resolves one concrete published tag via GitHub's API (authenticated with `GITHUB_TOKEN`
 when present), downloads `galaxy-dist-<tag>.tar.gz`, `SHA256SUMS` and `version.json`, and verifies

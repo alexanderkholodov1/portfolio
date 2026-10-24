@@ -69,11 +69,14 @@ Galaxy release publication sends `repository_dispatch: galaxy-release` to portfo
 Manual `galaxy_tag` / local `GALAXY_TAG` selects a known-good published release for that deploy
 only, with the same integrity checks. Later automatic deploys follow latest again.
 PR previews remain the place to test changes before production. Production deploys serialize
-without dropping pending releases: release dispatches use tag-scoped queues so each release is
-checked, with a final freshness check before deploy (newest published wins) to prevent stale
-automatic overwrites or reverse-arrival regressions. Manual rollback via workflow_dispatch remains
-an explicit operator override. Local preview/smoke/promotion and previous-Hosting-release rollback
-remain available. See `../deploy-and-rollback.md` for commands and sender setup.
+under one shared concurrency group (`production-deploy`) with cancel-in-progress false to prevent
+overlapping live writes. Immediately before the deploy step, every automatic production run (main
+pushes and release dispatches) re-resolves the newest published galaxy release and refuses to deploy
+if an older release is about to be deployed (newest published wins, preventing stale automatic
+overwrites or reverse-arrival regressions). Manual rollback via workflow_dispatch remains an
+explicit operator override. PR previews keep independent, cancellable per-PR queues. Local preview,
+smoke, promotion and previous-Hosting-release rollback remain available. See `../deploy-and-rollback.md`
+for commands and sender setup.
 
 ## Pending — proceed with the default unless the operator overrides
 
