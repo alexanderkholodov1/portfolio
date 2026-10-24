@@ -28,3 +28,20 @@ test('Hosting guard accepts resolved latest and rollback receipts, rejects non-r
     if (expected) assert.match(result.stderr, /Hosting requires/);
   }
 });
+
+test('Hosting guard accepts pre-release tags like v1.0.0-alpha.1 and rejects invalid tags', async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'portfolio-release-guard-alpha-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(path.join(root, 'dist/galaxy'), { recursive: true });
+  const entry = { repository: 'alexanderkholodov1/little-galaxy', tag: 'v1.0.0-alpha.1', artifact: 'galaxy-dist-v1.0.0-alpha.1.tar.gz', commit: 'a'.repeat(40), sha256: 'b'.repeat(64), source: 'github-release' };
+  await writeFile(path.join(root, 'dist/galaxy/version.json'), JSON.stringify({ version: '1.0.0-alpha.1', commit: entry.commit }));
+  await writeFile(path.join(root, 'games.json'), JSON.stringify({ schemaVersion: 1, games: { galaxy: { repository: entry.repository, tag: 'latest' } } }));
+  await writeFile(path.join(root, 'dist/assembly.json'), JSON.stringify({ games: { galaxy: entry } }));
+  const script = fileURLToPath(new URL('../scripts/verify-release-source.mjs', import.meta.url));
+
+  const validResult = spawnSync(process.execPath, [script], { cwd: root, encoding: 'utf8', env: { ...process.env, GALAXY_TAG: 'v1.0.0-alpha.1' } });
+  assert.equal(validResult.status, 0, validResult.stderr);
+
+  const invalidTag = spawnSync(process.execPath, [script], { cwd: root, encoding: 'utf8', env: { ...process.env, GALAXY_TAG: 'main' } });
+  assert.equal(invalidTag.status, 1);
+});

@@ -4,7 +4,7 @@ import { isReleaseTag, validateManifest } from './assemble-games.mjs';
 const selections = validateManifest(JSON.parse(await readFile('games.json', 'utf8')));
 const receipt = JSON.parse(await readFile('dist/assembly.json', 'utf8'));
 const override = process.env.GALAXY_TAG ?? '';
-if (override && !isReleaseTag(override)) throw new Error('GALAXY_TAG must be a release tag like v1.2.3');
+if (override && !isReleaseTag(override)) throw new Error('GALAXY_TAG must be a release tag like v1.2.3 or v1.0.0-alpha.1');
 for (const [game, selection] of Object.entries(selections)) {
   const assembled = receipt.games?.[game];
   const requested = game === 'galaxy' && override ? override : selection.tag;

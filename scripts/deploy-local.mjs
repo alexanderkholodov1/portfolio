@@ -3,7 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { assembleGames } from './assemble-games.mjs';
+import { assembleGames, isReleaseTag } from './assemble-games.mjs';
 import { LIVE_ORIGIN, PROJECT, ROLLBACK_HINT, SITE, checkCredentials, confirm, firebaseRunner, getCurrentRelease, googleToken, parseArgs, restClient, versionId } from './hosting-lib.mjs';
 import { checkPrivacy } from './privacy-check.mjs';
 import { browserSmoke, launchChromium } from './smoke-browser.mjs';
@@ -35,7 +35,7 @@ export async function deployLocal(argv, deps = {}) {
   const artifactDirectory = flags['artifact-dir'] ?? env.GAMES_ARTIFACT_DIR;
   const galaxyTag = flags['galaxy-tag'] ?? env.GALAXY_TAG ?? '';
   const releaseMode = flags.release || Boolean(flags['galaxy-tag']) || (Boolean(galaxyTag) && !artifactDirectory);
-  if (galaxyTag && !/^v\d+\.\d+\.\d+$/.test(galaxyTag)) throw new Error('--galaxy-tag / GALAXY_TAG must be a release tag like v1.2.3');
+  if (galaxyTag && !isReleaseTag(galaxyTag)) throw new Error('--galaxy-tag / GALAXY_TAG must be a release tag like v1.2.3 or v1.0.0-alpha.1');
   if (releaseMode && (artifactDirectory || flags.galaxy || flags['galaxy-dist'] || flags['skip-galaxy-build'])) throw new Error('Release mode cannot be combined with local galaxy inputs');
   const galaxyDir = path.resolve(root, flags.galaxy ?? env.GALAXY_DIR ?? '../little-galaxy');
   const galaxyDist = path.resolve(galaxyDir, flags['galaxy-dist'] ?? 'apps/web/dist');

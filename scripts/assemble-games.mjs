@@ -4,6 +4,9 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { list, extract } from 'tar';
 import { checkPrivacy } from './privacy-check.mjs';
+import { isReleaseTag, resolveGameRelease } from './resolve-galaxy-release.mjs';
+
+export { isReleaseTag, resolveGameRelease } from './resolve-galaxy-release.mjs';
 
 const archiveLimit = 32 * 1024 * 1024;
 const unpackedLimit = 128 * 1024 * 1024;
@@ -17,45 +20,11 @@ export function validateManifest(manifest) {
     if (!pin || typeof pin !== 'object' || !/^[a-z][a-z0-9-]*$/.test(game) || ['assets', 'fonts', 'es', 'projects', 'about', 'links', 'private'].includes(game) ||
         !/^[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(pin.repository) ||
         !(pin.tag === 'latest' || isReleaseTag(pin.tag)) ||
-        (pin.tag === 'latest' ? pin.artifact !== undefined : pin.artifact !== `${game}-dist-${pin.tag}.tar.gz`)) {
+        (pin.tag === 'latest' ? (pin.artifact !== undefined && pin.artifact !== `${game}-dist` && pin.artifact !== `${game}-dist-{tag}.tar.gz`) : pin.artifact !== `${game}-dist-${pin.tag}.tar.gz`)) {
       throw new Error('Invalid game release selection');
     }
   }
   return manifest.games;
-}
-
-export const isReleaseTag = (tag) => typeof tag === 'string' && /^v\d+\.\d+\.\d+$/.test(tag);
-
-// Resolve once per build. An unavailable release is fatal; never reuse an old receipt.
-export async function resolveGameRelease(game, selection, { galaxyTag = process.env.GALAXY_TAG ?? '', token = process.env.GITHUB_TOKEN, fetchRelease = globalThis.fetch, artifactDirectory } = {}) {
-  if (galaxyTag && !isReleaseTag(galaxyTag)) throw new Error('GALAXY_TAG must be a release tag like v1.2.3');
-  const requested = game === 'galaxy' && galaxyTag ? galaxyTag : selection.tag;
-  let tag = requested;
-  if (artifactDirectory) {
-    // Offline rehearsals resolve only their explicitly supplied metadata, never the network.
-    if (requested === 'latest') {
-      const metadata = JSON.parse((await localFile(path.resolve(artifactDirectory), 'version.json', 16 * 1024)).toString('utf8'));
-      tag = `v${metadata.version}`;
-    }
-  } else {
-    const endpoint = requested === 'latest' ? 'latest' : `tags/${requested}`;
-    const url = `https://api.github.com/repos/${selection.repository}/releases/${endpoint}`;
-    let response;
-    try {
-      response = await fetchRelease(url, { signal: AbortSignal.timeout(60_000), headers: {
-        Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      } });
-    } catch (error) { throw new Error(`Cannot resolve ${game} release ${requested}: ${error.message}`, { cause: error }); }
-    if (!response.ok) throw new Error(`Cannot resolve ${game} release ${requested}: HTTP ${response.status}; no fallback release will be used`);
-    const release = await response.json();
-    tag = release.tag_name;
-    if (release.draft || (requested === 'latest' && release.prerelease) || (requested !== 'latest' && tag !== requested)) {
-      throw new Error(`Invalid published ${game} release for ${requested}`);
-    }
-  }
-  if (!isReleaseTag(tag)) throw new Error(`Invalid resolved ${game} release tag: ${tag}`);
-  return { repository: selection.repository, tag, artifact: `${game}-dist-${tag}.tar.gz` };
 }
 
 export function verifyChecksum(bytes, sums, filename) {

@@ -120,11 +120,11 @@ const latest = { repository: pin.repository, tag: 'latest' };
 
 test('latest resolves through GitHub with optional authentication; override selects a specific published release', async () => {
   validateManifest({ schemaVersion: 1, games: { galaxy: latest } });
-  for (const [galaxyTag, endpoint, token] of [['', 'latest', 'test-token'], ['v0.1.0', 'tags/v0.1.0', '']]) {
+  for (const [galaxyTag, endpoint, token] of [['', '?per_page=50', 'test-token'], ['v0.1.0', 'tags/v0.1.0', '']]) {
     const resolved = await resolveGameRelease('galaxy', latest, { galaxyTag, token, fetchRelease: async (url, options) => {
-      assert.equal(url, `https://api.github.com/repos/${pin.repository}/releases/${endpoint}`);
+      assert.ok(url.includes(endpoint));
       assert.equal(options.headers.Authorization, token ? `Bearer ${token}` : undefined);
-      return Response.json({ tag_name: pin.tag });
+      return Response.json(galaxyTag ? { tag_name: pin.tag, draft: false } : [{ tag_name: pin.tag, draft: false, published_at: '2026-10-23T00:00:00Z' }]);
     } });
     assert.deepEqual(resolved, pin);
   }
@@ -138,8 +138,8 @@ test('missing latest or override, API outage, draft and invalid tags fail withou
   }
   await assert.rejects(resolveGameRelease('galaxy', latest, { galaxyTag: 'main' }), /GALAXY_TAG/);
   await assert.rejects(resolveGameRelease('galaxy', latest, { galaxyTag: '', fetchRelease: async () => { throw new Error('offline'); } }), /Cannot resolve.*offline/);
-  for (const release of [{ tag_name: 'main' }, { tag_name: pin.tag, draft: true }, { tag_name: pin.tag, prerelease: true }]) {
-    await assert.rejects(resolveGameRelease('galaxy', latest, { galaxyTag: '', fetchRelease: async () => Response.json(release) }), /Invalid/);
+  for (const release of [{ tag_name: 'main' }, { tag_name: pin.tag, draft: true }]) {
+    await assert.rejects(resolveGameRelease('galaxy', latest, { galaxyTag: '', fetchRelease: async () => Response.json([release]) }), /Invalid/);
   }
 });
 
@@ -149,7 +149,11 @@ test('latest assembly records the resolved tag in output and summary; a missing 
   const originalFetch = globalThis.fetch;
   let missing = false;
   globalThis.fetch = async (url) => {
-    if (url.includes('api.github.com')) return missing ? new Response('', { status: 404 }) : Response.json({ tag_name: pin.tag });
+    if (url.includes('api.github.com')) {
+      if (missing) return new Response('', { status: 404 });
+      if (url.includes('/releases?')) return Response.json([{ tag_name: pin.tag, draft: false, published_at: '2026-10-23T00:00:00Z' }]);
+      return Response.json({ tag_name: pin.tag, draft: false });
+    }
     return new Response(await readFile(path.join(options.artifactDirectory, url.split('/').at(-1))));
   };
   t.after(() => { globalThis.fetch = originalFetch; });

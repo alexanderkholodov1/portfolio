@@ -20,6 +20,7 @@
     "content:todo": "node scripts/content-todo.mjs",
     "lighthouse": "node scripts/lighthouse.mjs",
     "assemble-games": "node scripts/assemble-games.mjs",
+    "resolve-galaxy": "node scripts/resolve-galaxy-release.mjs",
     "test:site": "node scripts/verify-site.mjs",
     "check": "pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run test:site && pnpm run test:browser",
     "deploy-local": "node scripts/deploy-local.mjs",
