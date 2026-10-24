@@ -36,7 +36,8 @@ Agreed in planning: **two repos** (each game independent; this is the pattern fo
 
 ### `galaxy` (to be created by the operator)
 
-Status update (operator): `alexanderkholodov1/galaxy` now exists; repository creation is complete.
+Status update (operator): the repository exists as `alexanderkholodov1/little-galaxy` (public; the
+old name `alexanderkholodov1/galaxy` redirects to it).
 
 ```
 apps/web/        Vite + React + TypeScript + React Three Fiber (+ drei, postprocessing), Zustand,

@@ -19,12 +19,12 @@ so it remains a should milestone. No scope or acceptance criteria change unless 
 | G v0.2.0 | Required for the fair (never cut) | Galaxy core. |
 | G v0.3.0 | Required for the fair (never cut) | Rich objects and hangar core. |
 | G v0.4.0 | Should (simplify if needed) | Second reduction: simpler sound, one tone per type + pet sound. |
-| G v0.5.0 | Should (simplify if needed) | Global interactions and scenes; voice spike informs the optional assistant. |
+| G v0.5.0 | Should (simplify if needed) | Global interactions and scenes; the voice spike is deferred to CASPIAN with the assistant. |
 | G v0.6.0 | Should (simplify if needed) | Third reduction: drop the postcard; keep timelapse and object pages. |
 | P v0.2.0 | Required for the fair (never cut) | Real portfolio content; P3 must be ready first. |
 | G v0.7.0 | Required for the fair (never cut) | Live safety; coordinate with P v0.3.0 for deploy and rollback verification. |
 | P v0.3.0 | Required for the fair (never cut) | Deploy and rollback scripts needed to verify live safety and support G v0.8.0. |
-| G v0.8.0 | First to cut | Simplify live fixes and laptop control first; cut entirely if no strictly free brain is viable (A1/D2). |
+| G v0.8.0 | Deferred to CASPIAN (operator, 2026-10-22) | Not built for Be A Dragon; the assistant may become part of CASPIAN some day. |
 | G v1.0.0 | Required for the fair (never cut) | Integrated fair verification after retained galaxy milestones. |
 | P v1.0.0 | Required for the fair (never cut) | Pin the verified galaxy release and verify production and rehearsal. |
 | G v1.1.0 | After the fair | Close and freeze the season. |
@@ -32,14 +32,15 @@ so it remains a should milestone. No scope or acceptance criteria change unless 
 
 ## Remaining work
 
-Status at this update: every version is **not started**. Completed setup tasks in `07` do not
-mean a version has met its acceptance criteria. Next: G v0.1.0 and P v0.1.0, coordinated; P2 remains
-open for the portfolio CI deploy.
+Status at the portfolio night update (2026-10-22): P v0.1.0 foundations are implemented
+locally; its acceptance is blocked by a real Galaxy release, P2/CI and deployed verification.
+See `../foundations-status.md`. No version is accepted by this update. Completed setup
+tasks in `07` do not mean a version has met its acceptance criteria. P2 remains open.
 
 | Version | Status |
 |---|---|
 | G v0.1.0 | not started |
-| P v0.1.0 | not started |
+| P v0.1.0 | local foundations implemented; acceptance blocked |
 | G v0.2.0 | not started |
 | G v0.3.0 | not started |
 | G v0.4.0 | not started |
@@ -48,7 +49,7 @@ open for the portfolio CI deploy.
 | P v0.2.0 | not started |
 | G v0.7.0 | not started |
 | P v0.3.0 | not started |
-| G v0.8.0 | not started |
+| G v0.8.0 | deferred to CASPIAN (operator, 2026-10-22); not built |
 | G v1.0.0 | not started |
 | P v1.0.0 | not started |
 | G v1.1.0 | not started |
@@ -120,9 +121,10 @@ Blockers: G1 (repo), G2 (data project + Firestore + Auth), G3 (web app config), 
 - Screen scenes: galaxy, big QR, spotlight on new object, idle cinematic camera, timelapse placeholder;
   driven by `config/live.screenScene`.
 - Kill switches read from `config/live`.
-- **Voice spike:** phone clip → Firestore → stand → STT → reply via TTS on laptop speakers; measure
+- **Voice spike (deferred to CASPIAN, operator 2026-10-22; not built):** phone clip → Firestore → stand → STT → reply via TTS on laptop speakers; measure
   and report end-to-end latency.
-- **Accept:** interactions verified on a real Android and iPhone; spike latency reported.
+- **Accept:** interactions verified on a real Android and iPhone. (Spike latency: deferred with the
+  assistant.)
 
 ## G v0.6.0 — Memory
 - Timelapse from the event log (scrubber, speed, pause), exact.
@@ -146,7 +148,10 @@ Blocker: P3 (operator content needed before P v0.2.0).
 - **Accept:** with a phone mid-edit and the screen open, a new version is deployed and neither loses
   state nor breaks; rollback restores the previous release in one command.
 
-## G v0.8.0 — Assistant
+## G v0.8.0 — Assistant (deferred to CASPIAN)
+> Operator, 2026-10-22: the assistant is out of Be A Dragon and may become part of CASPIAN some
+> day. This section is kept for that future; it is not built for the fair.
+
 Blockers: A1 (strictly free brain decision D2; paid API keys are not allowed), A2 (laptop specs for D8), A3 (workspace folder).
 - Everything in `04-assistant.md`: push-to-talk (owner `/galaxy/talk`, public in `/create`), STT,
   brain, Piper TTS, subtitles + orb on screen, personality, owner/public separation, levels N0–N3,

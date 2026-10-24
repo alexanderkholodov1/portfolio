@@ -1,0 +1,68 @@
+---
+import { href, labels, name, pages, type Language, type Page } from '../data/site';
+import '../styles/site.css';
+interface Props { lang: Language; page?: Page; title: string; }
+const { lang, page, title } = Astro.props;
+const other = lang === 'en' ? 'es' : 'en';
+const copy = lang === 'en'
+  ? { skip: 'Skip to content', nav: 'Main navigation', theme: 'Dark theme', footer: 'Portfolio', language: 'Read this page in Spanish' }
+  : { skip: 'Saltar al contenido', nav: 'Navegación principal', theme: 'Tema oscuro', footer: 'Portafolio', language: 'Leer esta página en inglés' };
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f1f5f9" />
+    <title>{title} · {name}</title>
+    <link rel="stylesheet" href="/tokens.css" />
+    <link rel="alternate" hreflang={other} href={page ? href(page, other) : href('home', other)} />
+    <script is:inline>
+      (() => {
+        let saved;
+        try { saved = localStorage.getItem('portfolio.theme'); } catch {}
+        const dark = saved === 'dark' || (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.querySelector('meta[name="theme-color"]').content = dark ? '#071421' : '#f1f5f9';
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">{copy.skip}</a>
+    <header class="masthead">
+      <a class="signature" href={href('home', lang)}>{name}<span>{copy.footer}</span></a>
+      <div class="preferences">
+        <a href={page ? href(page, other) : href('home', other)} lang={other} hreflang={other} aria-label={copy.language}>{other === 'es' ? 'Español' : 'English'}</a>
+        <button id="theme" hidden aria-pressed="false">{copy.theme}</button>
+      </div>
+    </header>
+    <nav aria-label={copy.nav}>
+      {pages.map((item) => <a href={href(item, lang)} aria-current={page === item ? 'page' : undefined}>{labels[lang][item]}</a>)}
+    </nav>
+    <main id="main" tabindex="-1"><slot /></main>
+    <footer><span>{name}</span><a href={href('links', lang)}>{labels[lang].links} →</a></footer>
+    <script is:inline>
+      (() => {
+        const button = document.getElementById('theme');
+        const system = matchMedia('(prefers-color-scheme: dark)');
+        let explicit = false;
+        try { explicit = ['light', 'dark'].includes(localStorage.getItem('portfolio.theme')); } catch {}
+        const apply = (dark) => {
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+          document.querySelector('meta[name="theme-color"]').content = dark ? '#071421' : '#f1f5f9';
+          button.setAttribute('aria-pressed', String(dark));
+        };
+        apply(document.documentElement.dataset.theme === 'dark');
+        button.hidden = false;
+        button.addEventListener('click', () => {
+          const dark = document.documentElement.dataset.theme !== 'dark';
+          explicit = true;
+          apply(dark);
+          try { localStorage.setItem('portfolio.theme', dark ? 'dark' : 'light'); } catch {}
+        });
+        system.addEventListener('change', (event) => { if (!explicit) apply(event.matches); });
+      })();
+    </script>
+  </body>
+</html>

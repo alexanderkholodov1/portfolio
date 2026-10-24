@@ -1,0 +1,37 @@
+{
+  "name": "portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.5.2",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "privacy": "node scripts/privacy-check.mjs",
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
+    "dev": "astro dev --host 127.0.0.1",
+    "preview": "astro preview --host 127.0.0.1",
+    "build:site": "astro build && pnpm run privacy",
+    "build": "astro build && pnpm run assemble-games && pnpm run privacy",
+    "typecheck": "astro check",
+    "lint": "eslint . && node scripts/lint-workflows.mjs",
+    "test:browser": "playwright test",
+    "assemble-games": "node scripts/assemble-games.mjs",
+    "test:site": "node scripts/verify-site.mjs",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run test:site && pnpm run test:browser"
+  },
+  "dependencies": {
+    "astro": "7.4.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.11",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "eslint": "10.13.0",
+    "globals": "17.13.0",
+    "tar": "7.5.22",
+    "typescript": "6.0.3",
+    "yaml": "2.9.1"
+  }
+}
