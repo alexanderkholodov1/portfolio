@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { isReleaseTag, pickLatestPublishedRelease, resolveGameRelease } from '../scripts/resolve-galaxy-release.mjs';
+import { isReleaseTag, parseNextPageUrl, pickLatestPublishedRelease, resolveGameRelease } from '../scripts/resolve-galaxy-release.mjs';
 
 const selection = { repository: 'alexanderkholodov1/little-galaxy', tag: 'latest' };
 
@@ -54,6 +54,100 @@ test('resolveGameRelease resolves latest published release with mock network tra
   assert.equal(resolved.tag, 'v1.0.0-alpha.1');
   assert.equal(resolved.artifact, 'galaxy-dist-v1.0.0-alpha.1.tar.gz');
   assert.equal(resolved.repository, selection.repository);
+});
+
+test('resolveGameRelease is independent of ambient GALAXY_TAG when resolving selection latest', async () => {
+  const previous = process.env.GALAXY_TAG;
+  process.env.GALAXY_TAG = 'v1.0.0-alpha.99';
+  try {
+    const releases = [
+      { tag_name: 'v1.0.0', published_at: '2026-10-23T00:00:00Z', draft: false, prerelease: false },
+    ];
+    let requestedUrl;
+    const fetchRelease = async (url) => {
+      requestedUrl = url;
+      return new Response(JSON.stringify(releases), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    };
+    const resolved = await resolveGameRelease('galaxy', selection, { fetchRelease });
+    assert.equal(requestedUrl, 'https://api.github.com/repos/alexanderkholodov1/little-galaxy/releases?per_page=50');
+    assert.equal(resolved.tag, 'v1.0.0');
+  } finally {
+    if (previous !== undefined) process.env.GALAXY_TAG = previous;
+    else delete process.env.GALAXY_TAG;
+  }
+});
+
+test('resolveGameRelease paginates through releases to find latest published across pages', async () => {
+  const page1 = Array.from({ length: 50 }, (_, i) => ({
+    tag_name: `v1.0.${i}`,
+    published_at: '2026-10-20T10:00:00Z',
+    draft: false,
+    prerelease: false,
+  }));
+  const page2 = [
+    {
+      tag_name: 'v1.0.0-alpha.99',
+      published_at: '2026-10-24T12:00:00Z',
+      draft: false,
+      prerelease: true,
+    },
+  ];
+
+  const requestedUrls = [];
+  const fetchRelease = async (url) => {
+    requestedUrls.push(url);
+    if (requestedUrls.length === 1) {
+      return new Response(JSON.stringify(page1), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          link: '<https://api.github.com/repos/alexanderkholodov1/little-galaxy/releases?page=2>; rel="next"',
+        },
+      });
+    }
+    return new Response(JSON.stringify(page2), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  };
+
+  const resolved = await resolveGameRelease('galaxy', selection, { fetchRelease });
+  assert.equal(requestedUrls.length, 2, 'Must request page 2');
+  assert.equal(resolved.tag, 'v1.0.0-alpha.99', 'Latest published release from page 2 must be picked');
+});
+
+test('parseNextPageUrl parses Link headers correctly', () => {
+  assert.equal(parseNextPageUrl(null), null);
+  assert.equal(parseNextPageUrl(''), null);
+  assert.equal(parseNextPageUrl('<https://api.github.com/releases?page=1>; rel="prev"'), null);
+  assert.equal(
+    parseNextPageUrl('<https://api.github.com/releases?page=2>; rel="next", <https://api.github.com/releases?page=5>; rel="last"'),
+    'https://api.github.com/releases?page=2'
+  );
+  assert.equal(
+    parseNextPageUrl('<https://api.github.com/releases?page=3>; REL="NEXT"'),
+    'https://api.github.com/releases?page=3'
+  );
+});
+
+test('resolveGameRelease refuses release history exceeding max pages', async () => {
+  let count = 0;
+  const infiniteFetch = async () => {
+    count++;
+    return new Response(JSON.stringify([{ tag_name: `v1.0.${count}`, published_at: '2026-10-20T00:00:00Z', draft: false }]), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        link: `<https://api.github.com/releases?page=${count + 1}>; rel="next"`,
+      },
+    });
+  };
+  await assert.rejects(
+    resolveGameRelease('galaxy', selection, { fetchRelease: infiniteFetch }),
+    /more than 20 pages; refusing to guess/
+  );
 });
 
 test('resolveGameRelease resolves specific tag when galaxyTag is supplied', async () => {
