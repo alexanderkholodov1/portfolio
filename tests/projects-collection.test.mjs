@@ -34,7 +34,7 @@ for (const [lang, prefix, first, second, open] of [
     assert.match(found[0], new RegExp(`href="https://example.org/lantern/"[^>]*>${open} `));
     assert.ok(!found[0].includes('little-galaxy') && !found[0].includes('/galaxy/'));
     assert.match(found[1], new RegExp(`<h2><a [^>]*href="/${prefix}projects/galaxy/"[^>]*>${second}</a></h2>`));
-    assert.match(found[1], new RegExp(`href="/galaxy/${lang === 'es' ? '\\?lang=es' : ''}"[^>]*>${open} `));
+    assert.match(found[1], new RegExp(`href="/little-galaxy/${lang === 'es' ? '\\?lang=es' : ''}"[^>]*>${open} `));
     assert.match(found[1], /href="https:\/\/github\.com\/alexanderkholodov1\/little-galaxy"/);
   });
 
