@@ -30,6 +30,15 @@ so it remains a should milestone. No scope or acceptance criteria change unless 
 | G v1.1.0 | After the fair | Close and freeze the season. |
 | P v1.1.0 | After the fair | Serve the frozen season statically. |
 
+## Alpha.2 P2 implementation — operator update, 2026-10-25
+
+The fair game is proto3 itself, packaged with Vite and pinned three@0.170.0, replacing the React
+views. B1 supplies instance/action admission; the prototype's pinned DOM-free kernel replays it.
+P2 adds verified-Google admin, booth selection, read-only timelapse, local fonts/version gates and
+printed-QR redirects to /little-galaxy/. Player sign-in/shared accounts, destructive mode and
+player-created galaxies/invites UI remain outside tonight's package. See galaxy's P2 report and
+quota model for actual local checks and limitations. No deployed/real-phone acceptance is implied.
+
 ## Remaining work
 
 Status at the portfolio night update (2026-10-22): P v0.1.0 foundations are implemented

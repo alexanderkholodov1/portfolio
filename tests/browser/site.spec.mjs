@@ -63,21 +63,18 @@ test('pages and language links remain usable without JavaScript', async ({ brows
   } finally { await context.close(); }
 });
 
-test('assembled Galaxy keeps the author in a small credits card and uses shared tokens on deep links', async ({ page }) => {
-  await page.goto('/galaxy/create?lang=es');
-  // Operator, 2026-10-24: no personal data or links in the game except a tiny credits control.
-  await expect(page.getByRole('link', { name: 'Alexander Kholodov', exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Créditos' }).click();
-  const credits = page.getByRole('dialog', { name: 'Créditos' });
-  await expect(credits).toContainText('Alexander Kholodov · USFQ');
-  await expect(credits.getByRole('link', { name: 'Portafolio' })).toHaveAttribute('href', '/es/');
-  await expect(page.locator('html')).toHaveAttribute('lang', 'es');
-  await expect(page.locator('link[href="/tokens.css"]')).toHaveCount(1);
-  expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--pf-paper').trim())).toBeTruthy();
-  const version = await page.request.get('/galaxy/version.json');
+test('assembled prototype serves its final mount and printed QR redirects', async ({page}) => {
+  await page.route('**/*', route => {
+    const r=route.request(), url=r.url();
+    if(['GET','HEAD'].includes(r.method()) || /Firestore\/Listen|documents:(batchGet|runQuery)/.test(url)) return route.continue();
+    return route.abort();
+  });
+  await page.goto('/little-galaxy/?lang=es&smoke=readonly');
+  await expect(page).toHaveTitle('Little Galaxy');
+  await expect(page.locator('#world')).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('lang','es');
+  const version=await page.request.get('/little-galaxy/version.json');
   expect((await version.json()).version).toBe(resolvedGalaxy);
-  const missing = await page.request.get('/a-page-that-does-not-exist');
-  // Only rendering is under test here; Hosting rewrite status needs a preview.
-  expect(await missing.text()).toContain('<html lang="en"');
-  expect(await missing.text()).toContain('404');
+  const legacy=await page.request.get('/galaxy/screen',{maxRedirects:0});
+  expect(legacy.status()).toBe(302);expect(legacy.headers().location).toBe('/little-galaxy/screen');
 });

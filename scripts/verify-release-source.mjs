@@ -8,7 +8,7 @@ if (override && !isReleaseTag(override)) throw new Error('GALAXY_TAG must be a r
 for (const [game, selection] of Object.entries(selections)) {
   const assembled = receipt.games?.[game];
   const requested = game === 'galaxy' && override ? override : selection.tag;
-  const metadata = JSON.parse(await readFile(`dist/${game}/version.json`, 'utf8'));
+  const metadata = JSON.parse(await readFile(`dist/${selection.mount ?? game}/version.json`, 'utf8'));
   if (assembled?.source !== 'github-release' || !isReleaseTag(assembled.tag) ||
       (requested !== 'latest' && assembled.tag !== requested) || assembled.repository !== selection.repository ||
       assembled.artifact !== `${game}-dist-${assembled.tag}.tar.gz` ||

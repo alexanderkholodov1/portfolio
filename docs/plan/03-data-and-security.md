@@ -121,3 +121,18 @@ person" as a hard guarantee.
 - After the fair, the season is frozen to static JSON on Hosting → zero Firestore reads forever.
 - Hosting transfer (portfolio project): 10 GB/month on Spark; 500 visitors × ~2–3 MB bundle ≈ 1.5 GB.
   Keep the galaxy bundle lean; large future game assets go elsewhere.
+
+## Alpha.2 B1 data contract (2026-10-25)
+
+The operator requested instance-scoped galaxies, accepted actions, checkpoints, private chosen-name
+profiles, quotas and a shared GalaxyStore adapter for alpha.2. The implementation contract is
+`galaxy/docs/galaxy-store.md`; operational migration is RUNBOOK section 13. Public log visibility
+is fixed at galaxy creation; fork to change it. Phone checkpoints remain untrusted until replay
+or trusted certification. R25 preserves the submitted launch orbit without eccentricity caps.
+The P2 default is 400 accepted mutations, including edits; import sizing chooses 300–600
+against actual genesis and per-request rule dependencies before publication.
+Packed pages allow 128 KiB: 64 valid rich planet actions exceeded the original 32 KiB target;
+an action has a 2,000-byte envelope, retaining fixed 64-entry rollover without blocking a galaxy.
+The fair quota scenario is replaced by `galaxy/docs/alpha2-b1-quota.md` (below 50%, conditional
+on three mean feed recipients and disabled legacy stand enrichment). Kernel/device acceptance
+and the preview/real-phone gate remain outstanding integration work.

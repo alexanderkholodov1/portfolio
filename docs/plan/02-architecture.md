@@ -160,3 +160,13 @@ takes the galaxy build from the local `galaxy` checkout (or a selected published
 Galaxy pages render a compact portfolio header (name, links to portfolio, socials) built from the
 same-origin `/profile.json` and `/tokens.css` published by the portfolio, so profile data has one
 source of truth.
+
+## Alpha.2 P2 packaging decision — 2026-10-25
+
+Operator decision (2026-10-24): ship proto3's plain ES modules and registry-pinned three@0.170.0
+through Vite at /little-galaxy/. React views are retired. The galaxy repository keeps its CI,
+rules/emulator tests, stand, version/privacy gates and exact-tag release artifact. Portfolio
+assembly keeps the `galaxy` release key/artifact name and adds an explicit `little-galaxy` mount.
+Printed /galaxy paths redirect to the new root; the old screen redirects to the new screen.
+The prototype's fonts/identity ship locally. Google admin precedes player account/invite UI;
+shared play remains gentle. Preview and real-phone acceptance are still required before release.

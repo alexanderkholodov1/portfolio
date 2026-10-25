@@ -168,3 +168,16 @@ test('latest assembly records the resolved tag in output and summary; a missing 
   // An explicitly supplied offline rehearsal remains offline and cannot pass Hosting's guard.
   assert.equal((await assembleGames(options)).games.galaxy.source, 'local-rehearsal');
 });
+
+test('accepts the exact alpha.2 artifact at the new mount and rejects unsafe mounts', () => {
+  const moved = {...pin, tag:'v1.0.0-alpha.2', artifact:'galaxy-dist-v1.0.0-alpha.2.tar.gz', mount:'little-galaxy'};
+  assert.equal(validateManifest({schemaVersion:1,games:{galaxy:moved}}).galaxy.mount,'little-galaxy');
+  for(const mount of ['../escape','assets','/little-galaxy'])assert.throws(()=>validateManifest({schemaVersion:1,games:{galaxy:{...moved,mount}}}),/Invalid/);
+});
+test('assembles at the configured mount while retaining the galaxy artifact name', async t => {
+  const entries=valid();entries[0]=entry('./index.html','<script src="/little-galaxy/assets/app.js"></script>');
+  const options=await fixture(t,entries);
+  await writeFile(path.join(options.root,'games.json'),JSON.stringify({schemaVersion:1,games:{galaxy:{...pin,mount:'little-galaxy'}}}));
+  await assembleGames(options);
+  assert.equal(await readFile(path.join(options.root,'dist/little-galaxy/version.json'),'utf8'),version.toString());
+});

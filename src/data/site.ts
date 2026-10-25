@@ -16,7 +16,7 @@ export const name = profile.name;
 export const origin = 'https://alexanderkholodov.web.app';
 
 // The galaxy owns /galaxy; Spanish is passed as a query because the game is one shared bundle.
-export const galaxyHref = (lang: Language) => (lang === 'es' ? '/galaxy/?lang=es' : '/galaxy/');
+export const galaxyHref = (lang: Language) => (lang === 'es' ? '/little-galaxy/?lang=es' : '/little-galaxy/');
 
 // Public links for /profile.json: only entries that are real, public and external.
 export const publicLinks = links.items.filter((link) => link.external).map((link) => ({ label: link.label.en, href: link.href }));
@@ -25,7 +25,7 @@ export const publicSocials = socials.items.map(({ label, handle, href: url }) =>
 
 // Internal data hrefs are language-neutral; map them to this language's route.
 export function resolveHref(target: string, lang: Language) {
-  if (target === '/galaxy/') return galaxyHref(lang);
+  if (target === '/little-galaxy/') return galaxyHref(lang);
   if (target === '/') return href('home', lang);
   return target;
 }

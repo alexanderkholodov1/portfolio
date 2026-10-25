@@ -3,7 +3,8 @@
   "games": {
     "galaxy": {
       "repository": "alexanderkholodov1/little-galaxy",
-      "tag": "latest"
+      "tag": "latest",
+      "mount": "little-galaxy"
     }
   }
 }

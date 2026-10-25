@@ -3,6 +3,13 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-10-25 — Alpha.2 P2 packages proto3's own ES modules instead of React at /little-galaxy/,
+  with registry three@0.170.0, B1 log replay, Google keeper ledger, independent booth selection,
+  read-only timelapse and printed-QR redirects. Release artifact naming and portfolio assembly
+  remain; mount and alpha-tag support are explicit. Quota includes the actual readers/admin.
+  Decided by operator (2026-10-24 captain decision and P2 task); implementation acceptance remains
+  conditional on deployed preview, real phones and the stated traffic envelope.
+
 - 2026-10-24 — Applied the operator's 2026-10-23 decisions: versioning v1.0.0-alpha.N ("para que sea 1.0.0 debe ser PERFECTA E IMPECABLE"), deploy option b ("que los agentes 'prueben' la produccion en su rama de trabajo o links temporales, y yo quiero ver solo la final-final-final que desplegare haciendo el PR."), the sky in three layers ("las tres cosas": Firebase-only for everyone, a stand on Beacon, the laptop as backup), prototypes first (liquid glass, passive and active interactivity, "No se debe ver como IA"), no-pin release following ("NO, NO FIJEMOS NADA, DEBEMOS PODER PROBARLO Y ACTUALIZAR SIN QUE HAYA NINGUN PROBLEMA, HASTA LA FERIA Y DURANTE LA FERIA TAMBIEN!" and "Apruebo tu plan de eliminacion de la version y que se haga todo desarrollo futuro flexible y con rollback tambien"). Updated `02`, `05`, `06`, `08`, the galaxy contract template and CI workflow/scripts; no milestone acceptance or live verification claimed — decided by operator.
 
 Operator decisions (2026-10-23):
@@ -55,3 +62,15 @@ Operator decisions (2026-10-23):
 - 2026-10-05 — Plan of record created from the planning session (files 00–09, 90, templates) —
   initial version — decided by operator (planning session).
 - 2026-10-05 — Removed the "never touch main / only the operator merges" rule (it was imported from AKLabs repo contracts, not stated by the operator) — operator objected — decided by operator.
+
+## 2026-10-25 — Alpha.2 B1 data layer
+
+Operator instruction: add per-galaxy ownership, policies, budgets and action/checkpoint persistence
+with verified-Google email allowlisting, a reusable GalaxyStore adapter and idempotent in-release
+legacy migration. Copy batches fence on completion so stale retries preserve post-import edits.
+Public actions also honor the existing emergency and operation kill switches.
+Implementation: public visibility is immutable for dependency-free public log
+deliveries; private memberships supply sampled activity/launch metrics. The replacement fair model
+is 24,599 reads and 4,100 writes under its stated envelope. R25 supersedes orbital eccentricity
+caps. UI, dashboard, sign-in presentation, physics kernel and route packaging stay in their own
+packages. This patch records the implementation handoff; preview/real-phone verification remains.
