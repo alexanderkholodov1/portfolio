@@ -29,7 +29,7 @@ test.describe('live banner', () => {
     await page.goto('/');
     await expect(banner(page)).toHaveText('Live: Collective Galaxy · Be a Dragon 2026 · 17 creators→');
     await expect(banner(page)).toHaveAttribute('data-state', 'fresh');
-    await expect(banner(page)).toHaveAttribute('href', '/galaxy/');
+    await expect(banner(page)).toHaveAttribute('href', '/little-galaxy/');
     expect(requests).toHaveLength(1);
     const url = new URL(requests[0]);
     expect(url.pathname).toBe('/v1/projects/little-galaxy/databases/(default)/documents/snapshots/live');
@@ -80,7 +80,7 @@ test('without JavaScript the banner links to the galaxy and prints no number', a
   const context = await browser.newContext({ javaScriptEnabled: false });
   try {
     const page = await context.newPage();
-    for (const [route, text, target] of [['/', 'Collective Galaxy · Be a Dragon 2026', '/galaxy/'], ['/es/', 'Galaxia Colectiva · Be a Dragon 2026', '/galaxy/?lang=es']]) {
+    for (const [route, text, target] of [['/', 'Collective Galaxy · Be a Dragon 2026', '/little-galaxy/'], ['/es/', 'Galaxia Colectiva · Be a Dragon 2026', '/little-galaxy/?lang=es']]) {
       await page.goto(`http://127.0.0.1:4173${route}`);
       await expect(page.locator('[data-live]')).toHaveText(`${text}→`);
       await expect(page.locator('[data-live]')).toHaveAttribute('href', target);
@@ -286,5 +286,5 @@ test('the galaxy entry opens the assembled game with the language preserved', as
   await page.goto('/es/projects/galaxy/');
   await expect(page.getByRole('link', { name: /Abrir la galaxia/ })).toHaveAttribute('href', '/galaxy/?lang=es');
   await page.goto('/projects/galaxy/');
-  await expect(page.getByRole('link', { name: /Open the galaxy/ })).toHaveAttribute('href', '/galaxy/');
+  await expect(page.getByRole('link', { name: /Open the galaxy/ })).toHaveAttribute('href', '/little-galaxy/');
 });

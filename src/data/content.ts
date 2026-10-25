@@ -66,7 +66,7 @@ export const projects: List<Project> = {
         en: 'A solar system that starts empty. Each visitor designs a planet, star, or moon on their phone, hears its sound fingerprint, and launches it into orbit on the shared screen; celestial bodies orbit in real time and respond to touch.',
         es: 'Un sistema solar que empieza vacío. Cada visitante diseña un planeta, estrella o luna en su celular, escucha su firma sonora y lo lanza a órbita en la pantalla compartida; los cuerpos celestes orbitan en tiempo real y responden a caricias e interacción táctil.',
       },
-      href: '/galaxy/',
+      href: '/little-galaxy/',
       source: {
         id: 'galaxy-source',
         label: { en: 'Collective Galaxy source on GitHub', es: 'Código de Galaxia Colectiva en GitHub' },
@@ -273,7 +273,7 @@ export const links: List<Link> = {
       id: 'galaxy',
       label: { en: 'Collective Galaxy', es: 'Galaxia Colectiva' },
       detail: { en: 'The live event', es: 'El evento en vivo' },
-      href: '/galaxy/',
+      href: '/little-galaxy/',
     },
     {
       id: 'galaxy-source',
