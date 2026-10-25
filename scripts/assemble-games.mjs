@@ -16,6 +16,7 @@ export function validateManifest(manifest) {
   if (manifest?.schemaVersion !== 1 || !manifest.games || Array.isArray(manifest.games) || !Object.keys(manifest.games).length) {
     throw new Error('Invalid games manifest');
   }
+  const mounts=new Set();
   for (const [game, pin] of Object.entries(manifest.games)) {
     if (!pin || typeof pin !== 'object' || !/^[a-z][a-z0-9-]*$/.test(game) || ['assets', 'fonts', 'es', 'projects', 'about', 'links', 'private'].includes(game) ||
         !/^[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(pin.repository) ||
@@ -23,6 +24,9 @@ export function validateManifest(manifest) {
         (pin.tag === 'latest' ? (pin.artifact !== undefined && pin.artifact !== `${game}-dist` && pin.artifact !== `${game}-dist-{tag}.tar.gz`) : pin.artifact !== `${game}-dist-${pin.tag}.tar.gz`)) {
       throw new Error('Invalid game release selection');
     }
+    const mount=pin.mount??game;
+    if(!/^[a-z][a-z0-9-]*$/.test(mount)||['assets','fonts','es','projects','about','links','private'].includes(mount)||mounts.has(mount))throw new Error('Invalid game mount');
+    mounts.add(mount);
   }
   return manifest.games;
 }
@@ -109,6 +113,7 @@ export async function assembleGames({ root = process.cwd(), artifactDirectory = 
   await access(path.join(dist, 'index.html'));
   const receipt = { schemaVersion: 1, games: {} };
   for (const [game, selection] of Object.entries(games)) {
+    const mount=selection.mount??game;
     const pin = localBuilds[game] ? selection : await resolveGameRelease(game, selection, { galaxyTag, token, artifactDirectory });
     const scratch = await mkdtemp(path.join(dist, '.assembly-'));
     try {
@@ -144,9 +149,9 @@ export async function assembleGames({ root = process.cwd(), artifactDirectory = 
         }
       }
       const html = await readFile(path.join(output, 'index.html'), 'utf8');
-      if (!html.includes(`/${game}/assets/`)) throw new Error('Game HTML does not use its mounted asset base');
+      if (!html.includes(`/${mount}/assets/`)) throw new Error('Game HTML does not use its mounted asset base');
       await checkPrivacy({ root, dist: output, allowedPublicKeys });
-      const destination = path.join(dist, game);
+      const destination = path.join(dist, mount);
       await rm(destination, { recursive: true, force: true });
       await rename(output, destination);
       receipt.games[game] = local

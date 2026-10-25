@@ -31,7 +31,7 @@ assert.equal(profile.socials.length, 4);
 assert.ok(profile.role);
 assert.equal(profile.links.length, 5);
 assert.ok(!JSON.stringify(profile).includes('alexanderkholodov1/portfolio'));
-const metadata = JSON.parse(await readFile(path.join(root, 'galaxy/version.json'), 'utf8'));
+const metadata = JSON.parse(await readFile(path.join(root, 'little-galaxy/version.json'), 'utf8'));
 const resolved = JSON.parse(await readFile(path.join(root, 'assembly.json'), 'utf8')).games.galaxy;
 assert.equal(`v${metadata.version}`, resolved.tag);
 const tokens = await readFile(path.join(root, 'tokens.css'), 'utf8');
@@ -40,6 +40,7 @@ for (const file of await readdir(path.join(root, 'fonts'))) await access(path.jo
 assert.equal(JSON.parse(await readFile('.firebaserc', 'utf8')).projects.default, 'alexanderkholodov');
 const hosting = JSON.parse(await readFile('firebase.json', 'utf8')).hosting;
 assert.equal(hosting.public, 'dist');
-assert.deepEqual(hosting.rewrites, [{ source: '/galaxy{,/**}', destination: '/galaxy/index.html' }, { source: '**', destination: '/404.html' }]);
+assert.deepEqual(hosting.rewrites, [{source:'/little-galaxy/admin{,/**}',destination:'/little-galaxy/admin.html'}, {source:'/little-galaxy{,/**}',destination:'/little-galaxy/index.html'}, {source:'**',destination:'/404.html'}]);
+assert.deepEqual(hosting.redirects,[{source:'/galaxy/screen{,/**}',destination:'/little-galaxy/screen',type:301},{source:'/galaxy{,/**}',destination:'/little-galaxy/',type:301}]);
 await access(path.join(root, '404.html'));
 console.log('Built-site checks passed: bilingual routes, local links, shared contract, resolved game release and Hosting config');
