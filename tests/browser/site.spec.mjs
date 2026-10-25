@@ -76,5 +76,5 @@ test('assembled prototype serves its final mount and printed QR redirects', asyn
   const version=await page.request.get('/little-galaxy/version.json');
   expect((await version.json()).version).toBe(resolvedGalaxy);
   const legacy=await page.request.get('/galaxy/screen',{maxRedirects:0});
-  expect(legacy.status()).toBe(301);expect(legacy.headers().location).toBe('/little-galaxy/screen');
+  expect(legacy.status()).toBe(302);expect(legacy.headers().location).toBe('/little-galaxy/screen');
 });

@@ -41,6 +41,6 @@ assert.equal(JSON.parse(await readFile('.firebaserc', 'utf8')).projects.default,
 const hosting = JSON.parse(await readFile('firebase.json', 'utf8')).hosting;
 assert.equal(hosting.public, 'dist');
 assert.deepEqual(hosting.rewrites, [{source:'/little-galaxy/admin{,/**}',destination:'/little-galaxy/admin.html'}, {source:'/little-galaxy{,/**}',destination:'/little-galaxy/index.html'}, {source:'**',destination:'/404.html'}]);
-assert.deepEqual(hosting.redirects,[{source:'/galaxy/screen{,/**}',destination:'/little-galaxy/screen',type:301},{source:'/galaxy{,/**}',destination:'/little-galaxy/',type:301}]);
+assert.deepEqual(hosting.redirects,[{source:'/galaxy/screen{,/**}',destination:'/little-galaxy/screen',type:302},{source:'/galaxy{,/**}',destination:'/little-galaxy/',type:302}]);
 await access(path.join(root, '404.html'));
 console.log('Built-site checks passed: bilingual routes, local links, shared contract, resolved game release and Hosting config');

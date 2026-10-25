@@ -55,12 +55,12 @@
       {
         "source": "/galaxy/screen{,/**}",
         "destination": "/little-galaxy/screen",
-        "type": 301
+        "type": 302
       },
       {
         "source": "/galaxy{,/**}",
         "destination": "/little-galaxy/",
-        "type": 301
+        "type": 302
       }
     ]
   }

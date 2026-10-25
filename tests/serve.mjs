@@ -14,7 +14,7 @@ const server = createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
     if (pathname.includes('\\') || pathname.split('/').some((part) => part.startsWith('.'))) { response.writeHead(400).end(); return; }
-    if (/^\/galaxy(?:\/|$)/.test(pathname)) {response.writeHead(301,{Location:/^\/galaxy\/screen(?:\/|$)/.test(pathname)?'/little-galaxy/screen':'/little-galaxy/'}).end();return;}
+    if (/^\/galaxy(?:\/|$)/.test(pathname)) {response.writeHead(302,{Location:/^\/galaxy\/screen(?:\/|$)/.test(pathname)?'/little-galaxy/screen':'/little-galaxy/'}).end();return;}
     let file = await existing(path.join(root, pathname));
     if (!file) file = await existing(path.join(root, `${pathname}.html`));
     if (!file) {
