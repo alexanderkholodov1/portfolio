@@ -40,7 +40,7 @@ test.describe('live banner', () => {
     await answer(page, json(snapshot(1, 1000)));
     await page.goto('/es/');
     await expect(banner(page)).toHaveText('En vivo: Galaxia Colectiva · Be a Dragon 2026 · 1 creador→');
-    await expect(banner(page)).toHaveAttribute('href', '/galaxy/?lang=es');
+    await expect(banner(page)).toHaveAttribute('href', '/little-galaxy/?lang=es');
   });
 
   test('a snapshot older than ten minutes shows the event and its time, never a count', async ({ page }) => {
@@ -284,7 +284,7 @@ test('on a phone the ledger and the orbit motif are both visible in the first sc
 
 test('the galaxy entry opens the assembled game with the language preserved', async ({ page }) => {
   await page.goto('/es/projects/galaxy/');
-  await expect(page.getByRole('link', { name: /Abrir la galaxia/ })).toHaveAttribute('href', '/galaxy/?lang=es');
+  await expect(page.getByRole('link', { name: /Abrir la galaxia/ })).toHaveAttribute('href', '/little-galaxy/?lang=es');
   await page.goto('/projects/galaxy/');
   await expect(page.getByRole('link', { name: /Open the galaxy/ })).toHaveAttribute('href', '/little-galaxy/');
 });
