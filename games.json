@@ -5,6 +5,11 @@
       "repository": "alexanderkholodov1/little-galaxy",
       "tag": "latest",
       "mount": "little-galaxy"
+    },
+    "studium": {
+      "repository": "alexanderkholodov1/studium",
+      "tag": "latest",
+      "mount": "studium"
     }
   }
 }

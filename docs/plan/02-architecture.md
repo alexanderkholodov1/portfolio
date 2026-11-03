@@ -170,3 +170,7 @@ assembly keeps the `galaxy` release key/artifact name and adds an explicit `litt
 Printed /galaxy paths redirect to the new root; the old screen redirects to the new screen.
 The prototype's fonts/identity ship locally. Google admin precedes player account/invite UI;
 shared play remains gentle. Preview and real-phone acceptance are still required before release.
+
+## Studium
+
+`/studium` serves the Studium study guides (public repository `alexanderkholodov1/studium`), mounted from its latest GitHub Release with the same contract as Little Galaxy: `studium-dist-vX.Y.Z.tar.gz`, `version.json` and `SHA256SUMS`.
