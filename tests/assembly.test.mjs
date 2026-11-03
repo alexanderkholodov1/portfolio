@@ -6,7 +6,7 @@ import path from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { Header } from 'tar';
 import { test } from 'node:test';
-import { assembleGames, resolveGameRelease, rootResourcesOutsideMount, validateArchive, validateManifest } from '../scripts/assemble-games.mjs';
+import { assembleGames, manifestPublicKeys, resolveGameRelease, rootResourcesOutsideMount, validateArchive, validateManifest } from '../scripts/assemble-games.mjs';
 
 const pin = { repository: 'alexanderkholodov1/little-galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
 const manifest = { schemaVersion: 1, games: { galaxy: pin } };
@@ -189,4 +189,14 @@ test('any kind of app mounts when every root-absolute resource stays inside its 
   assert.deepEqual(rootResourcesOutsideMount('<a href="/">Home</a><a href="/projects/">Projects</a><style>body{background:url(/studium/bg.png)}</style>', 'studium'), []);
   assert.deepEqual(rootResourcesOutsideMount(`<script src="/assets/app.js"></script><link rel="icon" href="/favicon.svg"><div style="background:url('/img/x.png')"></div>`, 'studium'), ['/assets/app.js', '/favicon.svg', '/img/x.png']);
   assert.deepEqual(rootResourcesOutsideMount('<script src="/studiumx/app.js"></script>', 'studium'), ['/studiumx/app.js']);
+});
+
+test('a mounted app may declare the public web keys of its own Firebase project', () => {
+  const key = 'AIza' + 'x'.repeat(35);
+  const games = validateManifest({ schemaVersion: 1, games: { studium: { repository: 'o/studium', tag: 'latest', mount: 'studium', publicKeys: [key] } } });
+  assert.deepEqual(manifestPublicKeys(games), [key]);
+  assert.deepEqual(manifestPublicKeys(validateManifest(manifest)), []);
+  for (const publicKeys of ['AIza-not-a-list', ['not-a-key'], [42]]) {
+    assert.throws(() => validateManifest({ schemaVersion: 1, games: { studium: { repository: 'o/studium', tag: 'latest', publicKeys } } }), /Invalid public keys/);
+  }
 });

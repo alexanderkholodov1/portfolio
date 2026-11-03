@@ -9,7 +9,10 @@
     "studium": {
       "repository": "alexanderkholodov1/studium",
       "tag": "latest",
-      "mount": "studium"
+      "mount": "studium",
+      "publicKeys": [
+        "AIzaSyDfxdur8_R5hKzVGuEwcFvOquXqjkOKfAA"
+      ]
     }
   }
 }
