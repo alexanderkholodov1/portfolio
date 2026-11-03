@@ -6,7 +6,7 @@ import path from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { Header } from 'tar';
 import { test } from 'node:test';
-import { assembleGames, resolveGameRelease, validateArchive, validateManifest } from '../scripts/assemble-games.mjs';
+import { assembleGames, manifestPublicKeys, resolveGameRelease, rootResourcesOutsideMount, validateArchive, validateManifest } from '../scripts/assemble-games.mjs';
 
 const pin = { repository: 'alexanderkholodov1/little-galaxy', tag: 'v0.1.0', artifact: 'galaxy-dist-v0.1.0.tar.gz' };
 const manifest = { schemaVersion: 1, games: { galaxy: pin } };
@@ -88,7 +88,7 @@ test('rejects missing entrypoint, wrong base and private payload before replacem
   const missing = await fixture(t, valid().slice(1));
   await assert.rejects(assembleGames(missing), /missing index/);
   const entries = valid(); entries[0] = entry('./index.html', '<script src="/assets/app.js"></script>');
-  await assert.rejects(assembleGames(await fixture(t, entries)), /asset base/);
+  await assert.rejects(assembleGames(await fixture(t, entries)), /outside its mount/);
   const secret = await fixture(t, [...valid(), entry('./assets/data.js', '-----BEGIN PRIVATE KEY-----')]);
   await assert.rejects(assembleGames(secret), /Privacy gate/);
   assert.equal(await readFile(path.join(secret.root, 'dist/galaxy/previous.txt'), 'utf8'), 'previous known build');
@@ -180,4 +180,23 @@ test('assembles at the configured mount while retaining the galaxy artifact name
   await writeFile(path.join(options.root,'games.json'),JSON.stringify({schemaVersion:1,games:{galaxy:{...pin,mount:'little-galaxy'}}}));
   await assembleGames(options);
   assert.equal(await readFile(path.join(options.root,'dist/little-galaxy/version.json'),'utf8'),version.toString());
+});
+
+test('any kind of app mounts when every root-absolute resource stays inside its mount', () => {
+  assert.deepEqual(rootResourcesOutsideMount('<script src="/studium/assets/catalog.js"></script><link rel="stylesheet" href="/studium/assets/catalog.css">', 'studium'), []);
+  assert.deepEqual(rootResourcesOutsideMount('<link rel="stylesheet" href="assets/a.css"><script src="./app.js"></script><img src="guide/figure.png">', 'studium'), []);
+  assert.deepEqual(rootResourcesOutsideMount('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=X"><script src="//cdn.example.com/x.js"></script>', 'studium'), []);
+  assert.deepEqual(rootResourcesOutsideMount('<a href="/">Home</a><a href="/projects/">Projects</a><style>body{background:url(/studium/bg.png)}</style>', 'studium'), []);
+  assert.deepEqual(rootResourcesOutsideMount(`<script src="/assets/app.js"></script><link rel="icon" href="/favicon.svg"><div style="background:url('/img/x.png')"></div>`, 'studium'), ['/assets/app.js', '/favicon.svg', '/img/x.png']);
+  assert.deepEqual(rootResourcesOutsideMount('<script src="/studiumx/app.js"></script>', 'studium'), ['/studiumx/app.js']);
+});
+
+test('a mounted app may declare the public web keys of its own Firebase project', () => {
+  const key = 'AIza' + 'x'.repeat(35);
+  const games = validateManifest({ schemaVersion: 1, games: { studium: { repository: 'o/studium', tag: 'latest', mount: 'studium', publicKeys: [key] } } });
+  assert.deepEqual(manifestPublicKeys(games), [key]);
+  assert.deepEqual(manifestPublicKeys(validateManifest(manifest)), []);
+  for (const publicKeys of ['AIza-not-a-list', ['not-a-key'], [42]]) {
+    assert.throws(() => validateManifest({ schemaVersion: 1, games: { studium: { repository: 'o/studium', tag: 'latest', publicKeys } } }), /Invalid public keys/);
+  }
 });

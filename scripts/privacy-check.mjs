@@ -64,6 +64,9 @@ export async function checkPrivacy({ root = process.cwd(), dist = path.join(root
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    console.log(`Privacy gate passed: ${await checkPrivacy({ allowedPublicKeys: [process.env.VITE_FIREBASE_API_KEY].filter(Boolean) })} files`);
+    // Public web keys: the site's own (environment) plus the ones mounted apps declare in games.json.
+    const games = JSON.parse(await readFile(path.join(process.cwd(), 'games.json'), 'utf8')).games ?? {};
+    const declared = Object.values(games).flatMap((pin) => (Array.isArray(pin?.publicKeys) ? pin.publicKeys : []));
+    console.log(`Privacy gate passed: ${await checkPrivacy({ allowedPublicKeys: [process.env.VITE_FIREBASE_API_KEY, ...declared].filter(Boolean) })} files`);
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

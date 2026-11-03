@@ -270,7 +270,7 @@ test('local build passes the release checks: private material, wrong base, links
   await assert.rejects(run(), /symbolic link/);
   await rm(path.join(ctx.build, 'assets/link'));
   await writeFile(path.join(ctx.build, 'index.html'), '<script src="/assets/app.js"></script>');
-  await assert.rejects(run(), /asset base/);
+  await assert.rejects(run(), /outside its mount/);
   await writeFile(path.join(ctx.build, 'index.html'), '<script src="/galaxy/assets/app.js"></script>');
   await writeFile(path.join(ctx.build, 'version.json'), '{"version":"x"}');
   await assert.rejects(run(), /metadata is invalid/);
