@@ -12,6 +12,14 @@ const archiveLimit = 32 * 1024 * 1024;
 const unpackedLimit = 128 * 1024 * 1024;
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
+// Any kind of app can be mounted (a Vite game, a static site, a docs bundle): the only layout rule is that
+// every root-absolute resource its entry page loads (src, <link href>, CSS url()) stays inside its own mount.
+// Relative paths and other origins are fine; navigation links (<a href>) may point anywhere on the site.
+export function rootResourcesOutsideMount(html, mount) {
+  const refs = [...html.matchAll(/(?:\bsrc\s*=\s*["']|<link\b[^>]*?\bhref\s*=\s*["']|url\(\s*["']?)(\/(?!\/)[^"')\s]*)/gi)].map((m) => m[1]);
+  return refs.filter((ref) => ref !== `/${mount}` && !ref.startsWith(`/${mount}/`));
+}
+
 export function validateManifest(manifest) {
   if (manifest?.schemaVersion !== 1 || !manifest.games || Array.isArray(manifest.games) || !Object.keys(manifest.games).length) {
     throw new Error('Invalid games manifest');
@@ -149,7 +157,8 @@ export async function assembleGames({ root = process.cwd(), artifactDirectory = 
         }
       }
       const html = await readFile(path.join(output, 'index.html'), 'utf8');
-      if (!html.includes(`/${mount}/assets/`)) throw new Error('Game HTML does not use its mounted asset base');
+      const outside = rootResourcesOutsideMount(html, mount);
+      if (outside.length) throw new Error(`App HTML loads root paths outside its mount /${mount}/: ${outside.slice(0, 3).join(', ')}`);
       await checkPrivacy({ root, dist: output, allowedPublicKeys });
       const destination = path.join(dist, mount);
       await rm(destination, { recursive: true, force: true });

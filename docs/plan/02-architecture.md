@@ -174,3 +174,5 @@ shared play remains gentle. Preview and real-phone acceptance are still required
 ## Studium
 
 `/studium` serves the Studium study guides (public repository `alexanderkholodov1/studium`), mounted from its latest GitHub Release with the same contract as Little Galaxy: `studium-dist-vX.Y.Z.tar.gz`, `version.json` and `SHA256SUMS`.
+
+Mounted apps are not only games. The assembly accepts any static app whose release carries `index.html` and `version.json`, as long as every root-absolute resource its entry page loads (`src`, `<link href>`, CSS `url()`) stays inside its own mount; relative paths, other origins and navigation links are free. This replaced a check that required a Vite-style `/<mount>/assets/` path.
