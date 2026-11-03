@@ -61,6 +61,16 @@
         "source": "/galaxy{,/**}",
         "destination": "/little-galaxy/",
         "type": 302
+      },
+      {
+        "source": "/studium",
+        "destination": "https://studium101.web.app/",
+        "type": 302
+      },
+      {
+        "source": "/studium/:path*",
+        "destination": "https://studium101.web.app/:path*",
+        "type": 302
       }
     ]
   }

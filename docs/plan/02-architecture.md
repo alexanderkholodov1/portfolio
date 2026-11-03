@@ -170,3 +170,7 @@ assembly keeps the `galaxy` release key/artifact name and adds an explicit `litt
 Printed /galaxy paths redirect to the new root; the old screen redirects to the new screen.
 The prototype's fonts/identity ship locally. Google admin precedes player account/invite UI;
 shared play remains gentle. Preview and real-phone acceptance are still required before release.
+
+## Other paths on this site
+
+- `/studium` and `/studium/*` answer with a temporary 302 to `https://studium101.web.app/` (the Studium study guides: separate private repository `studium` and Firebase project `studium101`). It can become a mount like `/little-galaxy` once Studium publishes public release artifacts.
