@@ -13,7 +13,7 @@ test.beforeEach(async ({ context }) => {
 
 test('bilingual route counterparts and complete navigation at phone width', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  for (const route of ['/', '/projects/', '/services/', '/about/', '/links/', '/projects/galaxy/']) {
+  for (const route of ['/', '/start/', '/projects/', '/services/', '/about/', '/links/', '/projects/galaxy/']) {
     await page.goto(route);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     const spanish = page.getByRole('link', { name: 'Read this page in Spanish' });

@@ -1,0 +1,30 @@
+rules_version = '2';
+
+// Client project requests for the portfolio. Deny by default; a signed-in person reads and writes only their own
+// request, only the fields the questionnaire collects, and cannot change it after sending it. The operator reads
+// and manages every request from the admin side (Admin SDK, which these rules do not restrict).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /requests/{uid} {
+      function own() { return request.auth != null && request.auth.uid == uid; }
+      function fields() {
+        return request.resource.data.keys().hasOnly(['name', 'email', 'kinds', 'idea', 'forWhom', 'where', 'when', 'budget', 'contact', 'contactValue', 'lang', 'status', 'step', 'createdAt', 'updatedAt', 'submittedAt']);
+      }
+      function valid() {
+        let d = request.resource.data;
+        return fields()
+          && d.status in ['draft', 'submitted']
+          && (!('idea' in d) || (d.idea is string && d.idea.size() <= 5000))
+          && (!('kinds' in d) || (d.kinds is list && d.kinds.size() <= 12))
+          && (!('contactValue' in d) || (d.contactValue is string && d.contactValue.size() <= 200));
+      }
+      allow read: if own();
+      allow create: if own() && valid();
+      allow update: if own() && valid() && resource.data.status == 'draft';
+      allow delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

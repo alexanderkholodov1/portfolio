@@ -51,8 +51,8 @@ const icons: Record<string, string> = {
   other: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',
 };
 const s2 = t.services;
-// One simple way in. Until client accounts exist, the start button opens a conversation on LinkedIn.
-const startHref = socials.items.find((x) => x.id === 'linkedin')?.href ?? href('projects', lang);
+// One simple way in: the button opens account creation and the questionnaire.
+const startHref = href('start', lang);
 ---
 <Layout lang={lang} page={page} title={title} description={description}>
   {page === 'home' && <>
@@ -231,7 +231,7 @@ const startHref = socials.items.find((x) => x.id === 'linkedin')?.href ?? href('
       </div>
       <div class="verse-copy">
         <p class="kicker">{s2.eyebrow}</p>
-        <h1 data-text={s2.title[0] + s2.title[1]}>{s2.title[0]}<em>{s2.title[1]}</em></h1>
+        <h1>{s2.title[0]}<em>{s2.title[1]}</em></h1>
         <p class="lede">{s2.lead}</p>
         <p class="calls"><a class="btn-a big" href={startHref}>{s2.start}<span class="arrow" aria-hidden="true">→</span></a></p>
         <p class="note">{s2.startNote}</p>
@@ -412,6 +412,23 @@ const startHref = socials.items.find((x) => x.id === 'linkedin')?.href ?? href('
     <script>
       import { startMotion } from '../scripts/motion';
       startMotion();
+    </script>
+  </>}
+
+  {page === 'start' && <>
+    <section class="start" data-start data-lang={lang} data-copy={JSON.stringify(t.start)}>
+      <div class="start-head">
+        <p class="kicker">{t.start.eyebrow}</p>
+        <h1>{t.start.title[0]}<em>{t.start.title[1]}</em></h1>
+        <p class="lede">{t.start.total}</p>
+        <ol class="steps">{t.start.steps.map((step, k) => <li data-step={k}><i aria-hidden="true">{k + 1}</i><span>{step}</span></li>)}</ol>
+      </div>
+      <div class="start-view" data-view aria-live="polite"></div>
+    </section>
+    <script>
+      import { startFlow } from '../scripts/start';
+      const root = document.querySelector<HTMLElement>('[data-start]');
+      if (root) startFlow(root);
     </script>
   </>}
 

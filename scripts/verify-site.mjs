@@ -3,7 +3,7 @@ import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const root = path.resolve('dist');
-const routes = ['/', '/projects/', '/services/', '/about/', '/links/', '/projects/galaxy/'];
+const routes = ['/', '/start/', '/projects/', '/services/', '/about/', '/links/', '/projects/galaxy/'];
 for (const prefix of ['', '/es']) {
   for (const route of routes) {
     const filename = path.join(root, prefix, route, 'index.html');
