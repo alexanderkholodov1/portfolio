@@ -57,7 +57,11 @@ const shown = SHOW.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p
 for (const x of shown) x.field = fieldOf(x.id);
 const moreCount = activities.length;
 const kinds: Kind[] = ['work', 'ieee', 'competition', 'teaching', 'volunteer', 'award', 'event'];
-const byKind = kinds.map((k) => ({ k, items: activities.filter((a) => a.kind === k).sort((a, b) => (a.id === 'ieee-vp' ? -1 : b.id === 'ieee-vp' ? 1 : b.sort.localeCompare(a.sort))) })).filter((g) => g.items.length);
+// The Experience timeline: every activity once, newest first, grouped by year.
+const years = [...new Set(activities.map((a) => a.sort.slice(0, 4)))].sort().reverse().map((year) => ({
+  year, items: activities.filter((a) => a.sort.startsWith(year) && a.kind !== 'event').sort((a, b) => b.sort.localeCompare(a.sort)),
+  events: activities.filter((a) => a.sort.startsWith(year) && a.kind === 'event').sort((a, b) => b.sort.localeCompare(a.sort)),
+}));
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
 const github = socials.items.find((s) => s.id === 'github');
 // Events he took part in, by the names in his projects and his bio (content.ts).
@@ -549,51 +553,67 @@ const startHref = href('start', lang);
   </>}
 
   {page === 'experience' && <>
-    <section class="page-hero exp-hero">
-      <p class="kicker">{t.experiencePage.eyebrow}</p>
-      <h1>{t.experiencePage.title[0]}<em>{t.experiencePage.title[1]}</em></h1>
-      <p class="lede">{t.experiencePage.lead}</p>
-      <ul class="exp-stats">{t.experiencePage.stats.map(([k, label]) => <li><b>{activities.filter((a) => a.kind === k).length}</b><span>{label}</span></li>)}</ul>
-      <nav class="exp-tabs" aria-label={t.experiencePage.eyebrow} data-exp-tabs hidden>
-        <button type="button" data-kind="all" aria-pressed="true">{t.experiencePage.all}</button>
-        {byKind.map((g) => <button type="button" data-kind={g.k} aria-pressed="false">{t.experiencePage.kinds[g.k]} <small>{g.items.length}</small></button>)}
-      </nav>
+    <section class="xp-hero">
+      <div>
+        <p class="kicker">{t.experiencePage.eyebrow}</p>
+        <h1>{t.experiencePage.title[0]}<em>{t.experiencePage.title[1]}</em></h1>
+        <p class="lede">{t.experiencePage.lead}</p>
+      </div>
+      <ul class="xp-stats" data-exp-stats>
+        {kinds.map((k) => { const n = activities.filter((a) => a.kind === k || a.tags?.includes(k)).length; return n > 0 && (
+          <li><button type="button" class={'xp-stat k-' + k} data-kind={k} aria-pressed="false"><b>{n}</b><span>{t.experiencePage.kinds[k]}</span></button></li>
+        ); })}
+      </ul>
     </section>
-    {byKind.map((g) => (
-      <section class={'band exp-group k-' + g.k} data-group={g.k} aria-labelledby={'g-' + g.k}>
-        <h2 id={'g-' + g.k} class="exp-h">{t.experiencePage.kinds[g.k]}</h2>
-        <ul class={g.k === 'event' ? 'exp-chips' : 'exp-cards'}>
-          {g.items.map((a, i) => g.k === 'event' ? (
-            <li data-reveal style={`--i:${i % 4}`}><b>{a.title[lang]}</b><small>{a.date[lang]}</small></li>
-          ) : (
-            <li class={'xcard' + (a.image ? ' has-img' : '')} data-reveal data-glow style={`--i:${i % 3}`}>
-              {a.image && <span class="xshot"><img src={a.image} alt="" width="640" height="400" loading="lazy" decoding="async" /></span>}
-              <div class="xbody">
-                <p class="xmeta"><span>{a.date[lang]}</span>{a.org && <span>{a.org[lang]}</span>}</p>
-                <h3>{a.title[lang]}</h3>
-                {(a.result || a.role || a.solo) && <p class="xbadges">{a.result && <span class="xb res">{a.result[lang]}</span>}{a.role && <span class="xb">{a.role[lang]}</span>}{a.solo && <span class="xb solo">{t.experiencePage.solo}</span>}</p>}
-                {a.text && <p class="xtext">{a.text[lang]}</p>}
-                {(a.page || a.post) && <p class="xlinks">{a.page && <a href={projectHref(a.page, lang)}>{t.experiencePage.more} →</a>}{a.post && <a href={a.post}>{t.experiencePage.linkedin} ↗</a>}</p>}
+    <nav class="xp-tabs" aria-label={t.experiencePage.eyebrow} data-exp-tabs>
+      <button type="button" data-kind="all" aria-pressed="true">{t.experiencePage.all}</button>
+      {kinds.filter((k) => activities.some((a) => a.kind === k || a.tags?.includes(k))).map((k) => <button type="button" class={'k-' + k} data-kind={k} aria-pressed="false"><i aria-hidden="true"></i>{t.experiencePage.kinds[k]}</button>)}
+    </nav>
+    <div class="xp-timeline">
+      {years.map((y) => (
+        <section class="xp-year" data-year={y.year} aria-labelledby={'y-' + y.year}>
+          <h2 id={'y-' + y.year} class="xp-yh"><em>{y.year}</em></h2>
+          <ol class="xp-list">
+            {y.items.map((a) => (
+              <li class={'xp-item k-' + a.kind + (a.kind === 'event' ? ' slim' : '') + (a.image ? ' has-img' : '')} data-kinds={[a.kind, ...(a.tags ?? [])].join(' ')} data-reveal>
+                <span class="xp-dot" aria-hidden="true"></span>
+                <article class="xp-card" data-glow>
+                  <div class="xp-main">
+                    <p class="xp-meta"><span class="xp-kind">{t.experiencePage.kinds[a.kind]}</span><span>{a.date[lang]}</span>{a.org && <span>{a.org[lang]}</span>}</p>
+                    <h3>{a.title[lang]}</h3>
+                    {(a.result || a.role || a.solo) && <p class="xbadges">{a.result && <span class="xb res">{a.result[lang]}</span>}{a.solo && <span class="xb solo">★ {t.experiencePage.solo}</span>}{a.role && <span class="xb">{a.role[lang]}</span>}</p>}
+                    {a.text && <p class="xp-text">{a.text[lang]}</p>}
+                    {(a.page || a.post) && <p class="xp-links">{a.page && <a class="xl" href={projectHref(a.page, lang)}>{t.experiencePage.more} <span aria-hidden="true">→</span></a>}{a.post && <a class="xl li" href={a.post}><span class="in" aria-hidden="true">in</span>{t.experiencePage.linkedin}</a>}</p>}
+                  </div>
+                  {a.image && <span class="xp-shot"><img src={a.image} alt="" width="640" height="400" loading="lazy" decoding="async" /></span>}
+                </article>
+              </li>
+            ))}
+            {y.events.length > 0 && <li class="xp-item xp-events k-event" data-kinds="event" data-reveal>
+              <span class="xp-dot" aria-hidden="true"></span>
+              <div class="xp-evbox">
+                <p class="xp-meta"><span class="xp-kind">{t.experiencePage.kinds.event}</span><span>{y.events.length}</span></p>
+                <ul class="xp-chips">{y.events.map((e) => <li><b>{e.title[lang]}</b><small>{e.date[lang]}</small></li>)}</ul>
               </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
-    <p class="exp-feed"><a class="btn-c" href={linkedinActivity}><span class="dot" aria-hidden="true"></span>{t.experiencePage.feed}</a></p>
+            </li>}
+          </ol>
+        </section>
+      ))}
+    </div>
+    <section class="band xp-end bleed ink deep">
+      <h2>{t.experiencePage.endTitle[0]}<em>{t.experiencePage.endTitle[1]}</em></h2>
+      <p class="calls"><a class="btn-a big" href={linkedinActivity}>{t.experiencePage.feed}<span class="arrow" aria-hidden="true">↗</span></a></p>
+    </section>
     <script>
       import { startMotion } from '../scripts/motion';
       startMotion();
-      const tabs = document.querySelector<HTMLElement>('[data-exp-tabs]');
-      if (tabs) {
-        tabs.hidden = false;
-        tabs.addEventListener('click', (e) => {
-          const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-kind]'); if (!b) return;
-          tabs.querySelectorAll('[data-kind]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-          document.querySelectorAll<HTMLElement>('[data-group]').forEach((g) => { g.hidden = b.dataset.kind !== 'all' && g.dataset.group !== b.dataset.kind; });
-          document.querySelectorAll('[data-group] [data-reveal]').forEach((el) => el.classList.add('seen'));
-        });
-      }
+      const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-exp-tabs] [data-kind], [data-exp-stats] [data-kind]')];
+      const apply = (kind: string) => {
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.kind === kind)));
+        document.querySelectorAll<HTMLElement>('.xp-item').forEach((li) => { li.hidden = kind !== 'all' && !li.dataset.kinds!.split(' ').includes(kind); li.classList.add('seen'); });
+        document.querySelectorAll<HTMLElement>('.xp-year').forEach((y) => { y.hidden = !y.querySelector('.xp-item:not([hidden])'); });
+      };
+      buttons.forEach((b) => b.addEventListener('click', () => { apply(b.getAttribute('aria-pressed') === 'true' && b.dataset.kind !== 'all' ? 'all' : b.dataset.kind!); document.querySelector('.xp-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
     </script>
   </>}
 

@@ -113,8 +113,8 @@ export const copy = {
     admin: { description: 'Requests', title: 'Requests', signin: 'Sign in', email: 'Email', password: 'Password', google: 'Continue with Google', denied: 'This account cannot open the request desk.', out: 'Sign out', all: 'All', empty: 'No requests here yet.', save: 'Save', saved: 'Saved', message: 'Message to the client', status: 'Status', note: 'Private note', addNote: 'Add note', notes: 'Private notes', priority: 'Priority', statuses: { submitted: 'Received', reviewing: 'In review', proposal: 'Proposal sent', 'in-progress': 'In progress', delivered: 'Delivered', closed: 'Closed', declined: 'Declined' }, fields: { email: 'Email', kinds: 'What', idea: 'Idea', forWhom: 'For', where: 'Where', when: 'When', budget: 'Budget', contact: 'Contact by', contactValue: 'Contact', lang: 'Language' } },
     experiencePage: {
       eyebrow: 'Experience', description: 'Work, IEEE Computer Society USFQ, competitions, teaching, volunteering and events of Alexander Kholodov.',
-      title: ['Everything I ', 'take part in'], lead: 'Work, leadership, competitions, teaching and community, apart from the projects I build.',
-      all: 'All', linkedin: 'See the post', more: 'Details', feed: 'All my posts on LinkedIn', solo: 'Organised by me',
+      title: ['My ', 'experience'], lead: 'Work, leadership, competitions, teaching and community, apart from the projects I build.',
+      all: 'All', linkedin: 'See the post', more: 'Details', feed: 'All my posts on LinkedIn', solo: 'Organised by me', endTitle: ['Follow what comes ', 'next'],
       kinds: { work: 'Work', ieee: 'IEEE CS USFQ board', competition: 'Competitions', teaching: 'Teaching', volunteer: 'Volunteering and outreach', award: 'Recognitions', event: 'Events attended' },
       stats: [['work', 'internships'], ['competition', 'competitions'], ['ieee', 'activities with the chapter'], ['event', 'events attended']],
     },
@@ -237,8 +237,8 @@ export const copy = {
     admin: { description: 'Solicitudes', title: 'Solicitudes', signin: 'Iniciar sesión', email: 'Correo', password: 'Contraseña', google: 'Continuar con Google', denied: 'Esta cuenta no puede abrir el panel de solicitudes.', out: 'Cerrar sesión', all: 'Todas', empty: 'Aún no hay solicitudes aquí.', save: 'Guardar', saved: 'Guardado', message: 'Mensaje para el cliente', status: 'Estado', note: 'Nota privada', addNote: 'Agregar nota', notes: 'Notas privadas', priority: 'Prioridad', statuses: { submitted: 'Recibida', reviewing: 'En revisión', proposal: 'Propuesta enviada', 'in-progress': 'En desarrollo', delivered: 'Entregada', closed: 'Cerrada', declined: 'No aceptada' }, fields: { email: 'Correo', kinds: 'Qué', idea: 'Idea', forWhom: 'Para', where: 'Dónde', when: 'Cuándo', budget: 'Presupuesto', contact: 'Contacto por', contactValue: 'Contacto', lang: 'Idioma' } },
     experiencePage: {
       eyebrow: 'Experiencia', description: 'Trabajo, IEEE Computer Society USFQ, competencias, docencia, voluntariado y eventos de Alexander Kholodov.',
-      title: ['Todo en lo que ', 'participo'], lead: 'Trabajo, liderazgo, competencias, docencia y comunidad, aparte de los proyectos que construyo.',
-      all: 'Todo', linkedin: 'Ver la publicación', more: 'Detalles', feed: 'Todas mis publicaciones en LinkedIn', solo: 'Organizado por mí',
+      title: ['Mi ', 'experiencia'], lead: 'Trabajo, liderazgo, competencias, docencia y comunidad, aparte de los proyectos que construyo.',
+      all: 'Todo', linkedin: 'Ver la publicación', more: 'Detalles', feed: 'Todas mis publicaciones en LinkedIn', solo: 'Organizado por mí', endTitle: ['Sigue lo que ', 'viene'],
       kinds: { work: 'Trabajo', ieee: 'Directiva IEEE CS USFQ', competition: 'Competencias', teaching: 'Docencia', volunteer: 'Voluntariado y vinculación', award: 'Reconocimientos', event: 'Eventos' },
       stats: [['work', 'pasantías'], ['competition', 'competencias'], ['ieee', 'actividades con el capítulo'], ['event', 'eventos']],
     },

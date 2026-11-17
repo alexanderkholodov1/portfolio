@@ -4,7 +4,7 @@
 // `post` is set only where the exact LinkedIn post link is known; `page` links to a detail page on this site.
 export type L = { en: string; es: string };
 export type Kind = 'work' | 'ieee' | 'competition' | 'teaching' | 'volunteer' | 'event' | 'award';
-export type Activity = { id: string; kind: Kind; sort: string; date: L; title: L; org?: L; role?: L; result?: L; text?: L; image?: string; post?: string; page?: string; solo?: boolean };
+export type Activity = { id: string; kind: Kind; sort: string; date: L; title: L; org?: L; role?: L; result?: L; text?: L; image?: string; post?: string; page?: string; solo?: boolean; tags?: Kind[] };
 
 const same = (s: string): L => ({ en: s, es: s });
 
@@ -24,9 +24,9 @@ export const activities: Activity[] = [
     text: { en: 'A programming contest with participants from other universities and provinces.', es: 'Una competencia de programación con participantes de otras universidades y provincias.' } },
   { id: 'ieeextreme-20', kind: 'ieee', sort: '2026-08', date: { en: 'Aug – Oct 2026', es: 'Ago – Oct 2026' }, title: { en: 'IEEEXtreme 20.0 Student Branch Ambassador', es: 'Student Branch Ambassador de IEEEXtreme 20.0' }, org: same('IEEE'),
     text: { en: 'Representing USFQ in Ecuador, and applying with the board for USFQ to host the 24-hour contest.', es: 'Representando a la USFQ en Ecuador, y postulando con la directiva para que la USFQ fuera sede de la competencia de 24 horas.' }, image: '/projects/ieeextreme-ambassador.webp', post: 'https://www.linkedin.com/feed/update/urn:li:activity:7500638662183919616/', page: 'ieeextreme-ambassador' },
-  { id: 'prog-club', kind: 'ieee', sort: '2026-02', date: { en: 'Feb – May 2026', es: 'Feb – May 2026' }, title: { en: 'Competitive Programming Club', es: 'Club de Programación Competitiva' }, role: { en: 'Instructor and co-organiser', es: 'Instructor y coorganizador' },
+  { id: 'prog-club', kind: 'ieee', tags: ['teaching'], sort: '2026-02', date: { en: 'Feb – May 2026', es: 'Feb – May 2026' }, title: { en: 'Competitive Programming Club', es: 'Club de Programación Competitiva' }, role: { en: 'Instructor and co-organiser', es: 'Instructor y coorganizador' },
     text: { en: 'Every Friday of the semester: Python, C++ and mock contests from IEEEXtreme, CodeVita and ICPC, for 20+ students.', es: 'Cada viernes del semestre: Python, C++ y simulacros con problemas de IEEEXtreme, CodeVita e ICPC, para más de 20 estudiantes.' }, image: '/projects/competitive-programming-club.webp', page: 'competitive-programming-club' },
-  { id: 'github-course', kind: 'ieee', sort: '2026-03', date: { en: '27 Mar 2026', es: '27 mar 2026' }, title: { en: 'GitHub From Scratch course', es: 'Curso GitHub Desde Cero' }, role: { en: 'Instructor, with Daniela Castellanos', es: 'Instructor, con Daniela Castellanos' },
+  { id: 'github-course', kind: 'ieee', tags: ['teaching'], sort: '2026-03', date: { en: '27 Mar 2026', es: '27 mar 2026' }, title: { en: 'GitHub From Scratch course', es: 'Curso GitHub Desde Cero' }, role: { en: 'Instructor, with Daniela Castellanos', es: 'Instructor, con Daniela Castellanos' },
     text: { en: 'Git, GitHub, GitHub Desktop and Copilot, with a final group project.', es: 'Git, GitHub, GitHub Desktop y Copilot, con un proyecto final en grupo.' }, image: '/projects/github-desde-cero.webp', page: 'github-desde-cero' },
   { id: 'prompt-course', kind: 'ieee', sort: '2026-04', date: { en: '10 Apr 2026', es: '10 abr 2026' }, title: { en: 'Prompt Engineering and Vibecoding course', es: 'Curso de Prompt Engineering y Vibecoding' }, org: same('IEEE CS USFQ · IEEE CIS USFQ'),
     text: { en: 'Organised by the chapter, with Alex Padilla and Edison Luje as guest speakers.', es: 'Organizado por el capítulo, con Alex Padilla y Edison Luje como ponentes invitados.' }, image: '/projects/prompt-engineering-course.webp', page: 'prompt-engineering-course' },
@@ -49,14 +49,12 @@ export const activities: Activity[] = [
 
   // Teaching
   { id: 'tutor', kind: 'teaching', sort: '2023-01', date: { en: 'Since 2023', es: 'Desde 2023' }, title: { en: 'Private tutor', es: 'Tutor particular' }, text: { en: 'Programming, mathematics, science and languages (Spanish, English and Russian).', es: 'Programación, matemáticas, ciencias e idiomas (español, inglés y ruso).' } },
-  { id: 'teach-club', kind: 'teaching', sort: '2026-02', date: { en: 'Feb – May 2026', es: 'Feb – May 2026' }, title: { en: 'A full semester teaching 20+ students', es: 'Un semestre completo enseñando a más de 20 estudiantes' }, org: { en: 'Competitive Programming Club', es: 'Club de Programación Competitiva' }, page: 'competitive-programming-club' },
-  { id: 'teach-github', kind: 'teaching', sort: '2026-03', date: { en: 'Mar 2026', es: 'Mar 2026' }, title: { en: 'Instructor, GitHub From Scratch', es: 'Instructor, GitHub Desde Cero' }, org: same('IEEE Computer Society USFQ'), page: 'github-desde-cero' },
 
   // Volunteering and outreach
   { id: 'slb', kind: 'volunteer', sort: '2026-03', date: { en: 'Mar 2026', es: 'Mar 2026' }, title: { en: 'Computer refurbishment for Amazon schools', es: 'Reacondicionamiento de computadoras para escuelas amazónicas' }, org: { en: 'SLB · USFQ Sustainability Office', es: 'SLB · Oficina de Sostenibilidad USFQ' }, image: '/projects/slb-computer-repowering.webp', page: 'slb-computer-repowering' },
   { id: 'vecinos', kind: 'volunteer', sort: '2026-11', date: { en: '5 Nov 2026', es: '5 nov 2026' }, title: { en: 'Outreach: Vecinos USFQ', es: 'Vinculación: Vecinos USFQ' } },
   { id: 'ingenieros', kind: 'volunteer', sort: '2026-11', date: { en: '6 Nov 2026', es: '6 nov 2026' }, title: { en: 'Outreach: Pequeños Ingenieros', es: 'Vinculación: Pequeños Ingenieros' } },
-  { id: 'staff-devfest', kind: 'volunteer', sort: '2026-09', date: { en: 'Sep 2026', es: 'Sep 2026' }, title: { en: 'Staff, Google DevFest 2026', es: 'Staff, Google DevFest 2026' }, text: { en: 'Attendee registration for 2,000+ people.', es: 'Registro de asistentes para más de 2.000 personas.' } },
+  { id: 'staff-devfest', kind: 'volunteer', tags: ['event'], sort: '2026-09', date: { en: 'Sep 2026', es: 'Sep 2026' }, title: { en: 'Staff, Google DevFest 2026', es: 'Staff, Google DevFest 2026' }, text: { en: 'Attendee registration for 2,000+ people.', es: 'Registro de asistentes para más de 2.000 personas.' } },
   { id: 'staff-cursor', kind: 'volunteer', sort: '2026-09', date: { en: 'Sep 2026', es: 'Sep 2026' }, title: { en: 'Staff, Cursor x Supabase workshop', es: 'Staff, taller Cursor x Supabase' }, image: '/projects/agent-workshops.webp', page: 'agent-workshops' },
   { id: 'staff-sala', kind: 'volunteer', sort: '2026-03', date: { en: 'Mar 2026', es: 'Mar 2026' }, title: { en: 'Staff, SALA 2026 (Summit of AI in Latin America)', es: 'Staff, SALA 2026 (Summit of AI in Latin America)' } },
 
