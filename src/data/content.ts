@@ -76,7 +76,7 @@ export const projects: List<Project> = {
       role: todo('P3: his role in team SK-Horizons for Farpoint HORIZON, in EN and ES.'),
       stack: ['Godot', 'Blender'],
       dates: { en: 'Nov 2026', es: 'Nov 2026' },
-      image: todo('P3: a screenshot of Farpoint HORIZON with alt text in EN and ES.'),
+      image: { src: '/projects/farpoint-horizon.webp', alt: { en: 'Farpoint HORIZON title screen: the Earth from orbit with a satellite on its path and the Play the story button.', es: 'Pantalla de inicio de Farpoint HORIZON: la Tierra vista desde la órbita, un satélite en su trayectoria y el botón para jugar la historia.' } },
     },
     {
       id: 'galaxy',
@@ -96,7 +96,7 @@ export const projects: List<Project> = {
       role: { en: 'Design and development', es: 'Diseño y desarrollo' },
       stack: ['React', 'Three.js', 'React Three Fiber', 'Tone.js', 'Firebase', 'TypeScript', 'Vite'],
       dates: { en: 'Oct 2026 – Be a Dragon 2026', es: 'Oct 2026 – Be a Dragon 2026' },
-      image: todo('P3: a screenshot or photo of the galaxy or the booth, with alt text in EN and ES.'),
+      image: { src: '/projects/collective-galaxy.webp', alt: { en: 'Collective Galaxy welcome screen: a spiral galaxy of light around the title and the Enter button.', es: 'Pantalla de bienvenida de Galaxia Colectiva: una galaxia espiral de luz alrededor del título y el botón para entrar.' } },
     },
     {
       id: 'agent-workshops',
@@ -149,7 +149,7 @@ export const projects: List<Project> = {
       role: { en: 'Level design, mechanics implementation, narrative, and team coordination', es: 'Construcción de niveles, implementación de mecánicas y narrativa, y organización del equipo' },
       stack: ['Godot Engine'],
       dates: { en: 'Apr 2026', es: 'Abr 2026' },
-      image: todo('P3: screenshot of Sublime Airlift gameplay with alt text in EN and ES.'),
+      image: { src: '/projects/sublime-airlift.webp', alt: { en: 'Sublime Airlift main menu in pixel art: Play, Credits, Settings and Exit over a dark purple world.', es: 'Menú principal de Sublime Airlift en pixel art: Jugar, Créditos, Ajustes y Salir sobre un mundo morado y oscuro.' } },
     },
     {
       id: 'prompt-engineering-course',
@@ -222,7 +222,7 @@ export const projects: List<Project> = {
       role: { en: 'Full-stack web platform design and development', es: 'Desarrollo full stack de la plataforma web' },
       stack: ['Firebase Hosting', 'Firebase Realtime Database', 'Firebase Auth', 'Web Serial API', 'Python', 'WebSocket'],
       dates: { en: 'Mar 2026', es: 'Mar 2026' },
-      image: todo('P3: screenshot of the MunHub Lab platform with alt text in EN and ES.'),
+      image: { src: '/projects/munhub-lab.webp', alt: { en: 'MunHub Lab dashboard: event rate, SiPM signal, temperature and pressure, and dead time recorded by the detector.', es: 'Panel de MunHub Lab: tasa de eventos, señal del SiPM, temperatura y presión, y tiempo muerto registrados por el detector.' } },
     },
     {
       id: 'usfq-ai-support',

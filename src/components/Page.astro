@@ -69,6 +69,7 @@ const s2 = t.services;
           const game = fields[0].ids.includes(p.id);
           return (
             <article class="stage-panel" role="tabpanel" id={'panel-' + p.id} aria-labelledby={'tab-' + p.id} hidden={i !== 0}>
+              {!isPending(p.image) && <figure class="shot"><img src={p.image.src} alt={p.image.alt[lang]} width="640" height="400" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" /></figure>}
               <p class="kicker">{p.context[lang]}</p>
               <h2>{p.title[lang]}</h2>
               <p class="pitch">{p.pitch[lang]}</p>
@@ -103,7 +104,7 @@ const s2 = t.services;
       <ul>{results.map((r, k) => (
         <li data-reveal style={`--i:${k};--n:${r.figure}`}>
           <b><span class="roll" aria-hidden="true"><span>{Array.from({ length: r.figure }, (_, d) => <span>{d + 1}</span>)}</span></span><span class="sr">{r.figure}</span><sup>{r.suffix}</sup></b>
-          <span>{r.project!.context[lang]}</span><span class="soft">{r.project!.title[lang]}</span>
+          <span>{r.project!.context[lang]}</span><span class="soft">{r.project!.title[lang]}</span>{!isPending(r.project!.image) && <img class="thumb" src={r.project!.image.src} alt={r.project!.image.alt[lang]} width="320" height="180" loading="lazy" decoding="async" />}
         </li>
       ))}</ul>
     </section>
