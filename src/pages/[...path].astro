@@ -1,13 +1,21 @@
 ---
 import PageContent from '../components/Page.astro';
-import { pages, paths } from '../data/site';
+import { projects } from '../data/content';
+import { GALAXY_ID, pages, paths } from '../data/site';
 
 export function getStaticPaths() {
-  return (['en', 'es'] as const).flatMap((lang) => pages.map((page) => ({
-    params: { path: `${lang === 'es' ? 'es/' : ''}${paths[page]}`.replace(/\/$/, '') || undefined },
-    props: { lang, page },
-  })));
+  return (['en', 'es'] as const).flatMap((lang) => [
+    ...pages.filter((page) => page !== 'project').map((page) => ({
+      params: { path: `${lang === 'es' ? 'es/' : ''}${paths[page]}`.replace(/\/$/, '') || undefined },
+      props: { lang, page, projectId: undefined },
+    })),
+    // One page per project, so anyone can go deeper from the overview; the galaxy keeps its own entry page.
+    ...projects.items.filter((project) => project.id !== GALAXY_ID).map((project) => ({
+      params: { path: `${lang === 'es' ? 'es/' : ''}projects/${project.id}` },
+      props: { lang, page: 'project' as const, projectId: project.id },
+    })),
+  ]);
 }
-const { lang, page } = Astro.props;
+const { lang, page, projectId } = Astro.props;
 ---
-<PageContent lang={lang} page={page} />
+<PageContent lang={lang} page={page} projectId={projectId} />

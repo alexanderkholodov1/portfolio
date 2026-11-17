@@ -4,9 +4,10 @@ import LiveBanner from './LiveBanner.astro';
 import Mark from './Mark.astro';
 import { copy } from '../data/copy';
 import { isPending, links, profile, projects, services, socials } from '../data/content';
-import { galaxy, galaxyHref, href, labels, resolveHref, type Language, type Page } from '../data/site';
-interface Props { lang: Language; page: Page; }
-const { lang, page } = Astro.props;
+import { galaxy, galaxyHref, href, labels, projectHref, resolveHref, type Language, type Page } from '../data/site';
+interface Props { lang: Language; page: Page; projectId?: string; }
+const { lang, page, projectId } = Astro.props;
+const current = projectId ? projects.items.find((p) => p.id === projectId) : undefined;
 const t = copy[lang];
 const role = isPending(profile.role) ? null : profile.role[lang];
 const bio = isPending(profile.bio) ? null : profile.bio[lang].split(/\n{2,}/);
@@ -19,20 +20,25 @@ const record = [
   [lang === 'es' ? 'Fechas' : 'Dates', isPending(galaxy.dates) ? null : galaxy.dates[lang]],
 ].filter((row): row is [string, string] => row[1] !== null);
 const image = isPending(galaxy.image) ? null : galaxy.image;
-const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[lang] : labels[lang][page];
-// Each project row opens that project's own entry; only the galaxy has an entry page on this site.
-const entryHref = (project: (typeof projects.items)[number]) => (project.id === galaxy.id ? href('galaxy', lang) : project.href ? resolveHref(project.href, lang) : undefined);
-const description = page === 'home' ? t.home.description : t[page === 'galaxy' ? 'galaxy' : page].description;
+const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[lang] : current ? current.title[lang] : labels[lang][page];
+// Every project has its own page on this site (his note of 2026-11-17: the overview first, depth one click away).
+const entryHref = (project: (typeof projects.items)[number]) => projectHref(project.id, lang);
+const description = page === 'home' ? t.home.description : current ? current.pitch[lang] : t[page === 'galaxy' ? 'galaxy' : page === 'project' ? 'projects' : page].description;
 // Home: projects grouped by field (his note of 2026-10-26: not one list) and real results.
 const byId = (id: string) => projects.items.find((p) => p.id === id);
 const fields = [
-  { name: t.build.games, ids: ['galaxy', 'farpoint-horizon', 'sublime-airlift', 'dragons-never-die'] },
+  { name: t.build.games, ids: ['galaxy', 'farpoint-horizon', 'unallocated', 'sublime-airlift', 'dragons-never-die'] },
   { name: t.build.science, ids: ['munhub-lab', 'dragon-ocean-analyzer', 'zkvote'] },
+  { name: t.build.web, ids: ['studium', 'pancho-bus', 'nivela', 'vetweb', 'aklabs-store'] },
   { name: t.build.work, ids: ['tcs-ai', 'usfq-ai-support', 'agent-workshops'] },
 ].map((f) => ({ ...f, items: f.ids.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p)) }));
-// The first screen is his work: six projects, each drawn by the stage in its own shape (src/scripts/stage.ts).
-const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? '';
-const showcase = ['farpoint-horizon', 'galaxy', 'munhub-lab', 'dragon-ocean-analyzer', 'zkvote', 'tcs-ai'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
+const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? t.projects.other;
+const fieldIndex = (id: string) => { const k = fields.findIndex((f) => f.ids.includes(id)); return k < 0 ? 'o' : String(k); };
+// The panorama: the whole range at first sight; each tile opens the project's own page.
+const panorama = ['farpoint-horizon', 'galaxy', 'munhub-lab', 'pancho-bus', 'studium', 'nivela', 'unallocated', 'dragon-ocean-analyzer', 'sublime-airlift', 'vetweb', 'zkvote', 'tcs-ai'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
+// Six columns, three rows: two large tiles and ten small ones fill the grid exactly.
+const tileSize = (k: number) => (k < 2 ? 'big' : '');
+const related = current ? projects.items.filter((p) => p.id !== current.id && fieldIndex(p.id) === fieldIndex(current.id)).slice(0, 3) : [];
 const results = [
   { figure: 3, suffix: lang === 'es' ? 'º' : 'rd', project: byId('sublime-airlift') },
   { figure: 4, suffix: lang === 'es' ? 'º' : 'th', project: byId('dragons-never-die') },
@@ -41,7 +47,7 @@ const results = [
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
 const github = socials.items.find((s) => s.id === 'github');
 // Events he took part in, by the names in his projects and his bio (content.ts).
-const eventNames = ['NASA Space Apps Challenge 2026', 'Be a Dragon 2026', 'Interact2Hack 2026', 'SALA 2026 AI Hackathon', 'Space Expo', 'ZKForge Hackathon 2025', 'USFQ IEEE CS Game Jam 2025', 'TCS CodeVita', 'IEEEXtreme', 'Diners Club Blue Challenge', 'Cursor Community Quito', 'Cursor x Supabase'];
+const eventNames = ['NASA Space Apps Challenge 2026', 'Be a Dragon 2026', 'IEEEXtreme 20.0', 'Mini IEEEXtreme 2.0', 'Google DevFest 2026', 'IGNITE Summit 2026', 'Interact2Hack 2026', 'SALA 2026', 'Space Expo', 'Build With AI', 'AWS Gen AI Day', 'Cursor Workshop Quito', 'Cursor x Supabase', 'TCS CodeVita 13', 'IEEEXtreme 19.0', 'DevFest Quito 2025', 'Diners Club Blue Challenge', 'ZKForge Hackathon 2025', 'USFQ IEEE CS Game Jam 2025'];
 const cases = t.solve.cases.map(([id, problem]) => ({ problem, project: byId(id)! })).filter((c) => c.project);
 const repos = projects.items.filter((p) => p.source?.href.startsWith('https://github.com/')).map((p) => ({ title: p.title[lang], href: p.source!.href, path: p.source!.href.replace('https://github.com/', '') }));
 const icons: Record<string, string> = {
@@ -64,38 +70,28 @@ const startHref = href('start', lang);
       <a class="cue" href="#work"><span>{t.intro.cue}</span><i aria-hidden="true"></i></a>
     </section>
 
-    <p class="kicker work-kicker" data-reveal>{t.intro.work}</p>
-    <section class="stage" id="work" aria-label={t.stage.label} data-stage>
-      <div class="stage-index" role="tablist" aria-orientation="vertical" aria-label={t.stage.label}>
-        {showcase.map((p, i) => (
-          <button type="button" role="tab" id={'tab-' + p.id} aria-controls={'panel-' + p.id} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-shape={p.id}>
-            <span class="n">{pad(i + 1)}</span><span class="t">{p.title[lang]}</span><small>{fieldOf(p.id)}</small><i aria-hidden="true"></i>
-          </button>
+    <section class="band panorama" id="work" aria-labelledby="work-title">
+      <p class="kicker" data-reveal>{t.intro.work}</p>
+      <h2 id="work-title" data-reveal>{t.panorama.title[0]}<em>{t.panorama.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.panorama.lead}</p>
+      <ul class="mosaic">
+        {panorama.map((p, k) => (
+          <li class={'tile ' + tileSize(k)} data-reveal style={`--i:${k % 4}`}>
+            <a href={entryHref(p)} data-glow>
+              <span class={'cover f' + fieldIndex(p.id)}>
+                {!isPending(p.image) ? <img src={p.image.src} alt="" width="640" height="400" loading={k < 4 ? 'eager' : 'lazy'} decoding="async" /> : <span class="glyph" aria-hidden="true">{p.title[lang].slice(0, 1)}</span>}
+              </span>
+              <span class="tile-text">
+                <small>{fieldOf(p.id)}</small>
+                <b>{p.title[lang]}</b>
+                <span class="ctx">{p.context[lang]}</span>
+                <span class="go">{t.panorama.open} <i aria-hidden="true">→</i></span>
+              </span>
+            </a>
+          </li>
         ))}
-      </div>
-      <div class="stage-view">
-        <canvas aria-hidden="true"></canvas>
-        {showcase.map((p, i) => {
-          const go = entryHref(p);
-          const game = fields[0].ids.includes(p.id);
-          return (
-            <article class="stage-panel" role="tabpanel" id={'panel-' + p.id} aria-labelledby={'tab-' + p.id} hidden={i !== 0}>
-              {!isPending(p.image) && <figure class="shot"><img src={p.image.src} alt={p.image.alt[lang]} width="640" height="400" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" /></figure>}
-              <p class="kicker">{p.context[lang]}</p>
-              <h2>{p.title[lang]}</h2>
-              <p class="pitch">{p.pitch[lang]}</p>
-              <p class="calls">
-                {go ? <a class="btn-a" href={go}>{game ? t.stage.play : t.stage.open}<span class="arrow" aria-hidden="true">↗</span></a>
-                    : <a class="btn-a" href={href('projects', lang)}>{t.stage.more}<span class="arrow" aria-hidden="true">→</span></a>}
-                {!isPending(p.stack) && <span class="stack">{p.stack.slice(0, 3).join(' · ')}</span>}
-              </p>
-            </article>
-          );
-        })}
-        <p class="hint" aria-hidden="true">{t.stage.hint}</p>
-      </div>
+      </ul>
     </section>
-
     <p class="all-work" data-reveal><a class="btn-b" href={href('projects', lang)}>{t.stage.all}</a></p>
 
     <section class="band view bleed tint" aria-labelledby="view-title">
@@ -208,12 +204,10 @@ const startHref = href('start', lang);
     </section>
     <script>
       import { startMotion } from '../scripts/motion';
-      import { startStage } from '../scripts/stage';
       import { startRibbon } from '../scripts/ribbon';
+      import { startLetters } from '../scripts/letters';
       const hero = document.querySelector<HTMLElement>('[data-hero]');
-      if (hero) startRibbon(hero);
-      const stage = document.querySelector<HTMLElement>('[data-stage]');
-      if (stage) startStage(stage);
+      if (hero) { startRibbon(hero); startLetters(hero); }
       startMotion();
     </script>
   </>}
@@ -229,18 +223,18 @@ const startHref = href('start', lang);
         <p class="note">{s2.startNote}</p>
       </div>
       <div class="b-stage">
-        <div class="b-window" aria-hidden="true">
-          <p class="b-prompt"><span class="spark">✦</span><span data-typed></span><i class="caret"></i></p>
-          <div class="b-out">
-            <div class="sc sc-web" data-scene="0"><p class="w-nav"><b></b><i></i><i></i><i></i></p><div class="w-hero"><div><span class="w-h"></span><span class="w-h s"></span><span class="w-btn"></span></div><span class="w-img"></span></div><p class="w-cards"><i></i><i></i><i></i></p></div>
-            <div class="sc sc-app" data-scene="1"><div class="a-phone"><span class="a-toast"></span><span class="a-ttl"></span><i></i><i></i><i></i><span class="a-tab"></span></div></div>
-            <div class="sc sc-game" data-scene="2"><span class="g-sun"></span><span class="g-hill"></span><span class="g-ground"></span><span class="g-hero"></span><span class="g-block"></span><span class="g-coin"></span><span class="g-coin c2"></span></div>
-            <div class="sc sc-3d" data-scene="3"><span class="m-floor"></span><div class="m-cube"><i class="f"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="t"></i><i class="d"></i></div></div>
+        {s2.builder.map((b, k) => (
+          <div class="b-window mini" data-build={k} style={`--k:${k}`}>
+            <p class="b-label">{b.label}</p>
+            <p class="b-prompt" aria-hidden="true"><span class="spark">✦</span><span data-typed data-text={b.prompt}></span><i class="caret"></i></p>
+            <div class="b-out" aria-hidden="true">
+              {k === 0 && <Fragment set:html={`<div class="sc sc-web"><p class="w-nav"><b></b><i></i><i></i><i></i></p><div class="w-hero"><div><span class="w-h"></span><span class="w-h s"></span><span class="w-btn"></span></div><span class="w-img"></span></div><p class="w-cards"><i></i><i></i><i></i></p></div>`} />}
+              {k === 1 && <Fragment set:html={`<div class="sc sc-app"><div class="a-phone"><span class="a-toast"></span><span class="a-ttl"></span><i></i><i></i><i></i><span class="a-tab"></span></div></div>`} />}
+              {k === 2 && <Fragment set:html={`<div class="sc sc-game"><span class="g-sun"></span><span class="g-hill"></span><span class="g-ground"></span><span class="g-hero"></span><span class="g-block"></span><span class="g-coin"></span><span class="g-coin c2"></span></div>`} />}
+              {k === 3 && <Fragment set:html={`<div class="sc sc-3d"><span class="m-floor"></span><div class="m-cube"><i class="f"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="t"></i><i class="d"></i></div></div>`} />}
+            </div>
           </div>
-        </div>
-        <div class="b-ideas" role="group" aria-label={s2.gridTitle.join('')}>
-          {s2.builder.map((b, k) => <button type="button" data-idea={k} data-prompt={b.prompt} aria-pressed={k === 0 ? 'true' : 'false'}><i aria-hidden="true"></i>{b.label}</button>)}
-        </div>
+        ))}
       </div>
     </section>
 
@@ -437,6 +431,52 @@ const startHref = href('start', lang);
       import { startFlow } from '../scripts/start';
       const root = document.querySelector<HTMLElement>('[data-start]');
       if (root) startFlow(root);
+    </script>
+  </>}
+
+  {page === 'project' && current && <>
+    <section class="project-page">
+      <p class="back"><a href={href('projects', lang)}>← {t.project.back}</a></p>
+      <div class="pp-grid">
+        <div>
+          <p class="kicker">{fieldOf(current.id)}</p>
+          <h1>{current.title[lang]}</h1>
+          <p class="pp-ctx">{current.context[lang]}</p>
+          <p class="lede">{current.pitch[lang]}</p>
+          <dl class="pp-facts">
+            {!isPending(current.role) && <div><dt>{t.project.role}</dt><dd>{current.role[lang]}</dd></div>}
+            {!isPending(current.dates) && <div><dt>{t.project.dates}</dt><dd>{current.dates[lang]}</dd></div>}
+          </dl>
+          {!isPending(current.stack) && current.stack.length > 0 && <ul class="stack-chips" aria-label={t.project.stack}>{current.stack.map((x) => <li>{x}</li>)}</ul>}
+          <p class="calls">
+            {current.href && <a class="btn-a" href={resolveHref(current.href, lang)}>{fieldIndex(current.id) === '0' ? t.stage.play : t.stage.open}<span class="arrow" aria-hidden="true">↗</span></a>}
+            {current.source && current.source.href !== current.href && <a class="btn-b" href={current.source.href}>{t.projects.source}</a>}
+          </p>
+        </div>
+        <div class={'pp-visual cover f' + fieldIndex(current.id)}>
+          {!isPending(current.image) ? <img src={current.image.src} alt={current.image.alt[lang]} width="1280" height="800" /> : <span class="glyph" aria-hidden="true">{current.title[lang].slice(0, 1)}</span>}
+        </div>
+      </div>
+    </section>
+    {related.length > 0 && <section class="band" aria-labelledby="more-title">
+      <h2 id="more-title" class="kicker">{t.project.more}</h2>
+      <ul class="mosaic small">
+        {related.map((p) => (
+          <li class="tile"><a href={entryHref(p)} data-glow>
+            <span class={'cover f' + fieldIndex(p.id)}>{!isPending(p.image) ? <img src={p.image.src} alt="" width="640" height="400" loading="lazy" decoding="async" /> : <span class="glyph" aria-hidden="true">{p.title[lang].slice(0, 1)}</span>}</span>
+            <span class="tile-text"><small>{fieldOf(p.id)}</small><b>{p.title[lang]}</b><span class="ctx">{p.context[lang]}</span></span>
+          </a></li>
+        ))}
+      </ul>
+    </section>}
+    <section class="band svc-end bleed ink deep" aria-labelledby="like-title">
+      <h2 id="like-title">{t.project.like[0]}<em>{t.project.like[1]}</em></h2>
+      <p class="lede">{t.project.likeLead}</p>
+      <p class="calls"><a class="btn-a big" href={startHref}>{t.project.start}<span class="arrow" aria-hidden="true">→</span></a></p>
+    </section>
+    <script>
+      import { startMotion } from '../scripts/motion';
+      startMotion();
     </script>
   </>}
 

@@ -18,7 +18,9 @@ export const copy = {
     links: { eyebrow: 'Links', description: 'Where to find Alexander Kholodov and Collective Galaxy.' },
     intro: { iam: 'I bring complex things down to something you can touch.', also: 'Games, science, AI and the web.', cue: 'Explore my work', work: 'Featured projects' },
     stage: { label: 'Featured projects', play: 'Play', open: 'Visit', more: 'Learn more', hint: 'Hover, drag or tap the light', all: 'Explore all projects' },
-    build: { kicker: 'More work', title: ['Each thing, in ', 'its field'], games: 'Games', science: 'Science', work: 'AI and work', more: 'See them all' },
+    build: { kicker: 'More work', title: ['Each thing, in ', 'its field'], games: 'Games', science: 'Science', web: 'Web and apps', work: 'AI and work', more: 'See them all' },
+    panorama: { title: ['Everything I build, ', 'at a glance'], lead: 'Games, science, web platforms and AI. Open any project to see it in depth.', open: 'View project' },
+    project: { back: 'All projects', role: 'Role', dates: 'Dates', stack: 'Technology', like: ['Would you like something ', 'like this?'], likeLead: 'Tell me about your idea and we build it together.', start: 'Start my project', more: 'More projects' },
     results: { kicker: 'Results' },
     view: {
       kicker: 'How I work',
@@ -110,7 +112,9 @@ export const copy = {
     links: { eyebrow: 'Enlaces', description: 'Dónde encontrar a Alexander Kholodov y Galaxia Colectiva.' },
     intro: { iam: 'Llevo lo complejo a algo que se puede tocar.', also: 'Videojuegos, ciencia, IA y web.', cue: 'Conoce mi trabajo', work: 'Proyectos destacados' },
     stage: { label: 'Proyectos destacados', play: 'Jugar', open: 'Visitar', more: 'Conocer más', hint: 'Pasa el cursor, arrastra o toca la luz', all: 'Explorar todos los proyectos' },
-    build: { kicker: 'Más trabajo', title: ['Cada cosa, en ', 'su campo'], games: 'Juegos', science: 'Ciencia', work: 'IA y trabajo', more: 'Verlos todos' },
+    build: { kicker: 'Más trabajo', title: ['Cada cosa, en ', 'su campo'], games: 'Juegos', science: 'Ciencia', web: 'Web y aplicaciones', work: 'IA y trabajo', more: 'Verlos todos' },
+    panorama: { title: ['Todo lo que construyo, ', 'de un vistazo'], lead: 'Videojuegos, ciencia, plataformas web e IA. Abre cualquier proyecto para conocerlo a fondo.', open: 'Ver proyecto' },
+    project: { back: 'Todos los proyectos', role: 'Rol', dates: 'Fechas', stack: 'Tecnología', like: ['¿Te gustaría algo ', 'así?'], likeLead: 'Cuéntame tu idea y la construimos juntos.', start: 'Comenzar mi proyecto', more: 'Más proyectos' },
     results: { kicker: 'Resultados' },
     view: {
       kicker: 'Mi forma de trabajar',
