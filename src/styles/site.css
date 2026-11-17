@@ -930,3 +930,55 @@ canvas, .cover, .sc, .b-out, .demo .art, .seal, .shapes { -webkit-user-select: n
 @media (prefers-reduced-motion: reduce) { .sf-badge { animation: none; } }
 @media (max-width: 900px) { .builder .b-stage { height: 22rem; } }
 @media (max-width: 520px) { .builder .b-stage { height: 15.5rem; } }
+
+/* Try it now: what anyone can open this minute, Studium first */
+.try-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(11rem, auto); gap: 1rem; margin-top: 1.5rem; }
+@media (max-width: 1000px) { .try-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.try-hero, .try-card { position: relative; display: block; border-radius: 24px; overflow: hidden; isolation: isolate; text-decoration: none; color: #fff; box-shadow: 0 30px 50px -34px rgba(2,11,44,.7); transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .6s cubic-bezier(.22,1,.36,1), box-shadow .5s; }
+.try-hero:hover, .try-card:hover { color: #fff; box-shadow: 0 46px 70px -38px rgba(2,11,44,.8); }
+.try-hero { grid-column: span 2; grid-row: span 3; min-height: 24rem; }
+@media (max-width: 1000px) { .try-hero { grid-column: span 2; grid-row: auto; } }
+@media (max-width: 560px) { .try-grid { grid-template-columns: 1fr; } .try-hero { grid-column: auto; } }
+.try-shot { position: absolute; inset: 0; z-index: -1; background: linear-gradient(160deg in oklab, var(--ak-main), #020b2c); }
+.try-shot img { width: 100%; height: 100%; object-fit: cover; transition: transform .9s cubic-bezier(.22,1,.36,1); }
+.try-hero:hover .try-shot img, .try-card:hover .try-shot img { transform: scale(1.05); }
+.try-shot::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(2,11,44,0) 25%, rgba(2,11,44,.85)); }
+.try-hero .try-shot::after { background: linear-gradient(0deg, rgba(2,11,44,.97) 0%, rgba(2,11,44,.93) 56%, rgba(2,11,44,.2) 86%); }
+.try-hero .try-shot img { object-position: top; }
+.try-body { position: absolute; inset: 0; padding: clamp(1.2rem, 3vw, 2.2rem); display: grid; align-content: end; gap: .7rem; max-width: 30rem; }
+.try-body b { font-size: clamp(1.8rem, 3vw, 2.6rem); letter-spacing: -.03em; line-height: 1; }
+.try-body b em { color: #ffd0b5; }
+.try-points { display: grid; gap: .3rem; font-weight: 600; color: rgba(255,255,255,.88); }
+.try-points span::before { content: '✓  '; color: #9fe0b5; }
+.try-body .btn-a { justify-self: start; margin-top: .4rem; }
+.try-text { position: absolute; left: 0; right: 0; bottom: 0; padding: 1rem 1.1rem; display: grid; gap: .2rem; }
+.try-text b { font-size: 1.2rem; }
+.try-text .go { font-weight: 700; color: #ffd0b5; } .try-text .go i { font-style: normal; display: inline-block; transition: transform .35s; } .try-card:hover .go i { transform: translate(3px, -3px); }
+.livetag { display: inline-flex; align-items: center; gap: .45rem; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #9fe0b5; }
+.livetag i { width: .5rem; height: .5rem; border-radius: 50%; background: #2fbf71; box-shadow: 0 0 0 0 rgba(47,191,113,.6); animation: livepulse 2s ease-out infinite; }
+@keyframes livepulse { 70% { box-shadow: 0 0 0 8px rgba(47,191,113,0); } 100% { box-shadow: 0 0 0 0 rgba(47,191,113,0); } }
+
+/* Problems, one line each: the problem large, the project that answers it */
+.cases { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 860px) { .cases { grid-template-columns: 1fr; } }
+.case { display: grid; grid-template-columns: 1fr; gap: 1rem; align-content: space-between; min-height: 14rem; text-decoration: none; color: var(--ak-text); }
+.case:hover { color: var(--ak-text); }
+.case .problem { margin: 0; font-size: clamp(1.25rem, 2vw, 1.6rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.2; color: var(--ak-text); }
+.case .bridge { width: 100%; }
+.case .solution { display: grid; gap: .1rem; }
+.case .solution b { font-size: 1.4rem; color: var(--ak-main); }
+
+/* Experience on About */
+.exp-list { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; gap: 1rem; }
+.exp { display: grid; grid-template-columns: minmax(0, 18rem) minmax(0, 1fr); gap: 1.4rem; align-items: center; padding: 1rem; border-radius: 24px; background: var(--ak-card); box-shadow: 0 24px 40px -32px rgba(2,11,44,.55); }
+@media (max-width: 760px) { .exp { grid-template-columns: 1fr; } }
+.exp-shot { display: block; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; }
+.exp-shot img { width: 100%; height: 100%; object-fit: cover; }
+.exp-meta { margin: 0; font-size: .82rem; font-weight: 700; color: var(--ak-main); }
+.exp h3 { margin: .3rem 0 .4rem; font-size: 1.35rem; }
+.exp p { margin: 0 0 .6rem; font-size: 1rem; color: var(--ak-soft); }
+
+/* Projects page: the cards start within the first screen */
+.page-hero { padding-top: clamp(.5rem, 2vw, 1.5rem); padding-bottom: .5rem; }
+.page-hero h1 { margin-bottom: .8rem; }
+@media (prefers-reduced-motion: reduce) { .livetag i { animation: none; } }

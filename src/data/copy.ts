@@ -20,6 +20,8 @@ export const copy = {
     stage: { label: 'Featured projects', play: 'Play', open: 'Visit', more: 'Learn more', hint: 'Hover, drag or tap the light', all: 'Explore all projects' },
     build: { kicker: 'More work', title: ['Each thing, in ', 'its field'], games: 'Games', science: 'Science', web: 'Web and apps', work: 'AI and work', more: 'See them all' },
     certs: { kicker: 'Certifications', title: ['Certified ', 'by Microsoft'], lead: 'Cloud, security, development and artificial intelligence.' },
+    tryNow: { kicker: 'Try it now', title: ['Projects you can ', 'use today'], lead: 'Live, free and one click away.', live: 'Live', verbs: { 'farpoint-horizon': 'Play', galaxy: 'Enter', 'munhub-lab': 'See live data', 'pancho-bus': 'Try the demo', nivela: 'Try the demo', 'sublime-airlift': 'Play' } },
+    experience: { kicker: 'Experience', title: ['Where I have ', 'worked'] },
     studium: { kicker: 'Free for students', title: ['Studium, ', 'study together'], lead: 'Guides, notes and what each professor is like, shared by students for students. Your next exam with a countdown, goals, a focus timer and your own AI, all in one place.', enter: 'Enter Studium', more: 'Learn more', badges: ['Next exam', 'Goals', 'Guides'], points: ['Shared guides and notes', 'Professors, with positive tags only', 'Exams, goals and focus timer', 'Your own AI, connected your way'] },
     panorama: { title: ['Everything I build, ', 'at a glance'], lead: 'Games, science, web platforms and AI. Open any project to see it in depth.', open: 'View project' },
     project: { back: 'All projects', role: 'Role', dates: 'Dates', stack: 'Technology', like: ['Would you like something ', 'like this?'], likeLead: 'Tell me about your idea and we build it together.', start: 'Start my project', more: 'More projects' },
@@ -37,9 +39,9 @@ export const copy = {
     solve: {
       kicker: 'Approach', title: ['Every project starts ', 'from a real problem'], problem: 'The problem', solution: 'The solution',
       cases: [
-        ['munhub-lab', 'A cosmic ray detector at USFQ sent its readings through a cable, with no way to follow them as they happened.'],
-        ['dragon-ocean-analyzer', 'Hours of underwater recordings from San Cristóbal Bay in Galápagos, far too many to review by ear.'],
-        ['zkvote', 'A vote must remain secret and, at the same time, be verifiable by anyone.'],
+        ['pancho-bus', 'Bus seats ran out before students could even react.'],
+        ['munhub-lab', 'A particle detector nobody could watch live.'],
+        ['nivela', 'Nine in ten people learn AI alone, with no guide.'],
       ],
     },
     open: {
@@ -116,6 +118,8 @@ export const copy = {
     stage: { label: 'Proyectos destacados', play: 'Jugar', open: 'Visitar', more: 'Conocer más', hint: 'Pasa el cursor, arrastra o toca la luz', all: 'Explorar todos los proyectos' },
     build: { kicker: 'Más trabajo', title: ['Cada cosa, en ', 'su campo'], games: 'Juegos', science: 'Ciencia', web: 'Web y aplicaciones', work: 'IA y trabajo', more: 'Verlos todos' },
     certs: { kicker: 'Certificaciones', title: ['Certificado ', 'por Microsoft'], lead: 'Nube, seguridad, desarrollo e inteligencia artificial.' },
+    tryNow: { kicker: 'Pruébalo ahora', title: ['Proyectos que puedes ', 'usar hoy'], lead: 'En línea, gratis y a un clic.', live: 'En línea', verbs: { 'farpoint-horizon': 'Jugar', galaxy: 'Entrar', 'munhub-lab': 'Ver datos en vivo', 'pancho-bus': 'Probar la demo', nivela: 'Probar la demo', 'sublime-airlift': 'Jugar' } },
+    experience: { kicker: 'Experiencia', title: ['Dónde he ', 'trabajado'] },
     studium: { kicker: 'Gratis para estudiantes', title: ['Studium, ', 'estudiemos juntos'], lead: 'Guías, apuntes y cómo es cada profesor, compartidos por estudiantes para estudiantes. Tu próximo examen con cuenta regresiva, metas, un temporizador de enfoque y tu propia IA, todo en un solo lugar.', enter: 'Entrar a Studium', more: 'Conocer más', badges: ['Próximo examen', 'Metas', 'Guías'], points: ['Guías y apuntes compartidos', 'Profesores, solo con etiquetas positivas', 'Exámenes, metas y temporizador de enfoque', 'Tu propia IA, conectada a tu manera'] },
     panorama: { title: ['Todo lo que construyo, ', 'de un vistazo'], lead: 'Videojuegos, ciencia, plataformas web e IA. Abre cualquier proyecto para conocerlo a fondo.', open: 'Ver proyecto' },
     project: { back: 'Todos los proyectos', role: 'Rol', dates: 'Fechas', stack: 'Tecnología', like: ['¿Te gustaría algo ', 'así?'], likeLead: 'Cuéntame tu idea y la construimos juntos.', start: 'Comenzar mi proyecto', more: 'Más proyectos' },
@@ -133,9 +137,9 @@ export const copy = {
     solve: {
       kicker: 'Enfoque', title: ['Cada proyecto parte ', 'de un problema real'], problem: 'El problema', solution: 'La solución',
       cases: [
-        ['munhub-lab', 'Un detector de rayos cósmicos en la USFQ enviaba sus lecturas por un cable, sin forma de seguirlas en el momento.'],
-        ['dragon-ocean-analyzer', 'Horas de grabaciones submarinas de la bahía de San Cristóbal, en Galápagos, imposibles de revisar una por una.'],
-        ['zkvote', 'Un voto debe mantenerse secreto y, al mismo tiempo, poder ser verificado por cualquiera.'],
+        ['pancho-bus', 'Los cupos del bus se acababan antes de poder reaccionar.'],
+        ['munhub-lab', 'Un detector de partículas que nadie podía ver en vivo.'],
+        ['nivela', 'Nueve de cada diez aprenden IA solos, sin guía.'],
       ],
     },
     open: {

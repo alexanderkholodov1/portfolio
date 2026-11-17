@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import LiveBanner from './LiveBanner.astro';
 import Mark from './Mark.astro';
 import { copy } from '../data/copy';
-import { certifications, isPending, links, profile, projects, services, socials } from '../data/content';
+import { certifications, experience, isPending, links, profile, projects, services, socials } from '../data/content';
 import { galaxy, galaxyHref, href, labels, projectHref, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; projectId?: string; }
 const { lang, page, projectId } = Astro.props;
@@ -28,26 +28,26 @@ const description = page === 'home' ? t.home.description : current ? current.pit
 const byId = (id: string) => projects.items.find((p) => p.id === id);
 const fields = [
   { name: t.build.games, ids: ['galaxy', 'farpoint-horizon', 'unallocated', 'sublime-airlift', 'dragons-never-die'] },
-  { name: t.build.science, ids: ['munhub-lab', 'dragon-ocean-analyzer', 'zkvote'] },
-  { name: t.build.web, ids: ['studium', 'pancho-bus', 'nivela', 'vetweb', 'aklabs-store'] },
-  { name: t.build.work, ids: ['tcs-ai', 'usfq-ai-support', 'agent-workshops'] },
+  { name: t.build.science, ids: ['munhub-lab', 'dragon-ocean-analyzer'] },
+  { name: t.build.web, ids: ['studium', 'pancho-bus', 'nivela', 'aklabs-store'] },
+  { name: t.build.work, ids: ['agent-workshops'] },
 ].map((f) => ({ ...f, items: f.ids.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p)) }));
 const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? t.projects.other;
 const fieldIndex = (id: string) => { const k = fields.findIndex((f) => f.ids.includes(id)); return k < 0 ? 'o' : String(k); };
 // The panorama: the whole range at first sight; each tile opens the project's own page.
-const panorama = ['farpoint-horizon', 'studium', 'galaxy', 'munhub-lab', 'pancho-bus', 'nivela', 'unallocated', 'dragon-ocean-analyzer', 'sublime-airlift', 'vetweb', 'zkvote', 'tcs-ai'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
+const panorama = ['farpoint-horizon', 'studium', 'galaxy', 'munhub-lab', 'pancho-bus', 'nivela', 'unallocated', 'dragon-ocean-analyzer', 'sublime-airlift', 'aklabs-store', 'dragons-never-die', 'devfest-ctf'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
 // Six columns, three rows: two large tiles and ten small ones fill the grid exactly.
 const tileSize = (k: number) => (k < 2 ? 'big' : '');
 const related = current ? projects.items.filter((p) => p.id !== current.id && fieldIndex(p.id) === fieldIndex(current.id)).slice(0, 3) : [];
 const results = [
   { figure: 3, suffix: lang === 'es' ? 'º' : 'rd', project: byId('sublime-airlift') },
   { figure: 4, suffix: lang === 'es' ? 'º' : 'th', project: byId('dragons-never-die') },
-  { figure: 5, suffix: lang === 'es' ? 'º' : 'th', project: byId('zkvote') },
+  { figure: 5, suffix: lang === 'es' ? 'º' : 'th', project: byId('devfest-ctf') },
 ].filter((r) => r.project);
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
 const github = socials.items.find((s) => s.id === 'github');
 // Events he took part in, by the names in his projects and his bio (content.ts).
-const eventNames = ['NASA Space Apps Challenge 2026', 'Be a Dragon 2026', 'IEEEXtreme 20.0', 'Mini IEEEXtreme 2.0', 'Google DevFest 2026', 'IGNITE Summit 2026', 'Interact2Hack 2026', 'SALA 2026', 'Space Expo', 'Build With AI', 'AWS Gen AI Day', 'Cursor Workshop Quito', 'Cursor x Supabase', 'TCS CodeVita 13', 'IEEEXtreme 19.0', 'DevFest Quito 2025', 'Diners Club Blue Challenge', 'ZKForge Hackathon 2025', 'USFQ IEEE CS Game Jam 2025'];
+const eventNames = ['NASA Space Apps Challenge 2026', 'Be a Dragon 2026', 'IEEEXtreme 20.0', 'Mini IEEEXtreme 2.0', 'Google DevFest 2026', 'IGNITE Summit 2026', 'Interact2Hack 2026', 'SALA 2026', 'Space Expo', 'Build With AI', 'AWS Gen AI Day', 'Cursor Workshop Quito', 'Cursor x Supabase', 'TCS CodeVita 13', 'IEEEXtreme 19.0', 'DevFest Quito 2025', 'Diners Club Blue Challenge', 'USFQ IEEE CS Game Jam 2025'];
 const cases = t.solve.cases.map(([id, problem]) => ({ problem, project: byId(id)! })).filter((c) => c.project);
 const repos = projects.items.filter((p) => p.source?.href.startsWith('https://github.com/')).map((p) => ({ title: p.title[lang], href: p.source!.href, path: p.source!.href.replace('https://github.com/', '') }));
 const icons: Record<string, string> = {
@@ -97,21 +97,28 @@ const startHref = href('start', lang);
     </section>
     <p class="all-work" data-reveal><a class="btn-b" href={href('projects', lang)}>{t.stage.all}</a></p>
 
-    {byId('studium') && <section class="band studium-feature bleed tint" aria-labelledby="studium-title">
-      <div class="sf-grid">
-        <div>
-          <p class="kicker" data-reveal>{t.studium.kicker}</p>
-          <h2 id="studium-title" data-reveal>{t.studium.title[0]}<em>{t.studium.title[1]}</em></h2>
-          <p class="lede" data-reveal>{t.studium.lead}</p>
-          <ul class="sf-points">{t.studium.points.map((x, k) => <li data-reveal style={`--i:${k}`}>{x}</li>)}</ul>
-          <p class="calls" data-reveal><a class="btn-a big" href={byId('studium')!.href}>{t.studium.enter}<span class="arrow" aria-hidden="true">↗</span></a><a class="btn-b" href={entryHref(byId('studium')!)}>{t.studium.more}</a></p>
-        </div>
-        <a class="sf-shot" href={byId('studium')!.href} data-glow data-reveal tabindex="-1" aria-hidden="true">
-          <img src="/projects/studium.webp" alt="" width="1280" height="800" loading="lazy" decoding="async" />
-          <span class="sf-badge b1">✦ {t.studium.badges[0]}</span><span class="sf-badge b2">{t.studium.badges[1]}</span><span class="sf-badge b3">{t.studium.badges[2]}</span>
-        </a>
+    <section class="band try-now bleed tint" aria-labelledby="try-title">
+      <p class="kicker" data-reveal>{t.tryNow.kicker}</p>
+      <h2 id="try-title" data-reveal>{t.tryNow.title[0]}<em>{t.tryNow.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.tryNow.lead}</p>
+      <div class="try-grid">
+        {byId('studium') && <a class="try-hero" href={byId('studium')!.href} data-glow data-reveal>
+          <span class="try-shot"><img src="/projects/studium.webp" alt="" width="1280" height="800" loading="lazy" decoding="async" /></span>
+          <span class="try-body">
+            <span class="livetag"><i></i>{t.tryNow.live} · {t.studium.kicker}</span>
+            <b>{t.studium.title[0]}<em>{t.studium.title[1]}</em></b>
+            <span class="try-points">{t.studium.points.map((x) => <span>{x}</span>)}</span>
+            <span class="btn-a">{t.studium.enter}<span class="arrow" aria-hidden="true">↗</span></span>
+          </span>
+        </a>}
+        {Object.entries(t.tryNow.verbs).map(([id, verb], k) => { const p = byId(id); return p && p.href && (
+          <a class="try-card" href={resolveHref(p.href, lang)} data-glow data-reveal style={`--i:${k % 3}`}>
+            <span class="try-shot">{!isPending(p.image) && <img src={p.image.src} alt="" width="640" height="400" loading="lazy" decoding="async" />}</span>
+            <span class="try-text"><span class="livetag"><i></i>{t.tryNow.live}</span><b>{p.title[lang]}</b><span class="go">{verb} <i aria-hidden="true">↗</i></span></span>
+          </a>
+        ); })}
       </div>
-    </section>}
+    </section>
 
     <section class="band view bleed tint" aria-labelledby="view-title">
       <h2 class="kicker" id="view-title" data-reveal>{t.view.kicker}</h2>
@@ -177,31 +184,12 @@ const startHref = href('start', lang);
       <h2 id="solve-title" data-reveal>{t.solve.title[0]}<em>{t.solve.title[1]}</em></h2>
       <div class="cases">
         {cases.map((c, k) => (
-          <article class="case" data-reveal data-glow style={`--i:${k}`}>
-            <div class="problem"><small>{t.solve.problem}</small><p>{c.problem}</p></div>
+          <a class="case" href={entryHref(c.project)} data-reveal data-glow style={`--i:${k}`}>
+            <p class="problem">{c.problem}</p>
             <i class="bridge" aria-hidden="true"></i>
-            <div class="solution">
-              <small>{t.solve.solution}</small>
-              <h3><a href={entryHref(c.project) ?? href('projects', lang)}>{c.project.title[lang]} <span aria-hidden="true">↗</span></a></h3>
-              <p>{c.project.pitch[lang].split('. ')[0]}.</p>
-            </div>
-          </article>
+            <span class="solution"><small>{t.solve.solution}</small><b>{c.project.title[lang]}</b></span>
+          </a>
         ))}
-      </div>
-    </section>
-
-    <section class="band open bleed warm" aria-labelledby="open-title">
-      <div class="open-grid">
-        <div>
-          <p class="kicker" data-reveal>{t.open.kicker}</p>
-          <h2 id="open-title" data-reveal>{t.open.title[0]}<em>{t.open.title[1]}</em></h2>
-          <p class="lede" data-reveal>{t.open.lead}</p>
-          {github && <p class="calls" data-reveal><a class="btn-a" href={github.href}>{t.open.profile}<span class="arrow" aria-hidden="true">↗</span></a></p>}
-        </div>
-        <div class="terminal" data-reveal>
-          <p class="bar" aria-hidden="true"><i></i><i></i><i></i></p>
-          <ul>{repos.map((r, k) => <li style={`--i:${k}`}><span class="prompt" aria-hidden="true">$</span> git clone <a href={r.href}>{r.path}</a><small>{r.title}</small></li>)}</ul>
-        </div>
       </div>
     </section>
 
@@ -394,7 +382,7 @@ const startHref = href('start', lang);
         return (
           <li class="pcard" data-field={field < 0 ? 'other' : String(field)} data-reveal data-glow style={`--i:${index % 3}`}>
             <div class={'cover f' + (field < 0 ? 'o' : field)}>
-              {!isPending(project.image) ? <img src={project.image.src} alt={project.image.alt[lang]} width="640" height="400" loading="lazy" decoding="async" /> : <span class="glyph" aria-hidden="true">{pad(index + 1)}</span>}
+              {!isPending(project.image) ? <img src={project.image.src} alt={project.image.alt[lang]} width="640" height="400" loading="lazy" decoding="async" /> : <span class="glyph" aria-hidden="true">{project.title[lang].slice(0, 1)}</span>}
             </div>
             <div class="pbody">
               <p class="kicker">{project.context[lang]}{!isPending(project.dates) && ' · ' + project.dates[lang]}</p>
@@ -438,6 +426,24 @@ const startHref = href('start', lang);
       <p class="first" data-reveal>{bio[1]}</p>
       <div class="cols">{bio.slice(2).map((paragraph, k) => <p data-reveal style={`--i:${k % 2}`}>{paragraph}</p>)}</div>
     </section>}
+    <section class="band experience" aria-labelledby="exp-title">
+      <p class="kicker" data-reveal>{t.experience.kicker}</p>
+      <h2 id="exp-title" data-reveal>{t.experience.title[0]}<em>{t.experience.title[1]}</em></h2>
+      <ul class="exp-list">
+        {experience.map((x, k) => (
+          <li class="exp" data-reveal data-glow style={`--i:${k}`}>
+            {!isPending(x.image) && <span class="exp-shot"><img src={x.image.src} alt={x.image.alt[lang]} width="640" height="400" loading="lazy" decoding="async" /></span>}
+            <div>
+              <p class="exp-meta">{!isPending(x.dates) && x.dates[lang]} · {x.context[lang]}</p>
+              <h3>{!isPending(x.role) ? x.role[lang] : x.title[lang]}</h3>
+              <p>{x.pitch[lang]}</p>
+              {!isPending(x.stack) && <ul class="stack-chips">{x.stack.map((y) => <li>{y}</li>)}</ul>}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+
     <section class="band certs bleed ink deep" aria-labelledby="certs-title-about">
       <p class="kicker" data-reveal>{t.certs.kicker}</p>
       <h2 id="certs-title-about" data-reveal>{t.certs.title[0]}<em>{t.certs.title[1]}</em></h2>
