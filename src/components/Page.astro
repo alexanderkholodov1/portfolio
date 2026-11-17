@@ -187,7 +187,7 @@ const startHref = socials.items.find((x) => x.id === 'linkedin')?.href ?? href('
       <h2 id="teaser-title" data-reveal>{t.serviceTeaser.title[0]}<em>{t.serviceTeaser.title[1]}</em></h2>
       <p class="lede" data-reveal>{t.serviceTeaser.lead}</p>
       <div class="offer-grid">
-        {services.map((p, k) => (
+        {services.filter((p) => p.id !== 'learn').map((p, k) => (
           <a class="offer-card" data-reveal data-glow style={`--i:${k}`} href={href('services', lang) + '?path=' + p.id}>
             <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg>
             <b>{p.title[lang]}</b>
@@ -219,52 +219,102 @@ const startHref = socials.items.find((x) => x.id === 'linkedin')?.href ?? href('
   </>}
 
   {page === 'services' && <>
-    <section class="svc-hero" data-shapes>
-      <div class="shapes" aria-hidden="true"><i class="s1"></i><i class="s2"></i><i class="s3"></i><i class="s4"></i><i class="s5"></i></div>
-      <p class="kicker">{s2.eyebrow}</p>
-      <h1>{s2.title[0]}<em>{s2.title[1]}</em></h1>
-      <p class="lede">{s2.lead}</p>
-      <p class="calls"><a class="btn-a big" href={startHref}>{s2.start}<span class="arrow" aria-hidden="true">→</span></a></p>
+    <section class="svc-hero verse bleed" data-verse data-v="0">
+      <div class="verse-bg" aria-hidden="true"><i class="rings"></i></div>
+      <div class="verse-cards" aria-hidden="true">
+        <span class="vc c-web"><i class="bar"></i><i class="h"></i><i class="b"></i></span>
+        <span class="vc c-app"><i></i><i></i><i></i></span>
+        <span class="vc c-game"><i class="p"></i><i class="o"></i></span>
+        <span class="vc c-poster"><i></i></span>
+        <span class="vc c-video"><i></i></span>
+        <span class="vc c-cube"><i></i></span>
+      </div>
+      <div class="verse-copy">
+        <p class="kicker">{s2.eyebrow}</p>
+        <h1 data-text={s2.title[0] + s2.title[1]}>{s2.title[0]}<em>{s2.title[1]}</em></h1>
+        <p class="lede">{s2.lead}</p>
+        <p class="calls"><a class="btn-a big" href={startHref}>{s2.start}<span class="arrow" aria-hidden="true">→</span></a></p>
+        <p class="note">{s2.startNote}</p>
+      </div>
+      <p class="verse-tag" aria-hidden="true"><b>{s2.universe} <span data-u>1</span></b><span>{s2.jump}</span></p>
     </section>
 
     <section class="band" aria-labelledby="demos-title">
       <h2 id="demos-title" data-reveal>{s2.gridTitle[0]}<em>{s2.gridTitle[1]}</em></h2>
       <div class="demos">
         <figure class="demo d-web" data-demo>
-          <div class="art" aria-hidden="true"><div class="browser"><p class="dots"><i></i><i></i><i></i></p><span class="hdr"></span><span class="pic"></span><span class="t1"></span><span class="t2"></span><span class="go"></span></div></div>
+          <div class="art" aria-hidden="true">
+            <div class="browser">
+              <p class="chrome"><i></i><i></i><i></i><span class="url">{s2.web.url}</span></p>
+              <div class="site">
+                <p class="nav"><b>{s2.web.brand}</b>{s2.web.nav.map((n) => <span>{n}</span>)}</p>
+                <div class="hero-row"><div><p class="h">{s2.web.heading}</p><p class="cta">{s2.web.cta}</p></div><span class="photo"></span></div>
+                <div class="cards"><span></span><span></span><span></span></div>
+              </div>
+              <svg class="cursor" viewBox="0 0 24 24"><path d="M4 2l15 9-7 1.5L8.5 20z"/></svg>
+            </div>
+          </div>
           <figcaption>{s2.demos.web}</figcaption>
         </figure>
         <figure class="demo d-app" data-demo>
-          <div class="art" aria-hidden="true"><div class="phone"><div class="screens"><span class="sc a"></span><span class="sc b"></span><span class="sc c"></span></div></div></div>
+          <div class="art" aria-hidden="true">
+            <div class="phone"><div class="scr">
+              <p class="toast">{s2.app.toast}</p>
+              <p class="ttl">{s2.app.title}</p>
+              {s2.app.items.map((it, k) => <p class="row" style={`--k:${k}`}><span>{it}</span><small class={k === 0 ? 'go' : ''}>{s2.app.status[k]}</small></p>)}
+              <p class="tabs"><i></i><i></i><i></i></p>
+            </div></div>
+          </div>
           <figcaption>{s2.demos.app}</figcaption>
         </figure>
         <figure class="demo d-bots" data-demo>
-          <div class="art" aria-hidden="true"><span class="gear">⚙</span>{[0, 1, 2, 3, 4].map((k) => <i style={`--k:${k}`}></i>)}</div>
+          <div class="art" aria-hidden="true">
+            <div class="col in"><p>{s2.bots.inbox}</p>{[0, 1, 2, 3].map((k) => <i style={`--k:${k}`}></i>)}</div>
+            <span class="bot"><b></b></span>
+            <div class="col out"><p>{s2.bots.sheet}</p>{[0, 1, 2, 3].map((k) => <span style={`--k:${k}`}><i></i><em>✓</em></span>)}</div>
+          </div>
           <figcaption>{s2.demos.bots}</figcaption>
         </figure>
         <figure class="demo d-ai" data-demo>
-          <div class="art" aria-hidden="true"><p class="q">{s2.chat[0]}</p><p class="typing"><i></i><i></i><i></i></p><p class="a">{s2.chat[1]}</p></div>
+          <div class="art" aria-hidden="true">
+            <p class="who"><span class="av"></span>{s2.chat.name}<i class="on"></i></p>
+            <p class="q">{s2.chat.q}</p>
+            <p class="typing"><i></i><i></i><i></i></p>
+            <p class="a"><span>{s2.chat.a}</span></p>
+          </div>
           <figcaption>{s2.demos.ai}</figcaption>
         </figure>
         <figure class="demo d-game" data-demo data-game>
-          <div class="art"><span class="sky" aria-hidden="true"></span><span class="hero-sq" aria-hidden="true"></span><span class="block" aria-hidden="true"></span><span class="ground" aria-hidden="true"></span><button type="button" class="try">{s2.tryIt}</button></div>
+          <div class="art">
+            <span class="sun" aria-hidden="true"></span><span class="hills" aria-hidden="true"></span><span class="hills b" aria-hidden="true"></span>
+            <span class="ground" aria-hidden="true"></span><span class="hero-sq" aria-hidden="true"><i></i></span><span class="block" aria-hidden="true"></span><span class="coin" aria-hidden="true"></span>
+            <p class="hud" aria-hidden="true">{s2.score} <b data-score>0</b></p>
+            <button type="button" class="try">{s2.tryIt}</button>
+          </div>
           <figcaption>{s2.demos.game}</figcaption>
         </figure>
         <figure class="demo d-design" data-demo data-design>
-          <div class="art" aria-hidden="true"><div class="poster"><span class="sun"></span><span class="band1"></span><span class="band2"></span><b>Aa</b></div></div>
+          <div class="art" aria-hidden="true">
+            <p class="tools"><i></i><i></i><i></i><i></i></p>
+            <div class="canvas"><div class="poster"><span class="sun"></span><span class="band1"></span><span class="band2"></span><b>Aa</b></div><span class="sel"></span></div>
+            <p class="swatches"><i></i><i></i><i></i><i></i></p>
+          </div>
           <figcaption>{s2.demos.design}</figcaption>
         </figure>
         <figure class="demo d-video" data-demo>
-          <div class="art" aria-hidden="true"><p class="rec">REC</p><div class="film">{[0, 1, 2, 3, 4, 5, 6, 7].map((k) => <span style={`--k:${k}`}></span>)}</div><div class="timeline"><span class="c1"></span><span class="c2"></span><span class="c3"></span><i class="head"></i></div></div>
+          <div class="art" aria-hidden="true">
+            <div class="viewer"><span class="scene"><i class="sun"></i><i class="hill"></i></span><p class="rec">REC</p><p class="tc">00:00:<b>12</b></p></div>
+            <div class="tracks"><p class="trk v"><span class="c1"></span><span class="c2"></span><span class="c3"></span></p><p class="trk a">{Array.from({ length: 36 }, (_, k) => <i style={`--h:${20 + ((k * 37) % 70)}%`}></i>)}</p><i class="head"></i></div>
+          </div>
           <figcaption>{s2.demos.video}</figcaption>
         </figure>
         <figure class="demo d-model" data-demo data-model>
-          <div class="art" aria-hidden="true"><div class="cube">{['f', 'b', 'l', 'r', 't', 'd'].map((f) => <span class={'face ' + f}></span>)}</div></div>
+          <div class="art" aria-hidden="true">
+            <span class="floor"></span>
+            <div class="cube">{['f', 'b', 'l', 'r', 't', 'd'].map((f) => <span class={'face ' + f}></span>)}</div>
+            <p class="gizmo"><i class="x">X</i><i class="y">Y</i><i class="z">Z</i></p>
+          </div>
           <figcaption>{s2.demos.model}</figcaption>
-        </figure>
-        <figure class="demo d-learn" data-demo>
-          <div class="art" aria-hidden="true"><div class="deck"><span class="slide s1"><b></b><i></i><i></i></span><span class="slide s2"><b></b><i></i></span><span class="slide s3"><b></b><i></i><i></i></span></div></div>
-          <figcaption>{s2.demos.learn}</figcaption>
         </figure>
       </div>
     </section>
