@@ -11,7 +11,7 @@ export function startRibbon(hero: HTMLElement) {
   const readColors = () => { const c = getComputedStyle(document.documentElement); colors = ['--ak-main', '--ak-second', '--ak-warm'].map((n) => c.getPropertyValue(n).trim()); };
 
   let w = 0, h = 0, dpr = 1;
-  const size = () => { dpr = Math.min(devicePixelRatio || 1, 2); w = canvas.clientWidth; h = canvas.clientHeight; canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); };
+  const size = () => { dpr = 1; /* thin threads stay soft at 1x and cost a quarter of a 2x canvas */ w = canvas.clientWidth; h = canvas.clientHeight; canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); };
 
   const pointer = { x: -1, y: -1, sx: -1, sy: -1, on: 0 };
   const waves: { x: number; t: number }[] = [];
@@ -23,6 +23,8 @@ export function startRibbon(hero: HTMLElement) {
   const kick = () => { if (!scheduled && visible && !document.hidden) { scheduled = true; requestAnimationFrame(frame); } };
   const frame = (now: number) => {
     scheduled = false; if (!visible || document.hidden) return;
+    // The ribbon moves slowly: thirty frames a second look the same and cost half.
+    if (now - last < 30 && !reduce) { scheduled = true; requestAnimationFrame(frame); return; }
     const dt = Math.max(0, Math.min((now - last) / 1000, 1 / 20)); last = now; if (!reduce) t += dt;
     // The pointer's pull eases in and out; its position is followed smoothly.
     pointer.on += ((pointer.x >= 0 ? 1 : 0) - pointer.on) * Math.min(1, dt * 3);
@@ -34,7 +36,7 @@ export function startRibbon(hero: HTMLElement) {
     const grad = ctx.createLinearGradient(0, 0, w, 0);
     grad.addColorStop(0, colors[0]); grad.addColorStop(.55, colors[1]); grad.addColorStop(1, colors[2]);
     ctx.strokeStyle = grad; ctx.lineCap = 'round';
-    const threads = w < 700 ? 34 : 56, step = w < 700 ? 10 : 12, amp = h * .16, mid = h * .5;
+    const threads = w < 700 ? 18 : 30, step = w < 700 ? 16 : 20, amp = h * .16, mid = h * .5;
     for (let i = 0; i < threads; i++) {
       const k = i / (threads - 1), twist = (k - .5) * 2;
       ctx.beginPath();
@@ -56,7 +58,7 @@ export function startRibbon(hero: HTMLElement) {
     if (!reduce) kick();
   };
 
-  new IntersectionObserver(([en]) => { visible = en.isIntersecting; kick(); }).observe(canvas);
+  new IntersectionObserver(([en]) => { visible = en.isIntersecting; kick(); }, { threshold: .2 }).observe(canvas);
   document.addEventListener('visibilitychange', kick);
   new ResizeObserver(() => { size(); kick(); }).observe(canvas);
   new MutationObserver(() => { readColors(); kick(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });

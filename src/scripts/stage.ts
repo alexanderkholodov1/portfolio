@@ -98,7 +98,7 @@ export function startStage(root: HTMLElement) {
   if (!ctx || !tabs.length) return;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = matchMedia('(max-width: 760px)').matches;
-  const N = small ? 900 : 1700;
+  const N = small ? 450 : 850;
 
   const css = getComputedStyle(document.documentElement);
   const hex = (name: string, fb: string) => css.getPropertyValue(name).trim() || fb;
@@ -140,7 +140,7 @@ export function startStage(root: HTMLElement) {
   root.addEventListener('pointerleave', () => { paused = false; });
 
   let w = 0, h = 0, dpr = 1;
-  const size = () => { dpr = Math.min(devicePixelRatio || 1, small ? 1.5 : 2); w = canvas.clientWidth; h = canvas.clientHeight; canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); };
+  const size = () => { dpr = Math.min(devicePixelRatio || 1, 1.25); w = canvas.clientWidth; h = canvas.clientHeight; canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); };
   size();
 
   const pointer = { x: -1e4, y: -1e4, down: false, lx: 0, dragged: 0 };
@@ -161,16 +161,19 @@ export function startStage(root: HTMLElement) {
   // One loop at most; it stops when the stage is off screen or the tab is hidden, and draws once for reduced motion.
   let scheduled = false, last = performance.now(), t = 0;
   const kick = () => { if (!scheduled && visible && !document.hidden) { scheduled = true; requestAnimationFrame(frame); } };
-  new IntersectionObserver(([en]) => { visible = en.isIntersecting; kick(); }, { threshold: 0 }).observe(canvas);
+  new IntersectionObserver(([en]) => { visible = en.isIntersecting; kick(); }, { threshold: .2 }).observe(canvas);
   document.addEventListener('visibilitychange', kick);
   new ResizeObserver(() => { size(); kick(); }).observe(canvas);
 
   const frame = (now: number) => {
     scheduled = false;
     if (!visible || document.hidden) return;
+    // Thirty frames a second while nobody touches it; full rate while the pointer is on the light.
+    if (pointer.x < -1000 && morph >= 1 && now - last < 30 && !reduce) { scheduled = true; requestAnimationFrame(frame); return; }
     const dt = Math.max(0, Math.min((now - last) / 1000, 1 / 20)); last = now; t += reduce ? 0 : dt;
     if (!paused && !reduce) { timer += dt; if (timer > DWELL) select((current + 1) % tabs.length); }
-    root.style.setProperty('--p', String(reduce ? 0 : Math.min(timer / DWELL, 1)));
+    // Only the active tab's bar changes; setting a variable on the whole stage restyled it every frame.
+    const bar = tabs[current]?.querySelector('i'); if (bar) bar.style.transform = `scaleX(${reduce ? 0 : Math.min(timer / DWELL, 1)})`;
     morph = Math.min(1, morph + dt * .75);
     if (!pointer.down) { yaw += (shape.spin + yawVel) * dt; yawVel *= .94; }
 
@@ -193,7 +196,7 @@ export function startStage(root: HTMLElement) {
         p.vx += (-p.ox * 28 - p.vx * 7) * dt; p.vy += (-p.oy * 28 - p.vy * 7) * dt; p.ox += p.vx * dt; p.oy += p.vy * dt;
       }
       p.sx = tx + p.ox; p.sy = ty + p.oy;
-      const s = (small ? 7 : 9) * p.size * persp * (p.c === 2 ? 1.25 : 1), a = Math.max(.15, Math.min(1, .55 + (1 - z2 / 3) * .35));
+      const s = (small ? 9 : 12) * p.size * persp * (p.c === 2 ? 1.25 : 1), a = Math.max(.15, Math.min(1, .55 + (1 - z2 / 3) * .35));
       ctx.globalAlpha = a; ctx.drawImage(sprites[p.c] ?? sprites[0], p.sx - s / 2, p.sy - s / 2, s, s);
     }
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
