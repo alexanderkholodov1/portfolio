@@ -764,17 +764,17 @@ main:has(.galaxy-page), main:has(.svc-end) { padding-bottom: 0; }
 
 /* The Services opening as a fanned deck of cards: all four options visible, each card building its idea;
    the hovered card rises out of the fan, the others make room. */
-.builder .b-stage { position: relative; display: block; height: clamp(22rem, 52vh, 27rem); align-self: center; }
+.builder .b-stage { position: relative; display: block; height: clamp(24rem, 62vh, 34rem); align-self: center; }
 /* Four cards in a gentle arc, overlapping little so each one reads; the pointed card comes closer.
    Motion is eased (no overshoot) and the pointer tilt is smoothed in JavaScript. */
-.b-window.mini { position: absolute; left: 50%; top: 50%; width: min(12.5rem, 27%); padding: .55rem; border-radius: 20px; transform-origin: 50% 50%;
-  --a: calc((var(--k) - 1.5) * 7deg); --dx: calc((var(--k) - 1.5) * 82%); --dy: calc(((var(--k) - 1.5) * (var(--k) - 1.5)) * 5%);
+.b-window.mini { position: absolute; left: 50%; top: 50%; width: min(15.5rem, 30%); padding: .6rem; border-radius: 20px; transform-origin: 50% 50%;
+  --a: calc((var(--k) - 1.5) * 7deg); --dx: calc((var(--k) - 1.5) * 74%); --dy: calc(((var(--k) - 1.5) * (var(--k) - 1.5)) * 5%);
   transform: translate(calc(-50% + var(--dx) + var(--sx, 0) * 12px), calc(-50% + var(--dy) + var(--sy, 0) * 8px)) rotate(var(--a)) scale(var(--s, 1));
   transition: transform .7s cubic-bezier(.22,1,.36,1), box-shadow .5s, filter .5s; z-index: calc(1 + var(--k)); box-shadow: 0 26px 44px -28px rgba(2,11,44,.55), inset 0 1px 0 color-mix(in oklab, #fff 70%, transparent);
   animation: deal 1s calc(.15s + var(--k) * .12s) cubic-bezier(.22,1,.36,1) both; cursor: default; }
 @keyframes deal { from { opacity: 0; translate: 0 50px; } }
 .b-stage:has(.b-window.mini:hover) .b-window.mini:not(:hover) { filter: saturate(.75) brightness(.97); --s: .94; }
-.b-window.mini:hover { z-index: 9; --s: 1.35; --a: 0deg; --dy: -4%; box-shadow: 0 50px 80px -36px rgba(2,11,44,.7); }
+.b-window.mini:hover { z-index: 9; --s: 1.28; --a: 0deg; --dy: -4%; box-shadow: 0 50px 80px -36px rgba(2,11,44,.7); }
 .b-window.mini .b-label { margin: 0 0 .4rem .2rem; font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ak-main); }
 .b-window.mini .b-prompt { min-height: 2.4rem; margin-bottom: .5rem; padding: .35rem .7rem; font-size: .74rem; border-radius: 12px; }
 .b-window.mini .b-out { aspect-ratio: 4 / 3.4; max-height: none; min-height: 0; border-radius: 12px; }
@@ -851,3 +851,49 @@ html.motion .cert[data-reveal] { transition: opacity .9s cubic-bezier(.2,.8,.2,1
 .cert small { color: var(--ak-soft); font-size: .8rem; }
 @media (prefers-reduced-motion: reduce) { .cert .seal i { animation: none; } }
 @keyframes swirl { to { rotate: 360deg; } }
+
+/* The Services opening centred in the visible space under the navigation, top and bottom alike */
+.builder { margin-top: calc(-1 * clamp(1.5rem, 4vw, 3rem)); min-height: calc(100svh - 7.7rem); padding-block: 1rem; align-content: center; }
+@media (max-width: 900px) { .builder { margin-top: 0; min-height: 0; } }
+/* A scene shown on arrival starts complete: its pieces skip their build delays */
+.sc.instant, .sc.instant *, .sc.instant *::before { animation-delay: 0s !important; }
+.sc.instant > *, .sc.instant .a-phone > *, .sc.instant .w-hero > div > *, .sc.instant .m-cube i { animation-duration: .01s !important; }
+.sc.instant .w-btn, .sc.instant .g-ground, .sc.instant .g-hero, .sc.instant .g-block, .sc.instant .g-coin, .sc.instant .a-toast, .sc.instant .m-cube { animation-duration: revert !important; }
+
+/* Certifications on a deep band: glass cards and a turning ring around the issuer mark */
+.certs .cert-row { margin-top: 1.6rem; }
+.ink .cert { background: linear-gradient(160deg in oklab, rgba(255,255,255,.12), rgba(255,255,255,.04)); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 0 0 1px rgba(255,255,255,.1), 0 30px 50px -30px rgba(0,0,0,.7); overflow: hidden; isolation: isolate; }
+.ink .cert::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(120% 70% at 0% 0% in oklab, rgba(90,162,240,.28), transparent 60%), radial-gradient(90% 60% at 100% 100% in oklab, rgba(255,142,82,.18), transparent 60%); }
+.cert .seal { width: 4.4rem; height: 4.4rem; }
+.cert .seal i::after { inset: 3px; background: #0b1a3d; }
+.cert .seal .logo { position: relative; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; }
+.cert .seal svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+.cert .seal .gh { color: #fff; }
+.ink .cert .code { color: #fff; } .ink .cert .cname { color: rgba(238,243,251,.92); } .ink .cert small { color: rgba(238,243,251,.6); }
+.cert::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg in oklab, transparent 40%, rgba(255,255,255,.18) 50%, transparent 60%); translate: -120% 0; transition: translate 1s cubic-bezier(.22,1,.36,1); pointer-events: none; }
+.cert:hover::after { translate: 120% 0; }
+
+/* Clean selection: decorative layers never get selected, and the highlight is in his blue */
+canvas, .cover, .sc, .b-out, .demo .art, .seal, .shapes { -webkit-user-select: none; user-select: none; }
+::selection { background: color-mix(in oklab, var(--ak-main) 28%, transparent); color: inherit; }
+
+/* Demo tiles with depth: a glass sheen, a light that sweeps on hover, a lean toward the pointer, lifted pieces */
+.demo { transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .6s cubic-bezier(.22,1,.36,1), box-shadow .5s; box-shadow: 0 36px 60px -40px rgba(2,11,44,.75), 0 10px 20px -16px rgba(2,11,44,.4); }
+.demo:hover { transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px); box-shadow: 0 50px 80px -44px rgba(2,11,44,.85), 0 12px 24px -16px rgba(2,11,44,.45); }
+.demo::before { content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none; border-radius: inherit; background: linear-gradient(180deg in oklab, rgba(255,255,255,.2), transparent 32%); box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 0 0 1px rgba(255,255,255,.08); }
+.demo[data-glow]::after { z-index: 4; opacity: 1; background: linear-gradient(105deg in oklab, transparent 38%, rgba(255,255,255,.22) 50%, transparent 62%); translate: -130% 0; transition: translate 1.1s cubic-bezier(.22,1,.36,1); }
+.demo[data-glow]:hover::after { translate: 130% 0; }
+.d-web { background: radial-gradient(60% 60% at 85% 0% in oklab, #6fb2ff, transparent 70%), radial-gradient(70% 60% at 0% 100% in oklab, #bd1f27 0%, transparent 60%), linear-gradient(160deg in oklab, #056ad6, #022a6b); }
+.d-app { background: radial-gradient(60% 60% at 20% 10% in oklab, #ffe0cc, transparent 70%), radial-gradient(70% 60% at 100% 100% in oklab, #bd1f27, transparent 70%), linear-gradient(160deg in oklab, #ffb48a, #ff8e52); }
+.d-bots { background: radial-gradient(60% 70% at 50% 40% in oklab, rgba(255,142,82,.35), transparent 70%), radial-gradient(80% 80% at 0% 0% in oklab, #0b3a8a, transparent 70%), #020b2c; }
+.d-ai { background: radial-gradient(60% 80% at 100% 0% in oklab, #cfe3ff, transparent 70%), radial-gradient(50% 70% at 0% 100% in oklab, #ffd9c4, transparent 70%), #fff; }
+.d-game { background: radial-gradient(50% 60% at 85% 10% in oklab, #fff1c9, transparent 70%), linear-gradient(180deg in oklab, #6cb8ff, #d6ecff); }
+.d-design { background: radial-gradient(70% 70% at 100% 0% in oklab, #ffd0b5, transparent 70%), radial-gradient(60% 60% at 0% 100% in oklab, #dbe8ff, transparent 70%), #fff7f1; }
+.d-video { background: radial-gradient(60% 70% at 25% 30% in oklab, rgba(255,142,82,.3), transparent 70%), radial-gradient(60% 70% at 100% 100% in oklab, rgba(5,106,214,.45), transparent 70%), #070b16; }
+.d-model { background: radial-gradient(50% 60% at 50% 40% in oklab, #ffffff, transparent 70%), linear-gradient(160deg in oklab, #d8e9ff, #9cc6ff); }
+.browser, .phone, .d-design .canvas, .viewer, .scr .row, .d-ai .q, .d-ai .a { box-shadow: 0 24px 40px -22px rgba(2,11,44,.6), 0 2px 6px rgba(2,11,44,.12); }
+.cube { filter: drop-shadow(0 18px 18px rgba(2,11,44,.35)); }
+.d-model .floor { mask-image: radial-gradient(60% 80% at 50% 50%, #000, transparent); }
+.d-bots .bot { box-shadow: 0 0 0 6px rgba(255,142,82,.18), 0 0 30px rgba(255,142,82,.5); }
+.d-game .hero-sq { box-shadow: inset -4px -4px 0 rgba(0,0,0,.2), 0 8px 10px -4px rgba(0,0,0,.35); }
+@media (prefers-reduced-motion: reduce) { .demo, .demo[data-glow]::after, .cert::after { transition: none; } }

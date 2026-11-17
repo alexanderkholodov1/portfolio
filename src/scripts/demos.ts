@@ -12,15 +12,16 @@ export function startDemos() {
   if (builder) {
     const wins = [...builder.querySelectorAll<HTMLElement>('[data-build]')];
     let seen = true;
-    const run = (w: HTMLElement, delay: number) => {
+    const run = (w: HTMLElement, delay: number, first = false) => {
       const typed = w.querySelector<HTMLElement>('[data-typed]')!; const scene = w.querySelector<HTMLElement>('.sc')!; const text = typed.dataset.text || '';
-      scene.classList.remove('on'); typed.textContent = '';
-      if (reduce) { typed.textContent = text; scene.classList.add('on'); return; }
+      // The first view is never empty: each card opens already built, then rebuilds itself on the next rounds.
+      if (first || reduce) { typed.textContent = text; scene.classList.add('on', 'instant'); return; }
+      scene.classList.remove('on', 'instant'); typed.textContent = '';
       window.setTimeout(() => { let n = 0; const id = window.setInterval(() => { n++; typed.textContent = text.slice(0, n); if (n >= text.length) { clearInterval(id); scene.classList.add('on'); } }, 26); }, delay);
     };
     const cycle = () => wins.forEach((w, k) => run(w, k * 450));
     new IntersectionObserver(([en]) => { seen = en.isIntersecting; }).observe(builder);
-    cycle();
+    wins.forEach((w) => run(w, 0, true));
     if (!reduce) window.setInterval(() => { if (seen && !document.hidden) cycle(); }, 11000);
     // The fan follows the pointer with an eased lag, never a jump.
     if (matchMedia('(pointer: fine)').matches && !reduce) {
