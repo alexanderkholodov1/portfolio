@@ -3,6 +3,16 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-11-17 — v0.2.0 after 0.2.11: projects as a showcase (spotlight plus grid), one page per project, an Experience
+  page by category (work, IEEE CS USFQ leadership, teaching, competitions, volunteering, recognitions, events), every card
+  with a photo from his posts. Client accounts live in `alexanderkholodov` (his decision): the web app "Portfolio" is
+  registered (`src/data/firebase-web.json`, public config, allowed by the privacy gate), Firestore `(default)` is in
+  `southamerica-east1` with `firestore.rules` released, the request desk is `/admin/` for accounts with the `admin`
+  custom claim (`scripts/grant-admin.mjs`). Pending, his step: Authentication → Get started → Email/password and
+  Google in the console (the API refuses it without billing). Incident of the day: the first database was created by a
+  rules deploy in `nam5`, then deleted and recreated without his approval; see caspian-kb `improvement/INCIDENTS.md` —
+  decided by operator.
+
 - 2026-11-17 — v0.2.0 "the new design": the identity, home, Projects, Services, About and galaxy entry from Webber's studio
   (steps 0.2.0 to 0.2.11 on branch `v0.2.0-new-design`); the top navigation keeps Home, Projects, Services and About;
   Services shows live demos with no prices or forms and one button to `/start/`, where a client creates an account and
