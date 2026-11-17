@@ -23,27 +23,22 @@ const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[
 // Each project row opens that project's own entry; only the galaxy has an entry page on this site.
 const entryHref = (project: (typeof projects.items)[number]) => (project.id === galaxy.id ? href('galaxy', lang) : project.href ? resolveHref(project.href, lang) : undefined);
 const description = page === 'home' ? t.home.description : t[page === 'galaxy' ? 'galaxy' : page].description;
-// Home: projects grouped by field (his note of 2026-10-26: not one list), the featured one, and real results.
+// Home: projects grouped by field (his note of 2026-10-26: not one list) and real results.
 const byId = (id: string) => projects.items.find((p) => p.id === id);
 const fields = [
   { name: t.build.games, ids: ['galaxy', 'farpoint-horizon', 'sublime-airlift', 'dragons-never-die'] },
-  { name: t.build.science, ids: ['munhub-lab', 'dragon-ocean-analyzer'] },
+  { name: t.build.science, ids: ['munhub-lab', 'dragon-ocean-analyzer', 'zkvote'] },
   { name: t.build.work, ids: ['tcs-ai', 'usfq-ai-support', 'agent-workshops'] },
 ].map((f) => ({ ...f, items: f.ids.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p)) }));
-const featured = byId('farpoint-horizon');
+// The first screen is his work: six projects, each drawn by the stage in its own shape (src/scripts/stage.ts).
+const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? '';
+const showcase = ['farpoint-horizon', 'galaxy', 'munhub-lab', 'dragon-ocean-analyzer', 'zkvote', 'tcs-ai'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
 const results = [
-  { figure: lang === 'es' ? '3.º' : '3rd', project: byId('sublime-airlift') },
-  { figure: lang === 'es' ? '4.º' : '4th', project: byId('dragons-never-die') },
-  { figure: lang === 'es' ? '5.º' : '5th', project: byId('zkvote') },
+  { figure: 3, suffix: lang === 'es' ? '.º' : 'rd', project: byId('sublime-airlift') },
+  { figure: 4, suffix: lang === 'es' ? '.º' : 'th', project: byId('dragons-never-die') },
+  { figure: 5, suffix: lang === 'es' ? '.º' : 'th', project: byId('zkvote') },
 ].filter((r) => r.project);
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
-const pieces = [
-  { id: 'ai', label: lang === 'es' ? 'IA y agentes' : 'AI and agents', detail: t.build.work, href: '#build' },
-  { id: 'science', label: t.build.science, detail: 'MunHub Lab, Dragon Ocean Analyzer', href: '#build' },
-  { id: 'games', label: t.build.games, detail: 'Farpoint HORIZON, ' + galaxy.title[lang], href: '#featured' },
-  { id: 'design', label: lang === 'es' ? 'Diseño' : 'Design', detail: t.serviceTeaser.kicker, href: href('services', lang) + '?path=design' },
-  { id: 'print', label: '3D', detail: t.serviceTeaser.kicker, href: href('services', lang) + '?path=3d' },
-];
 const icons: Record<string, string> = {
   software: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12"/>', web: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18"/>',
   design: '<path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>', video: '<rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3"/>',
@@ -54,75 +49,88 @@ const s2 = t.services;
 ---
 <Layout lang={lang} page={page} title={title} description={description}>
   {page === 'home' && <>
-    <section class="hero" aria-labelledby="name">
-      <canvas class="hero-scene" id="scene" aria-hidden="true" data-pieces={JSON.stringify(pieces)}></canvas>
-      <div class="hero-words">
-        <h1 class="name" id="name">Alexander <span>Kholodov</span></h1>
-        <p class="iam">{t.hero.iam}</p>
-        <p class="does" aria-label={t.hero.make + ' ' + t.hero.does.join(', ')}><span aria-hidden="true" class="does-make">{t.hero.make}</span><span class="does-roll" aria-hidden="true"><span>{[...t.hero.does, t.hero.does[0]].map((d) => <span>{d}</span>)}</span></span></p>
-        <p class="calls">
-          <a class="btn-a" href={href('services', lang)}>{t.hero.ask}<span class="arrow" aria-hidden="true">→</span></a>
-          <a class="btn-b" href={href('projects', lang)}>{t.hero.all}</a>
-        </p>
+    <section class="intro" aria-labelledby="name">
+      <h1><span class="name" id="name">Alexander <em>Kholodov</em></span></h1>
+      <p class="iam">{t.intro.iam}</p>
+    </section>
+
+    <section class="stage" id="work" aria-label={t.stage.label} data-stage>
+      <div class="stage-index" role="tablist" aria-orientation="vertical" aria-label={t.stage.label}>
+        {showcase.map((p, i) => (
+          <button type="button" role="tab" id={'tab-' + p.id} aria-controls={'panel-' + p.id} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-shape={p.id}>
+            <span class="n">{pad(i + 1)}</span><span class="t">{p.title[lang]}</span><small>{fieldOf(p.id)}</small><i aria-hidden="true"></i>
+          </button>
+        ))}
       </div>
-      <a class="cue" href="#build"><span>{t.hero.cue}</span><i aria-hidden="true"></i></a>
-      <div class="piece-tag" id="piece-tag" role="tooltip"></div>
+      <div class="stage-view">
+        <canvas aria-hidden="true"></canvas>
+        {showcase.map((p, i) => {
+          const go = entryHref(p);
+          const game = fields[0].ids.includes(p.id);
+          return (
+            <article class="stage-panel" role="tabpanel" id={'panel-' + p.id} aria-labelledby={'tab-' + p.id} hidden={i !== 0}>
+              <p class="kicker">{p.context[lang]}</p>
+              <h2>{p.title[lang]}</h2>
+              <p class="pitch">{p.pitch[lang]}</p>
+              <p class="calls">
+                {go ? <a class="btn-a" href={go}>{game ? t.stage.play : t.stage.open}<span class="arrow" aria-hidden="true">↗</span></a>
+                    : <a class="btn-a" href={href('projects', lang)}>{t.stage.more}<span class="arrow" aria-hidden="true">→</span></a>}
+                {!isPending(p.stack) && <span class="stack">{p.stack.slice(0, 3).join(' · ')}</span>}
+              </p>
+            </article>
+          );
+        })}
+        <p class="hint" aria-hidden="true">{t.stage.hint}</p>
+      </div>
     </section>
 
     <section class="band glow-l" id="build" aria-labelledby="build-title">
-      <p class="kicker">{t.build.kicker}</p>
-      <h2 id="build-title">{t.build.title[0]}<em>{t.build.title[1]}</em></h2>
+      <p class="kicker" data-reveal>{t.build.kicker}</p>
+      <h2 id="build-title" data-reveal>{t.build.title[0]}<em>{t.build.title[1]}</em></h2>
       <div class="fields">
-        {fields.map((field) => (
-          <article class="field-card">
+        {fields.map((field, k) => (
+          <article class="field-card" data-reveal data-glow style={`--i:${k}`}>
             <h3>{field.name}</h3>
             <ul>{field.items.map((p) => <li><a href={entryHref(p) ?? href('projects', lang)}>{p.title[lang]}</a><span>{p.context[lang]}</span></li>)}</ul>
-            <a class="more" href={href('projects', lang)}>{t.build.more} →</a>
+            <a class="more" href={href('projects', lang)}>{t.build.more} <span aria-hidden="true">→</span></a>
           </article>
         ))}
       </div>
     </section>
 
-    {featured && <section class="band featured glow-r" id="featured" aria-labelledby="featured-title">
-      <div class="featured-art" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-      <div>
-        <p class="kicker">{t.spot.kicker}</p>
-        <h2 id="featured-title">{featured.title[lang]}</h2>
-        <p class="lede">{featured.pitch[lang]}</p>
-        <p class="meta">{featured.context[lang]}{!isPending(featured.dates) && ' · ' + featured.dates[lang]}</p>
-        <p class="calls">
-          {featured.href && <a class="btn-a" href={featured.href}>{t.spot.play}<span class="arrow" aria-hidden="true">↗</span></a>}
-          <a class="btn-b" href={href('services', lang)}>{t.spot.like}</a>
-        </p>
-      </div>
-    </section>}
-
-    <section class="band results" aria-labelledby="results-title">
-      <h2 class="kicker" id="results-title">{t.results.kicker}</h2>
-      <ul>{results.map((r) => <li><b>{r.figure}</b><span>{r.project!.context[lang]}</span><span class="soft">{r.project!.title[lang]}</span></li>)}</ul>
+    <section class="band results glow-r" aria-labelledby="results-title">
+      <h2 class="kicker" id="results-title" data-reveal>{t.results.kicker}</h2>
+      <ul>{results.map((r, k) => (
+        <li data-reveal style={`--i:${k};--n:${r.figure}`}>
+          <b><span class="roll" aria-hidden="true"><span>{Array.from({ length: r.figure }, (_, d) => <span>{d + 1}</span>)}</span></span><span class="sr">{r.figure}</span><sup>{r.suffix}</sup></b>
+          <span>{r.project!.context[lang]}</span><span class="soft">{r.project!.title[lang]}</span>
+        </li>
+      ))}</ul>
     </section>
 
     <section class="band teaser glow-l" aria-labelledby="teaser-title">
-      <p class="kicker">{t.serviceTeaser.kicker}</p>
-      <h2 id="teaser-title">{s2.title}</h2>
+      <p class="kicker" data-reveal>{t.serviceTeaser.kicker}</p>
+      <h2 id="teaser-title" data-reveal>{t.serviceTeaser.title[0]}<em>{t.serviceTeaser.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.serviceTeaser.lead}</p>
       <div class="paths">
-        {services.map((p) => <a class="path" href={href('services', lang) + '?path=' + p.id}><svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg><span>{p.title[lang]}</span></a>)}
+        {services.map((p, k) => <a class="path" data-reveal data-glow style={`--i:${k}`} href={href('services', lang) + '?path=' + p.id}><svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg><span>{p.title[lang]}</span></a>)}
       </div>
     </section>
 
     <section class="band contact glow-r" aria-labelledby="contact-title">
-      <h2 id="contact-title">{t.contact.title[0]}<em>{t.contact.title[1]}</em></h2>
-      <p class="lede">{t.contact.lead}</p>
-      <p class="calls">
+      <h2 id="contact-title" data-reveal>{t.contact.title[0]}<em>{t.contact.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.contact.lead}</p>
+      <p class="calls" data-reveal>
         <a class="btn-a" href={href('services', lang)}>{t.contact.project}<span class="arrow" aria-hidden="true">→</span></a>
         {linkedin && <a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.contact.other} · LinkedIn</a>}
       </p>
     </section>
     <script>
-      import { startHero } from '../scripts/hero';
-      const canvas = document.getElementById('scene') as HTMLCanvasElement | null;
-      const tag = document.getElementById('piece-tag');
-      if (canvas && tag) startHero(canvas, tag);
+      import { startMotion } from '../scripts/motion';
+      import { startStage } from '../scripts/stage';
+      const stage = document.querySelector<HTMLElement>('[data-stage]');
+      if (stage) startStage(stage);
+      startMotion();
     </script>
   </>}
 

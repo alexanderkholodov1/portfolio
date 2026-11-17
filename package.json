@@ -27,8 +27,7 @@
     "rollback": "node scripts/rollback.mjs"
   },
   "dependencies": {
-    "astro": "7.4.1",
-    "three": "0.170.0"
+    "astro": "7.4.1"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.11",
