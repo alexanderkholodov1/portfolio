@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import LiveBanner from './LiveBanner.astro';
 import Mark from './Mark.astro';
 import { copy } from '../data/copy';
-import { isPending, links, profile, projects, socials } from '../data/content';
+import { isPending, links, profile, projects, services, socials } from '../data/content';
 import { galaxy, galaxyHref, href, labels, name, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; }
 const { lang, page } = Astro.props;
@@ -23,29 +23,171 @@ const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[
 // Each project row opens that project's own entry; only the galaxy has an entry page on this site.
 const entryHref = (project: (typeof projects.items)[number]) => (project.id === galaxy.id ? href('galaxy', lang) : project.href ? resolveHref(project.href, lang) : undefined);
 const description = page === 'home' ? t.home.description : t[page === 'galaxy' ? 'galaxy' : page].description;
+// Home: projects grouped by field (his note of 2026-10-26: not one list), the featured one, and real results.
+const byId = (id: string) => projects.items.find((p) => p.id === id);
+const fields = [
+  { name: t.build.games, ids: ['galaxy', 'farpoint-horizon', 'sublime-airlift', 'dragons-never-die'] },
+  { name: t.build.science, ids: ['munhub-lab', 'dragon-ocean-analyzer'] },
+  { name: t.build.work, ids: ['tcs-ai', 'usfq-ai-support', 'agent-workshops'] },
+].map((f) => ({ ...f, items: f.ids.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p)) }));
+const featured = byId('farpoint-horizon');
+const results = [
+  { figure: lang === 'es' ? '3.º' : '3rd', project: byId('sublime-airlift') },
+  { figure: lang === 'es' ? '4.º' : '4th', project: byId('dragons-never-die') },
+  { figure: lang === 'es' ? '5.º' : '5th', project: byId('zkvote') },
+].filter((r) => r.project);
+const linkedin = socials.items.find((s) => s.id === 'linkedin');
+const pieces = [
+  { id: 'ai', label: lang === 'es' ? 'IA y agentes' : 'AI and agents', detail: t.build.work, href: '#build' },
+  { id: 'science', label: t.build.science, detail: 'MunHub Lab, Dragon Ocean Analyzer', href: '#build' },
+  { id: 'games', label: t.build.games, detail: 'Farpoint HORIZON, ' + galaxy.title[lang], href: '#featured' },
+  { id: 'design', label: lang === 'es' ? 'Diseño' : 'Design', detail: t.serviceTeaser.kicker, href: href('services', lang) + '?path=design' },
+  { id: 'print', label: '3D', detail: t.serviceTeaser.kicker, href: href('services', lang) + '?path=3d' },
+];
+const icons: Record<string, string> = {
+  software: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12"/>', web: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18"/>',
+  design: '<path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>', video: '<rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3"/>',
+  '3d': '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>', learn: '<path d="M3 9l9-5 9 5-9 5z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/>',
+  other: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',
+};
+const s2 = t.services;
 ---
 <Layout lang={lang} page={page} title={title} description={description}>
   {page === 'home' && <>
-    <LiveBanner lang={lang} />
-    <h1>{name}</h1>
-    {role && <p class="role">{role}</p>}
-    <section aria-labelledby="on-now">
-      <h2 class="label" id="on-now">{t.home.featured}</h2>
-      <a class="entry feature" href={href('galaxy', lang)}>
-        <span class="figure number">01</span>
-        <span class="title">{galaxy.title[lang]} <Mark /></span>
-        <span class="pitch">{galaxy.pitch[lang]}</span>
-        <span class="orbit" aria-hidden="true"><i></i><b></b></span>
-      </a>
+    <section class="hero" aria-labelledby="name">
+      <canvas class="hero-scene" id="scene" aria-hidden="true" data-pieces={JSON.stringify(pieces)}></canvas>
+      <div class="hero-words">
+        <h1 class="name" id="name">Alexander <span>Kholodov</span></h1>
+        <p class="iam">{t.hero.iam}</p>
+        <p class="does" aria-label={t.hero.make + ' ' + t.hero.does.join(', ')}><span aria-hidden="true" class="does-make">{t.hero.make}</span><span class="does-roll" aria-hidden="true"><span>{[...t.hero.does, t.hero.does[0]].map((d) => <span>{d}</span>)}</span></span></p>
+        <p class="calls">
+          <a class="btn-a" href={href('services', lang)}>{t.hero.ask}<span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn-b" href={href('projects', lang)}>{t.hero.all}</a>
+        </p>
+      </div>
+      <a class="cue" href="#build"><span>{t.hero.cue}</span><i aria-hidden="true"></i></a>
+      <div class="piece-tag" id="piece-tag" role="tooltip"></div>
     </section>
-    <section aria-labelledby="index">
-      <h2 class="label" id="index">{t.home.index}</h2>
-      <ul class="ledger">
-        {(['projects', 'about', 'links'] as const).map((item, index) => (
-          <li><a class="entry slim numbered" href={href(item, lang)}><span class="figure number">{pad(index + 2)}</span><span class="title">{labels[lang][item]}</span><span class="arrow"><Mark /></span></a></li>
+
+    <section class="band glow-l" id="build" aria-labelledby="build-title">
+      <p class="kicker">{t.build.kicker}</p>
+      <h2 id="build-title">{t.build.title[0]}<em>{t.build.title[1]}</em></h2>
+      <div class="fields">
+        {fields.map((field) => (
+          <article class="field-card">
+            <h3>{field.name}</h3>
+            <ul>{field.items.map((p) => <li><a href={entryHref(p) ?? href('projects', lang)}>{p.title[lang]}</a><span>{p.context[lang]}</span></li>)}</ul>
+            <a class="more" href={href('projects', lang)}>{t.build.more} →</a>
+          </article>
         ))}
-      </ul>
+      </div>
     </section>
+
+    {featured && <section class="band featured glow-r" id="featured" aria-labelledby="featured-title">
+      <div class="featured-art" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <div>
+        <p class="kicker">{t.spot.kicker}</p>
+        <h2 id="featured-title">{featured.title[lang]}</h2>
+        <p class="lede">{featured.pitch[lang]}</p>
+        <p class="meta">{featured.context[lang]}{!isPending(featured.dates) && ' · ' + featured.dates[lang]}</p>
+        <p class="calls">
+          {featured.href && <a class="btn-a" href={featured.href}>{t.spot.play}<span class="arrow" aria-hidden="true">↗</span></a>}
+          <a class="btn-b" href={href('services', lang)}>{t.spot.like}</a>
+        </p>
+      </div>
+    </section>}
+
+    <section class="band results" aria-labelledby="results-title">
+      <h2 class="kicker" id="results-title">{t.results.kicker}</h2>
+      <ul>{results.map((r) => <li><b>{r.figure}</b><span>{r.project!.context[lang]}</span><span class="soft">{r.project!.title[lang]}</span></li>)}</ul>
+    </section>
+
+    <section class="band teaser glow-l" aria-labelledby="teaser-title">
+      <p class="kicker">{t.serviceTeaser.kicker}</p>
+      <h2 id="teaser-title">{s2.title}</h2>
+      <div class="paths">
+        {services.map((p) => <a class="path" href={href('services', lang) + '?path=' + p.id}><svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg><span>{p.title[lang]}</span></a>)}
+      </div>
+    </section>
+
+    <section class="band contact glow-r" aria-labelledby="contact-title">
+      <h2 id="contact-title">{t.contact.title[0]}<em>{t.contact.title[1]}</em></h2>
+      <p class="lede">{t.contact.lead}</p>
+      <p class="calls">
+        <a class="btn-a" href={href('services', lang)}>{t.contact.project}<span class="arrow" aria-hidden="true">→</span></a>
+        {linkedin && <a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.contact.other} · LinkedIn</a>}
+      </p>
+    </section>
+    <script>
+      import { startHero } from '../scripts/hero';
+      const canvas = document.getElementById('scene') as HTMLCanvasElement | null;
+      const tag = document.getElementById('piece-tag');
+      if (canvas && tag) startHero(canvas, tag);
+    </script>
+  </>}
+
+  {page === 'services' && <>
+    <section class="svc-top">
+      <p class="kicker">{s2.eyebrow}</p>
+      <h1>{s2.title}</h1>
+      <p class="lede">{s2.pick}</p>
+      <div class="paths" role="list">
+        {services.map((p) => <button type="button" class="path" data-path={p.id} aria-pressed="false" role="listitem"><svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg><span>{p.title[lang]}</span></button>)}
+      </div>
+      {services.map((p) => (
+        <div class="path-detail" data-detail={p.id} hidden>
+          <h2>{p.ask[lang]}</h2>
+          {p.offers.length > 0 && <>
+            <div class="who" role="group" aria-label={s2.who}>{s2.audience.map((a, i) => <button type="button" data-who={i} aria-pressed={i === 0 ? 'true' : 'false'}>{a}</button>)}</div>
+            <ul class="offers">{p.offers.map((o) => <li><span>{o.title[lang]}</span><b><small>{s2.from}</small> <span data-prices={JSON.stringify(o.price)}>{o.price[0]}</span></b></li>)}</ul>
+          </>}
+          <label class="describe"><span>{s2.describe}</span><textarea rows="4" placeholder={s2.placeholder} data-text={p.id}></textarea></label>
+          <button type="button" class="btn-a" data-next={p.id}>{s2.next}<span class="arrow" aria-hidden="true">→</span></button>
+          <div class="send" data-send={p.id} hidden>
+            <h3>{s2.sendTitle}</h3>
+            <p>{s2.sendLead}</p>
+            <pre data-out={p.id}></pre>
+            <p class="calls"><button type="button" class="btn-b" data-copy={p.id} data-done={s2.copied}>{s2.copy}</button>{linkedin && <a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{s2.write}</a>}</p>
+          </div>
+        </div>
+      ))}
+    </section>
+    <section class="band glow-l" aria-labelledby="how-title">
+      <h2 id="how-title">{s2.howTitle}</h2>
+      <ol class="how">{s2.how.map((step) => <li>{step}</li>)}</ol>
+      <p class="soft">{s2.big}</p>
+    </section>
+    <section class="band" aria-label={s2.guarantee.map((g) => g[0]).join(', ')}>
+      <div class="promises">{s2.guarantee.map(([a, b]) => <div><b>{a}</b><span>{b}</span></div>)}</div>
+    </section>
+    <section class="band glow-r" aria-labelledby="pay-title">
+      <h2 id="pay-title">{s2.payTitle}</h2>
+      <ul class="chips">{s2.pay.map((m) => <li>{m}</li>)}</ul>
+    </section>
+    <section class="band" aria-labelledby="faq-title">
+      <h2 id="faq-title">{s2.faqTitle}</h2>
+      <div class="faq">{s2.faq.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}</div>
+    </section>
+    <script>
+      // The path he picks reveals its question, its prices for the chosen audience and the request text.
+      const detail = (id: string) => document.querySelector<HTMLElement>(`[data-detail="${id}"]`);
+      const pick = (id: string | null) => {
+        document.querySelectorAll<HTMLButtonElement>('[data-path]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.path === id)));
+        document.querySelectorAll<HTMLElement>('[data-detail]').forEach((d) => { d.hidden = d.dataset.detail !== id; });
+        if (id) detail(id)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
+      };
+      document.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest('button'); if (!b) return;
+        if (b.dataset.path) { const on = b.getAttribute('aria-pressed') === 'true'; pick(on ? null : b.dataset.path); history.replaceState(null, '', on ? location.pathname : '?path=' + b.dataset.path); }
+        else if (b.dataset.who) { const box = b.closest('[data-detail]')!; box.querySelectorAll('[data-who]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); box.querySelectorAll<HTMLElement>('[data-prices]').forEach((p) => { p.textContent = JSON.parse(p.dataset.prices!)[Number(b.dataset.who)]; }); }
+        else if (b.dataset.next) { const id = b.dataset.next; const box = detail(id)!; const who = box.querySelector('[data-who][aria-pressed="true"]')?.textContent ?? '';
+          const title = document.querySelector(`[data-path="${id}"] span`)?.textContent ?? id; const text = (box.querySelector('textarea') as HTMLTextAreaElement).value.trim();
+          box.querySelector<HTMLElement>('[data-out]')!.textContent = [title + (who ? ' · ' + who : ''), text].filter(Boolean).join('\n\n');
+          const send = box.querySelector<HTMLElement>('[data-send]')!; send.hidden = false; send.scrollIntoView({ block: 'nearest' }); }
+        else if (b.dataset.copy) { const out = detail(b.dataset.copy)!.querySelector('[data-out]')!.textContent ?? ''; navigator.clipboard?.writeText(out).then(() => { const old = b.textContent; b.textContent = b.dataset.done || '✓'; setTimeout(() => { b.textContent = old; }, 1600); }).catch(() => {}); }
+      });
+      const start = new URLSearchParams(location.search).get('path'); if (start && detail(start)) pick(start);
+    </script>
   </>}
 
   {page === 'projects' && <>

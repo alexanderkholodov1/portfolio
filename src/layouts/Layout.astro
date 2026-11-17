@@ -15,20 +15,20 @@ const own = page ? href(page, lang) : undefined;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f1f5f9" />
+    <meta name="theme-color" content="#f3f4f7" />
     {description && <meta name="description" content={description} />}
     <title>{title} · {name}</title>
     {own && <link rel="canonical" href={origin + own} />}
     {own && <link rel="alternate" hreflang={lang} href={origin + own} />}
     <link rel="alternate" hreflang={other} href={origin + counterpart} />
     {page === 'home' && <link rel="alternate" hreflang="x-default" href={origin + href('home', 'en')} />}
-    {['spectral-latin-400', 'archivo-narrow-latin-400', 'archivo-narrow-latin-700'].map((font) => (
+    {['plus-jakarta-sans-latin-var', 'instrument-serif-latin-italic'].map((font) => (
       <link rel="preload" as="font" type="font/woff2" href={`/fonts/${font}.woff2`} crossorigin />
     ))}
     <link rel="stylesheet" href="/tokens.css" />
     <script is:inline>
       (()=>{const d=document.documentElement,m=matchMedia('(prefers-color-scheme: dark)'),q=(x)=>document.querySelector(x);let s;try{s=localStorage.getItem('portfolio.theme')}catch{}
-      const a=(k)=>{d.dataset.theme=k?'dark':'light';q('meta[name=theme-color]').content=k?'#071421':'#f1f5f9';const b=q('#theme');b&&b.setAttribute('aria-pressed',k)};
+      const a=(k)=>{d.dataset.theme=k?'dark':'light';q('meta[name=theme-color]').content=k?'#071421':'#f3f4f7';const b=q('#theme');b&&b.setAttribute('aria-pressed',k)};
       a(s=='dark'||s!='light'&&m.matches);d.dataset.js='';
       addEventListener('DOMContentLoaded',()=>a(d.dataset.theme=='dark'));
       addEventListener('click',(e)=>{if(e.target.closest('#theme')){const k=d.dataset.theme!='dark';s=k?'dark':'light';a(k);try{localStorage.setItem('portfolio.theme',s)}catch{}}});

@@ -1,14 +1,14 @@
 import { links, socials, profile, projects, isPending } from './content';
 
 export type Language = 'en' | 'es';
-export type Page = 'home' | 'projects' | 'about' | 'links' | 'galaxy';
-export const pages: Page[] = ['home', 'projects', 'about', 'links', 'galaxy'];
+export type Page = 'home' | 'projects' | 'services' | 'about' | 'links' | 'galaxy';
+export const pages: Page[] = ['home', 'projects', 'services', 'about', 'links', 'galaxy'];
 export const paths: Record<Page, string> = {
-  home: '', projects: 'projects/', about: 'about/', links: 'links/', galaxy: 'projects/galaxy/',
+  home: '', projects: 'projects/', services: 'services/', about: 'about/', links: 'links/', galaxy: 'projects/galaxy/',
 };
 export const labels = {
-  en: { home: 'Home', projects: 'Projects', about: 'About', links: 'Links', galaxy: 'Galaxy' },
-  es: { home: 'Inicio', projects: 'Proyectos', about: 'Acerca de', links: 'Enlaces', galaxy: 'Galaxia' },
+  en: { home: 'Home', projects: 'Projects', services: 'Services', about: 'About', links: 'Links', galaxy: 'Galaxy' },
+  es: { home: 'Inicio', projects: 'Proyectos', services: 'Servicios', about: 'Acerca de', links: 'Enlaces', galaxy: 'Galaxia' },
 };
 export function href(page: Page, lang: Language) { return `${lang === 'es' ? '/es/' : '/'}${paths[page]}`; }
 

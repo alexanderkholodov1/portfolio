@@ -59,6 +59,26 @@ export const profile: Profile = {
 export const projects: List<Project> = {
   items: [
     {
+      id: 'farpoint-horizon',
+      title: { en: 'Farpoint HORIZON', es: 'Farpoint HORIZON' },
+      context: { en: 'NASA Space Apps Challenge 2026 · Team SK-Horizons', es: 'NASA Space Apps Challenge 2026 · Equipo SK-Horizons' },
+      pitch: {
+        en: 'Six real NASA missions, four guinea pigs who were there, and one mission that is all yours. A 3D space game made in Quito in 39 hours, where anyone, alone or with up to three friends, lives a mission from the first idea to the moment the data comes home.',
+        es: 'Seis misiones reales de la NASA, cuatro cuyes que estuvieron ahí y una misión que es toda tuya. Un juego espacial en 3D hecho en Quito en 39 horas, donde cualquiera, solo o con hasta tres amigos, vive una misión desde la primera idea hasta que los datos vuelven a casa.',
+      },
+      href: 'https://farpoint-horizon.web.app/',
+      source: {
+        id: 'farpoint-horizon-source',
+        label: { en: 'Farpoint HORIZON on GitHub', es: 'Código de Farpoint HORIZON en GitHub' },
+        href: 'https://github.com/alexanderkholodov1/farpoint-horizon-forever',
+        external: true,
+      },
+      role: todo('P3: his role in team SK-Horizons for Farpoint HORIZON, in EN and ES.'),
+      stack: ['Godot', 'Blender'],
+      dates: { en: 'Nov 2026', es: 'Nov 2026' },
+      image: todo('P3: a screenshot of Farpoint HORIZON with alt text in EN and ES.'),
+    },
+    {
       id: 'galaxy',
       title: { en: 'Collective Galaxy', es: 'Galaxia Colectiva' },
       context: { en: 'Be a Dragon 2026 · USFQ', es: 'Be a Dragon 2026 · USFQ' },
@@ -329,3 +349,40 @@ export const socials: List<Social> = {
   ],
   todo: null,
 };
+
+// Services: the catalog and prices he approved on 2026-11-16 (caspian-kb research/2026-11-16-portfolio-services,
+// "apruebo como esta y luego lo iremos ajustando"). Prices in USD: individuals in Ecuador, companies in Ecuador, abroad.
+// The public page shows a price only after the visitor picks a path (his note, 2026-11-16 23:29Z).
+export type Offer = { title: Localized; price: [string, string, string] };
+export type ServicePath = { id: string; title: Localized; ask: Localized; offers: Offer[] };
+export const services: ServicePath[] = [
+  { id: 'software', title: { en: 'Software', es: 'Software' }, ask: { en: 'Tell me what you want to automate or solve.', es: 'Cuéntame qué quieres automatizar o resolver.' }, offers: [
+    { title: { en: 'Simple script', es: 'Script sencillo' }, price: ['$10', '$35', '$50'] },
+    { title: { en: 'Automation or bot', es: 'Automatización o bot' }, price: ['$50', '$120', '$200'] },
+  ] },
+  { id: 'web', title: { en: 'Web', es: 'Web' }, ask: { en: 'A page, a site or an application?', es: '¿Una página, un sitio o una aplicación?' }, offers: [
+    { title: { en: 'Single-page site or portfolio', es: 'Página de una sección o portafolio' }, price: ['$120', '$250', '$450'] },
+    { title: { en: 'Business website (4 to 6 pages)', es: 'Sitio de empresa (4 a 6 páginas)' }, price: ['$350', '$650', '$1,200'] },
+    { title: { en: 'Web application (first version)', es: 'Aplicación web (primera versión)' }, price: ['$600', '$1,500', '$2,800'] },
+    { title: { en: 'Mobile application (first version)', es: 'Aplicación móvil (primera versión)' }, price: ['$1,200', '$2,400', '$4,500'] },
+  ] },
+  { id: 'design', title: { en: 'Design', es: 'Diseño' }, ask: { en: 'Which piece do you need, and what for?', es: '¿Qué pieza necesitas y para qué?' }, offers: [
+    { title: { en: 'Post, poster or sign', es: 'Post, póster o letrero' }, price: ['$12', '$25', '$45'] },
+    { title: { en: 'Certificate', es: 'Certificado' }, price: ['$15', '$30', '$50'] },
+    { title: { en: 'Logo and identity', es: 'Logo e identidad' }, price: ['$50', '$150', '$300'] },
+    { title: { en: 'Ten AI images', es: 'Diez imágenes con IA' }, price: ['$15', '$35', '$60'] },
+    { title: { en: 'Presentation, per slide', es: 'Presentación, por diapositiva' }, price: ['$6', '$12', '$20'] },
+  ] },
+  { id: 'video', title: { en: 'Video', es: 'Video' }, ask: { en: 'What kind of video, and how long?', es: '¿Qué tipo de video y cuánto dura?' }, offers: [
+    { title: { en: 'Reel, 30 to 60 seconds', es: 'Reel de 30 a 60 segundos' }, price: ['$15', '$30', '$50'] },
+    { title: { en: 'Long video, per finished minute', es: 'Video largo, por minuto terminado' }, price: ['$12', '$22', '$35'] },
+  ] },
+  { id: '3d', title: { en: '3D', es: '3D' }, ask: { en: 'What do you want modelled? If you need the physical piece, we see it next.', es: '¿Qué quieres modelar? Si necesitas la pieza física, lo vemos después.' }, offers: [
+    { title: { en: '3D modelling, per hour', es: 'Modelado 3D, por hora' }, price: ['$12', '$20', '$35'] },
+  ] },
+  { id: 'learn', title: { en: 'Training', es: 'Formación' }, ask: { en: 'A class, a workshop or a talk?', es: '¿Una clase, un taller o una charla?' }, offers: [
+    { title: { en: 'Private class, per hour', es: 'Clase particular, por hora' }, price: ['$15', '$25', '$40'] },
+    { title: { en: 'Workshop or talk (2 hours)', es: 'Taller o charla (2 horas)' }, price: ['$60', '$200', '$350'] },
+  ] },
+  { id: 'other', title: { en: 'Other', es: 'Otro' }, ask: { en: 'Tell me what you need; I review it and propose scope, time and price.', es: 'Cuéntame qué necesitas; lo reviso y te propongo alcance, plazo y precio.' }, offers: [] },
+];
