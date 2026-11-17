@@ -17,10 +17,42 @@ export const copy = {
     },
     links: { eyebrow: 'Links', description: 'Where to find Alexander Kholodov and Collective Galaxy.' },
     intro: { iam: 'I bring complex things down to something you can touch.', also: 'Games, science, AI and the web.', cue: 'See my work', work: 'Selected work' },
-    stage: { label: 'Selected projects', play: 'Play it', open: 'Open it', more: 'Read about it', hint: 'Move, drag or tap the light' },
+    stage: { label: 'Selected projects', play: 'Play it', open: 'Open it', more: 'Read about it', hint: 'Move, drag or tap the light', all: 'See all my projects' },
     build: { kicker: 'More work', title: ['Each thing, in ', 'its field'], games: 'Games', science: 'Science', work: 'AI and work', more: 'See them all' },
     results: { kicker: 'Results' },
-    serviceTeaser: { kicker: 'Services', title: ['Software, web, design, video and 3D, ', 'made to measure'], lead: 'Choose what you need and see its price before writing to me.', cta: 'See services' },
+    view: {
+      kicker: 'How I see things',
+      lines: [
+        ['I learn from everything, because the best ideas are born ', 'between fields', '.'],
+        ['I think like an engineer and like a maker. It has to work, ', 'and it has to feel right', '.'],
+        ['An idea is worth something ', 'when someone can use it', '.'],
+      ],
+    },
+    events: {
+      kicker: 'Events', title: ['If there is an event, ', 'I am there'],
+      lead: 'Hackathons, programming contests, game jams and innovation fairs. Each one ends in something that works.',
+      roles: ['Vice president, IEEE Computer Society USFQ', 'Mentor, Competitive Programming Club', 'Private tutor in programming, maths, science and languages'],
+      podium: 'Podiums',
+    },
+    solve: {
+      kicker: 'Problems', title: ['I start from ', 'the problem'], problem: 'The problem', solution: 'What I built',
+      cases: [
+        ['munhub-lab', 'A cosmic ray detector at USFQ wrote its readings to a cable, and nobody could see them as they happened.'],
+        ['dragon-ocean-analyzer', 'Hours of underwater sound from San Cristóbal Bay in Galápagos, too many to listen to one by one.'],
+        ['zkvote', 'A vote has to stay secret and still be verifiable by anyone.'],
+      ],
+    },
+    open: {
+      kicker: 'Open work', title: ['What I build ', 'stays open'],
+      lead: 'The code of my projects is public. Read it, learn from it, build on it.', profile: 'All my code on GitHub',
+    },
+    invite: {
+      kicker: 'Open to', title: ['Interesting projects, ', 'of any kind'],
+      lead: 'If something here caught your eye, write to me. I answer every message.',
+      items: ['Research and science', 'Games and interactive worlds', 'AI and agents', 'Hackathon teams', 'Talks at your university or event', 'Workshops and classes', 'Sponsorships', 'Advice on a project'],
+      write: 'Write to me',
+    },
+    serviceTeaser: { kicker: 'Services', title: ['Hire me ', 'for your project'], lead: 'I build it for you, from a single post to a whole application. Choose what you need, see the starting price, and I answer with scope and date.', see: 'See prices', cta: 'See all services and prices' },
     contact: { title: ['Let’s ', 'talk'], lead: 'A project, a talk at your event, a sponsorship or a question. Write to me where you prefer.', project: 'See services', other: 'Everything else' },
     services: {
       eyebrow: 'Services', title: 'Services for your project', description: 'Software, web, design, video, 3D and training by Alexander Kholodov.',
@@ -63,10 +95,42 @@ export const copy = {
     },
     links: { eyebrow: 'Enlaces', description: 'Dónde encontrar a Alexander Kholodov y Galaxia Colectiva.' },
     intro: { iam: 'Llevo lo complejo a algo que se puede tocar.', also: 'Videojuegos, ciencia, IA y web.', cue: 'Mira mi trabajo', work: 'Trabajo destacado' },
-    stage: { label: 'Proyectos destacados', play: 'Jugar', open: 'Abrir', more: 'Leer más', hint: 'Mueve, arrastra o toca la luz' },
+    stage: { label: 'Proyectos destacados', play: 'Jugar', open: 'Abrir', more: 'Leer más', hint: 'Mueve, arrastra o toca la luz', all: 'Ver todos mis proyectos' },
     build: { kicker: 'Más trabajo', title: ['Cada cosa, en ', 'su campo'], games: 'Juegos', science: 'Ciencia', work: 'IA y trabajo', more: 'Verlos todos' },
     results: { kicker: 'Resultados' },
-    serviceTeaser: { kicker: 'Servicios', title: ['Software, web, diseño, video y 3D, ', 'a la medida'], lead: 'Elige lo que necesitas y conoce su precio antes de escribirme.', cta: 'Ver servicios' },
+    view: {
+      kicker: 'Cómo veo las cosas',
+      lines: [
+        ['Aprendo de todo, porque las mejores ideas nacen ', 'entre campos', '.'],
+        ['Pienso como ingeniero y como creador. Tiene que funcionar ', 'y tiene que sentirse bien', '.'],
+        ['Una idea vale ', 'cuando alguien la puede usar', '.'],
+      ],
+    },
+    events: {
+      kicker: 'Eventos', title: ['Si hay un evento, ', 'ahí estoy'],
+      lead: 'Hackatones, competencias de programación, game jams y ferias de innovación. Cada uno termina en algo que funciona.',
+      roles: ['Vicepresidente de la IEEE Computer Society USFQ', 'Mentor del Club de Programación Competitiva', 'Tutor de programación, matemáticas, ciencias e idiomas'],
+      podium: 'Podios',
+    },
+    solve: {
+      kicker: 'Problemas', title: ['Empiezo por ', 'el problema'], problem: 'El problema', solution: 'Lo que construí',
+      cases: [
+        ['munhub-lab', 'Un detector de rayos cósmicos en la USFQ enviaba sus lecturas por un cable, y nadie podía verlas en el momento.'],
+        ['dragon-ocean-analyzer', 'Horas de sonido submarino de la bahía de San Cristóbal, en Galápagos, imposibles de escuchar una por una.'],
+        ['zkvote', 'Un voto tiene que seguir siendo secreto y, aun así, cualquiera debe poder verificarlo.'],
+      ],
+    },
+    open: {
+      kicker: 'Código abierto', title: ['Lo que construyo ', 'queda abierto'],
+      lead: 'El código de mis proyectos es público. Léelo, aprende de él y construye encima.', profile: 'Todo mi código en GitHub',
+    },
+    invite: {
+      kicker: 'Abierto a', title: ['Proyectos interesantes, ', 'de cualquier tipo'],
+      lead: 'Si algo de aquí te llamó la atención, escríbeme. Respondo cada mensaje.',
+      items: ['Investigación y ciencia', 'Juegos y mundos interactivos', 'IA y agentes', 'Equipos para hackatones', 'Charlas en tu universidad o evento', 'Talleres y clases', 'Patrocinios', 'Consejo sobre un proyecto'],
+      write: 'Escríbeme',
+    },
+    serviceTeaser: { kicker: 'Servicios', title: ['Contrátame ', 'para tu proyecto'], lead: 'Lo construyo por ti, desde un post hasta una aplicación completa. Eliges lo que necesitas, ves el precio desde el que parte y te respondo con alcance y fecha.', see: 'Ver precios', cta: 'Ver todos los servicios y precios' },
     contact: { title: ['', 'Hablemos'], lead: 'Un proyecto, una charla en tu evento, un patrocinio o una consulta. Escríbeme por donde prefieras.', project: 'Ver servicios', other: 'Todo lo demás' },
     services: {
       eyebrow: 'Servicios', title: 'Servicios para tu proyecto', description: 'Software, web, diseño, video, 3D y formación, por Alexander Kholodov.',

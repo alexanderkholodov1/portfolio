@@ -34,11 +34,16 @@ const fields = [
 const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? '';
 const showcase = ['farpoint-horizon', 'galaxy', 'munhub-lab', 'dragon-ocean-analyzer', 'zkvote', 'tcs-ai'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
 const results = [
-  { figure: 3, suffix: lang === 'es' ? '.º' : 'rd', project: byId('sublime-airlift') },
-  { figure: 4, suffix: lang === 'es' ? '.º' : 'th', project: byId('dragons-never-die') },
-  { figure: 5, suffix: lang === 'es' ? '.º' : 'th', project: byId('zkvote') },
+  { figure: 3, suffix: lang === 'es' ? 'º' : 'rd', project: byId('sublime-airlift') },
+  { figure: 4, suffix: lang === 'es' ? 'º' : 'th', project: byId('dragons-never-die') },
+  { figure: 5, suffix: lang === 'es' ? 'º' : 'th', project: byId('zkvote') },
 ].filter((r) => r.project);
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
+const github = socials.items.find((s) => s.id === 'github');
+// Events he took part in, by the names in his projects and his bio (content.ts).
+const eventNames = ['NASA Space Apps Challenge 2026', 'Be a Dragon 2026', 'Interact2Hack 2026', 'SALA 2026 AI Hackathon', 'Space Expo', 'ZKForge Hackathon 2025', 'USFQ IEEE CS Game Jam 2025', 'TCS CodeVita', 'IEEEXtreme', 'Diners Club Blue Challenge', 'Cursor Community Quito', 'Cursor x Supabase'];
+const cases = t.solve.cases.map(([id, problem]) => ({ problem, project: byId(id)! })).filter((c) => c.project);
+const repos = projects.items.filter((p) => p.source?.href.startsWith('https://github.com/')).map((p) => ({ title: p.title[lang], href: p.source!.href, path: p.source!.href.replace('https://github.com/', '') }));
 const icons: Record<string, string> = {
   software: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12"/>', web: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18"/>',
   design: '<path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>', video: '<rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3"/>',
@@ -89,44 +94,111 @@ const s2 = t.services;
       </div>
     </section>
 
-    <section class="band glow-l" id="build" aria-labelledby="build-title">
-      <p class="kicker" data-reveal>{t.build.kicker}</p>
-      <h2 id="build-title" data-reveal>{t.build.title[0]}<em>{t.build.title[1]}</em></h2>
-      <div class="fields">
-        {fields.map((field, k) => (
-          <article class="field-card" data-reveal data-glow style={`--i:${k}`}>
-            <h3>{field.name}</h3>
-            <ul>{field.items.map((p) => <li><a href={entryHref(p) ?? href('projects', lang)}>{p.title[lang]}</a><span>{p.context[lang]}</span></li>)}</ul>
-            <a class="more" href={href('projects', lang)}>{t.build.more} <span aria-hidden="true">→</span></a>
+    <p class="all-work" data-reveal><a class="btn-b" href={href('projects', lang)}>{t.stage.all}</a></p>
+
+    <section class="band view glow-l" aria-labelledby="view-title">
+      <h2 class="kicker" id="view-title" data-reveal>{t.view.kicker}</h2>
+      <ol class="view-lines">
+        {t.view.lines.map((line, k) => {
+          const words = (s: string) => s.split(/(\s+)/).filter(Boolean);
+          let n = 0;
+          return (
+            <li data-reveal>
+              <span class="num" aria-hidden="true">{pad(k + 1)}</span>
+              <p>{words(line[0]).map((w) => <span class="w" style={`--w:${n++}`}>{w}</span>)}<em>{words(line[1]).map((w) => <span class="w" style={`--w:${n++}`}>{w}</span>)}</em>{line[2]}</p>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+
+    <section class="band events glow-r" aria-labelledby="events-title">
+      <p class="kicker" data-reveal>{t.events.kicker}</p>
+      <h2 id="events-title" data-reveal>{t.events.title[0]}<em>{t.events.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.events.lead}</p>
+      <div class="marquee" aria-label={eventNames.join(', ')}>
+        {[0, 1].map((row) => (
+          <div class={'track' + (row ? ' back' : '')} aria-hidden="true">
+            {[0, 1].map(() => <span class="run">{(row ? [...eventNames].reverse() : eventNames).map((e) => <span class="ev">{e}</span>)}</span>)}
+          </div>
+        ))}
+      </div>
+      <div class="events-grid">
+        <ul class="roles">{t.events.roles.map((r, k) => <li data-reveal style={`--i:${k}`}>{r}</li>)}</ul>
+        <div class="results">
+          <h3 class="kicker" data-reveal>{t.events.podium}</h3>
+          <ul>{results.map((r, k) => (
+            <li data-reveal style={`--i:${k};--n:${r.figure}`}>
+              <b><span class="roll" aria-hidden="true"><span>{Array.from({ length: r.figure }, (_, d) => <span>{d + 1}</span>)}</span></span><span class="sr">{r.figure}</span><sup>{r.suffix}</sup></b>
+              <span>{r.project!.title[lang]}</span><span class="soft">{r.project!.context[lang].split(' · ')[0]}</span>
+            </li>
+          ))}</ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="band solve glow-l" aria-labelledby="solve-title">
+      <p class="kicker" data-reveal>{t.solve.kicker}</p>
+      <h2 id="solve-title" data-reveal>{t.solve.title[0]}<em>{t.solve.title[1]}</em></h2>
+      <div class="cases">
+        {cases.map((c, k) => (
+          <article class="case" data-reveal data-glow style={`--i:${k}`}>
+            <div class="problem"><small>{t.solve.problem}</small><p>{c.problem}</p></div>
+            <i class="bridge" aria-hidden="true"></i>
+            <div class="solution">
+              <small>{t.solve.solution}</small>
+              <h3><a href={entryHref(c.project) ?? href('projects', lang)}>{c.project.title[lang]} <span aria-hidden="true">↗</span></a></h3>
+              <p>{c.project.pitch[lang].split('. ')[0]}.</p>
+            </div>
           </article>
         ))}
       </div>
     </section>
 
-    <section class="band results glow-r" aria-labelledby="results-title">
-      <h2 class="kicker" id="results-title" data-reveal>{t.results.kicker}</h2>
-      <ul>{results.map((r, k) => (
-        <li data-reveal style={`--i:${k};--n:${r.figure}`}>
-          <b><span class="roll" aria-hidden="true"><span>{Array.from({ length: r.figure }, (_, d) => <span>{d + 1}</span>)}</span></span><span class="sr">{r.figure}</span><sup>{r.suffix}</sup></b>
-          <span>{r.project!.context[lang]}</span><span class="soft">{r.project!.title[lang]}</span>{!isPending(r.project!.image) && <img class="thumb" src={r.project!.image.src} alt={r.project!.image.alt[lang]} width="320" height="180" loading="lazy" decoding="async" />}
-        </li>
-      ))}</ul>
+    <section class="band open glow-r" aria-labelledby="open-title">
+      <div class="open-grid">
+        <div>
+          <p class="kicker" data-reveal>{t.open.kicker}</p>
+          <h2 id="open-title" data-reveal>{t.open.title[0]}<em>{t.open.title[1]}</em></h2>
+          <p class="lede" data-reveal>{t.open.lead}</p>
+          {github && <p class="calls" data-reveal><a class="btn-a" href={github.href}>{t.open.profile}<span class="arrow" aria-hidden="true">↗</span></a></p>}
+        </div>
+        <div class="terminal" data-reveal>
+          <p class="bar" aria-hidden="true"><i></i><i></i><i></i></p>
+          <ul>{repos.map((r, k) => <li style={`--i:${k}`}><span class="prompt" aria-hidden="true">$</span> git clone <a href={r.href}>{r.path}</a><small>{r.title}</small></li>)}</ul>
+        </div>
+      </div>
     </section>
 
-    <section class="band teaser glow-l" aria-labelledby="teaser-title">
+    <section class="band invite glow-l" aria-labelledby="invite-title">
+      <p class="kicker" data-reveal>{t.invite.kicker}</p>
+      <h2 id="invite-title" data-reveal>{t.invite.title[0]}<em>{t.invite.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.invite.lead}</p>
+      <ul class="chips-big">{t.invite.items.map((item, k) => <li data-reveal style={`--i:${k}`}>{item}</li>)}</ul>
+      {linkedin && <p class="calls" data-reveal><a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.invite.write} · LinkedIn</a></p>}
+    </section>
+
+    <section class="band offer glow-r" aria-labelledby="teaser-title">
       <p class="kicker" data-reveal>{t.serviceTeaser.kicker}</p>
       <h2 id="teaser-title" data-reveal>{t.serviceTeaser.title[0]}<em>{t.serviceTeaser.title[1]}</em></h2>
       <p class="lede" data-reveal>{t.serviceTeaser.lead}</p>
-      <div class="paths">
-        {services.map((p, k) => <a class="path" data-reveal data-glow style={`--i:${k}`} href={href('services', lang) + '?path=' + p.id}><svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg><span>{p.title[lang]}</span></a>)}
+      <div class="offer-grid">
+        {services.map((p, k) => (
+          <a class="offer-card" data-reveal data-glow style={`--i:${k}`} href={href('services', lang) + '?path=' + p.id}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg>
+            <b>{p.title[lang]}</b>
+            <span>{p.offers.length ? p.offers.map((o) => o.title[lang]).join(' · ') : p.ask[lang]}</span>
+            <span class="see">{t.serviceTeaser.see} <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
       </div>
+      <p class="calls" data-reveal><a class="btn-a" href={href('services', lang)}>{t.serviceTeaser.cta}<span class="arrow" aria-hidden="true">→</span></a></p>
     </section>
 
     <section class="band contact glow-r" aria-labelledby="contact-title">
       <h2 id="contact-title" data-reveal>{t.contact.title[0]}<em>{t.contact.title[1]}</em></h2>
       <p class="lede" data-reveal>{t.contact.lead}</p>
       <p class="calls" data-reveal>
-        <a class="btn-a" href={href('services', lang)}>{t.contact.project}<span class="arrow" aria-hidden="true">→</span></a>
         {linkedin && <a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.contact.other} · LinkedIn</a>}
       </p>
     </section>

@@ -16,6 +16,7 @@ export function startNameLight(hero: HTMLElement) {
   let colors: string[] = [];
   const readColors = () => { const c = css(); colors = ['--ak-text', '--ak-main', '--ak-warm', '--ak-second'].map((n) => c.getPropertyValue(n).trim()); };
 
+  let formed = false;
   let dots: Dot[] = [], sparks: Dot[] = [], w = 0, h = 0, dpr = 1;
   const pointer = { x: -1e4, y: -1e4 };
 
@@ -48,7 +49,7 @@ export function startNameLight(hero: HTMLElement) {
     });
     if (reduce) for (const d of dots) { d.x = d.hx; d.y = d.hy; }
     sparks = Array.from({ length: w < 700 ? 12 : 22 }, (_, i) => ({ x: 0, y: 0, hx: 0, hy: 0, vx: 0, vy: 0, c: i % 5 === 0 ? 3 : 2, r: 1 + Math.random() * 1.6, seed: Math.random() * 100 }));
-    hero.classList.add('lit');
+    if (!hero.classList.contains('lit')) { hero.classList.add('lit'); setTimeout(() => { formed = true; hero.classList.add('formed'); }, reduce ? 0 : 1300); }
   };
 
   canvas.addEventListener('pointermove', (e) => { const b = canvas.getBoundingClientRect(); pointer.x = e.clientX - b.left; pointer.y = e.clientY - b.top; });
@@ -75,7 +76,7 @@ export function startNameLight(hero: HTMLElement) {
       }
       const speed = Math.min(1, Math.hypot(d.vx, d.vy) / 600);
       ctx.fillStyle = speed > .25 && d.c === 0 ? colors[1] : colors[d.c];
-      ctx.globalAlpha = .92;
+      ctx.globalAlpha = formed ? .5 + speed * .5 : .92;
       ctx.beginPath(); ctx.arc(d.x, d.y, d.r * (1 + speed * .8), 0, 6.283); ctx.fill();
     }
     // Warm sparks that wander around the name, each leaving a short trail.
