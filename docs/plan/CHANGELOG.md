@@ -3,6 +3,15 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-11-17 — v0.2.0 "the new design": the identity, home, Projects, Services, About and galaxy entry from Webber's studio
+  (steps 0.2.0 to 0.2.11 on branch `v0.2.0-new-design`); the top navigation keeps Home, Projects, Services and About;
+  Services shows live demos with no prices or forms and one button to `/start/`, where a client creates an account and
+  answers one question at a time; requests live in Firestore `requests/{uid}` under deny-by-default rules
+  (`firestore.rules`, checked by `pnpm run test:rules` against the emulators). AGENTS.md's design section now records
+  the approved identity. Pending: which Firebase project holds client accounts (operator), then the production web
+  config and enabling Authentication and Firestore there — decided by operator (his words in
+  `caspian-kb/rules/sources/2026-11-16T2114Z-session-4f72775f.md`).
+
 - 2026-10-25 — Alpha.2 P2 packages proto3's own ES modules instead of React at /little-galaxy/,
   with registry three@0.170.0, B1 log replay, Google keeper ledger, independent booth selection,
   read-only timelapse and printed-QR redirects. Release artifact naming and portfolio assembly

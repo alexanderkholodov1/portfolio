@@ -7,6 +7,9 @@
 
 ## Non-negotiables
 
+0. **A Faun's brigadista owns its Faun end to end, alone**: requirements, plan, hitos, workers, verification and the
+   PR. The Adjutant is not involved. Before acting, read the CASPIAN normative context in `caspian-kb`.
+
 1. **Branch + PR per version** (`vX.Y.Z: <what it delivers>`) for history and CI previews. There is
    no "never touch `main`" rule: the operator decides in the moment who merges (default: the agent
    merges once CI is green, unless he says otherwise).
@@ -45,24 +48,24 @@
 
 ## Design artifact (DESIGN-DOCTRINE R1)
 
-The portfolio borrows its structure from **an observatory logbook**: the bound, ruled ledger kept at
-the telescope, where each night's observations are entered as numbered lines.
+The identity was chosen by the operator in Webber's studio on 2026-11-16 and the home was approved by him on
+2026-11-17 (`caspian-kb/rules/sources/2026-11-16T2114Z-session-4f72775f.md`; his verdicts are in
+`caspian-kb/roles/webber/TASTE.md`). The approved home is the reference for every page.
 
-- **Entries, not cards.** A project is a numbered ledger line (`01`, `02`, ...) separated by hairline
-  rules; no boxes, shadows or rounded corners. Square edges throughout.
-- **The live banner is tonight's entry.** It sits at the top of Home like the day's header line, with
-  a status lamp. Lamp colours are semantic: grey = not read, green = a fresh reading, amber = the
-  last reading is old. A count is printed only when it was actually read (R9).
-- **Numbers are set as figures in a log**: `tabular-nums`, aligned at the right margin of a row.
-- **Missing content is omitted.** Visitors never see editorial status ("not yet entered", "profile not written"); the explanation lives only in `pnpm run content:todo` and the PR report. Never filler text.
-- **`/links` is the call-sign list**: one big ruled row per link, nothing else. Its only script is the
-  inline preference initializer shared by every page (about 700 bytes, render-blocking, no external
-  JS, no module): it applies the saved theme before paint and drives the theme control. This is the
-  accepted exception to "zero JS" on `/links`; without JavaScript the page follows the system theme and
-  the control is hidden.
-- Type: Spectral (display, a book face with a bookish register) against Archivo Narrow (the narrow
-  sans of instrument labels and ledger columns). Two weights far apart for labels.
-- Rhythm: tight inside a ledger row (0.25-0.5rem), wide between sections (4-7rem).
+- **Colours, in roles.** Blue `#056ad6` leads, red `#bd1f27` marks single accent words and alerts, orange `#ff8e52`
+  is light and warmth; ink `#020b2c` on page `#f3f4f7`. Light by default, dark as an option. Light runs down the
+  page as soft OKLab glows, deep-blue bands and a static grain tile; never one flat colour, never borrowed palettes.
+- **Type.** Plus Jakarta Sans, with an Instrument Serif italic for one word or phrase per heading.
+- **Home order.** His name alone on the first screen (solid letters over a ribbon of light), then his projects
+  (the light stage), how he works (shown in small animations), community, problems solved, open source,
+  collaborations, services, contact. Show, do not tell: short captions over motion, never paragraphs of belief.
+- **Services sells by showing.** Live demos recognisable at a glance, no prices and no forms on the page; one button
+  opens account creation and then one question at a time, each with the time it takes.
+- **Motion with a budget.** One live canvas at a time, 1x canvases at 30 fps when idle, nothing animating off
+  screen, no full-screen blend modes or backdrop blurs over moving content. Reduced motion shows everything still.
+- **Copy.** Professional, warm and inviting; it describes value for the visitor. No colons in copy.
+- **Missing content is omitted.** Visitors never see editorial status; it lives in `pnpm run content:todo`.
+- **`/links`** keeps one script only: the inline preference initializer (about 700 bytes, no module).
 
 ## Content rule (zero invented content)
 
