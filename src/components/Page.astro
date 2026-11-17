@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import LiveBanner from './LiveBanner.astro';
 import Mark from './Mark.astro';
 import { copy } from '../data/copy';
+import { activities, linkedinActivity, type Kind } from '../data/activities';
 import { achievements, certifications, experience, isPending, links, profile, projects, services, socials } from '../data/content';
 import { galaxy, galaxyHref, href, labels, projectHref, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; projectId?: string; }
@@ -23,7 +24,7 @@ const image = isPending(galaxy.image) ? null : galaxy.image;
 const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[lang] : current ? current.title[lang] : labels[lang][page];
 // Every project has its own page on this site (his note of 2026-11-17: the overview first, depth one click away).
 const entryHref = (project: (typeof projects.items)[number]) => projectHref(project.id, lang);
-const description = page === 'home' ? t.home.description : current ? current.pitch[lang] : t[page === 'galaxy' ? 'galaxy' : page === 'project' ? 'projects' : page].description;
+const description = page === 'home' ? t.home.description : current ? current.pitch[lang] : page === 'experience' ? t.experiencePage.description : t[page === 'galaxy' ? 'galaxy' : page === 'project' ? 'projects' : page].description;
 // Home: projects grouped by field (his note of 2026-10-26: not one list) and real results.
 const byId = (id: string) => projects.items.find((p) => p.id === id);
 const fields = [
@@ -31,7 +32,7 @@ const fields = [
   { name: t.build.science, ids: ['munhub-lab', 'dragon-ocean-analyzer'] },
   { name: t.build.web, ids: ['studium', 'pancho-bus', 'nivela', 'aklabs-store'] },
   { name: t.build.work, ids: ['agent-workshops'] },
-].map((f) => ({ ...f, items: f.ids.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p)) }));
+].map((f) => ({ ...f, items: f.ids.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p)) })).filter((f) => f.items.length > 0);
 const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? t.projects.other;
 const fieldIndex = (id: string) => { const k = fields.findIndex((f) => f.ids.includes(id)); return k < 0 ? 'o' : String(k); };
 // The panorama: the whole range at first sight; each tile opens the project's own page.
@@ -54,7 +55,9 @@ const shown = SHOW.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p
   actionHref: actionOf[p.id] === 'code' ? (p.source?.href ?? '') : p.href ? resolveHref(p.href, lang) : '', page: projectHref(p.id, lang),
 }));
 for (const x of shown) x.field = fieldOf(x.id);
-const moreCount = projects.items.length - shown.length;
+const moreCount = activities.length;
+const kinds: Kind[] = ['work', 'ieee', 'competition', 'teaching', 'volunteer', 'award', 'event'];
+const byKind = kinds.map((k) => ({ k, items: activities.filter((a) => a.kind === k).sort((a, b) => (a.id === 'ieee-vp' ? -1 : b.id === 'ieee-vp' ? 1 : b.sort.localeCompare(a.sort))) })).filter((g) => g.items.length);
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
 const github = socials.items.find((s) => s.id === 'github');
 // Events he took part in, by the names in his projects and his bio (content.ts).
@@ -114,7 +117,7 @@ const startHref = href('start', lang);
               <span class="pick-text">{x.action !== 'code' && <i class="dot" aria-hidden="true"></i>}<b>{x.title}</b></span>
             </button></li>
           ))}
-          <li><a class="pick more" href={href('projects', lang)}><b>+{moreCount}</b><span>{t.showcase.more[0]}</span><small>{t.showcase.more[1]} →</small></a></li>
+          <li><a class="pick more" href={href('experience', lang)}><b>+{moreCount}</b><span>{t.showcase.more[0]}</span><small>{t.showcase.more[1]} →</small></a></li>
         </ul>
       </div>
     </section>
@@ -379,7 +382,7 @@ const startHref = href('start', lang);
       <p class="kicker">{t.projects.eyebrow}</p>
       <h1>{t.projects.title[0]}<em>{t.projects.title[1]}</em></h1>
       <div class="filters" role="group" aria-label={t.projects.eyebrow} data-filters hidden>
-        {[['all', t.projects.all], ...fields.map((f, k) => [String(k), f.name]), ['other', t.projects.other]].map(([id, label], k) => <button type="button" data-filter={id} aria-pressed={k === 0 ? 'true' : 'false'}>{label}</button>)}
+        {[['all', t.projects.all], ...fields.map((f, k) => [String(k), f.name]), ...(projects.items.some((p) => !fields.some((f) => f.ids.includes(p.id))) ? [['other', t.projects.other]] : [])].map(([id, label], k) => <button type="button" data-filter={id} aria-pressed={k === 0 ? 'true' : 'false'}>{label}</button>)}
       </div>
     </section>
     <ol class="pgrid" data-grid>
@@ -435,20 +438,9 @@ const startHref = href('start', lang);
     </section>}
     <section class="band experience" aria-labelledby="exp-title">
       <p class="kicker" data-reveal>{t.experience.kicker}</p>
-      <h2 id="exp-title" data-reveal>{t.experience.title[0]}<em>{t.experience.title[1]}</em></h2>
-      <ul class="exp-list">
-        {experience.map((x, k) => (
-          <li class="exp" data-reveal data-glow style={`--i:${k}`}>
-            {!isPending(x.image) && <span class="exp-shot"><img src={x.image.src} alt={x.image.alt[lang]} width="640" height="400" loading="lazy" decoding="async" /></span>}
-            <div>
-              <p class="exp-meta">{!isPending(x.dates) && x.dates[lang]} · {x.context[lang]}</p>
-              <h3>{!isPending(x.role) ? x.role[lang] : x.title[lang]}</h3>
-              <p>{x.pitch[lang]}</p>
-              {!isPending(x.stack) && <ul class="stack-chips">{x.stack.map((y) => <li>{y}</li>)}</ul>}
-            </div>
-          </li>
-        ))}
-      </ul>
+      <h2 id="exp-title" data-reveal>{t.experiencePage.title[0]}<em>{t.experiencePage.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.experiencePage.lead}</p>
+      <p class="calls" data-reveal><a class="btn-a" href={href('experience', lang)}>{t.experiencePage.eyebrow}<span class="arrow" aria-hidden="true">→</span></a></p>
     </section>
 
     <section class="band certs bleed ink deep" aria-labelledby="certs-title-about">
@@ -553,6 +545,55 @@ const startHref = href('start', lang);
       import { startAdmin } from '../scripts/admin';
       const root = document.querySelector<HTMLElement>('[data-admin]');
       if (root) startAdmin(root);
+    </script>
+  </>}
+
+  {page === 'experience' && <>
+    <section class="page-hero exp-hero">
+      <p class="kicker">{t.experiencePage.eyebrow}</p>
+      <h1>{t.experiencePage.title[0]}<em>{t.experiencePage.title[1]}</em></h1>
+      <p class="lede">{t.experiencePage.lead}</p>
+      <ul class="exp-stats">{t.experiencePage.stats.map(([k, label]) => <li><b>{activities.filter((a) => a.kind === k).length}</b><span>{label}</span></li>)}</ul>
+      <nav class="exp-tabs" aria-label={t.experiencePage.eyebrow} data-exp-tabs hidden>
+        <button type="button" data-kind="all" aria-pressed="true">{t.experiencePage.all}</button>
+        {byKind.map((g) => <button type="button" data-kind={g.k} aria-pressed="false">{t.experiencePage.kinds[g.k]} <small>{g.items.length}</small></button>)}
+      </nav>
+    </section>
+    {byKind.map((g) => (
+      <section class={'band exp-group k-' + g.k} data-group={g.k} aria-labelledby={'g-' + g.k}>
+        <h2 id={'g-' + g.k} class="exp-h">{t.experiencePage.kinds[g.k]}</h2>
+        <ul class={g.k === 'event' ? 'exp-chips' : 'exp-cards'}>
+          {g.items.map((a, i) => g.k === 'event' ? (
+            <li data-reveal style={`--i:${i % 4}`}><b>{a.title[lang]}</b><small>{a.date[lang]}</small></li>
+          ) : (
+            <li class={'xcard' + (a.image ? ' has-img' : '')} data-reveal data-glow style={`--i:${i % 3}`}>
+              {a.image && <span class="xshot"><img src={a.image} alt="" width="640" height="400" loading="lazy" decoding="async" /></span>}
+              <div class="xbody">
+                <p class="xmeta"><span>{a.date[lang]}</span>{a.org && <span>{a.org[lang]}</span>}</p>
+                <h3>{a.title[lang]}</h3>
+                {(a.result || a.role || a.solo) && <p class="xbadges">{a.result && <span class="xb res">{a.result[lang]}</span>}{a.role && <span class="xb">{a.role[lang]}</span>}{a.solo && <span class="xb solo">{t.experiencePage.solo}</span>}</p>}
+                {a.text && <p class="xtext">{a.text[lang]}</p>}
+                {(a.page || a.post) && <p class="xlinks">{a.page && <a href={projectHref(a.page, lang)}>{t.experiencePage.more} →</a>}{a.post && <a href={a.post}>{t.experiencePage.linkedin} ↗</a>}</p>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+    <p class="exp-feed"><a class="btn-c" href={linkedinActivity}><span class="dot" aria-hidden="true"></span>{t.experiencePage.feed}</a></p>
+    <script>
+      import { startMotion } from '../scripts/motion';
+      startMotion();
+      const tabs = document.querySelector<HTMLElement>('[data-exp-tabs]');
+      if (tabs) {
+        tabs.hidden = false;
+        tabs.addEventListener('click', (e) => {
+          const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-kind]'); if (!b) return;
+          tabs.querySelectorAll('[data-kind]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          document.querySelectorAll<HTMLElement>('[data-group]').forEach((g) => { g.hidden = b.dataset.kind !== 'all' && g.dataset.group !== b.dataset.kind; });
+          document.querySelectorAll('[data-group] [data-reveal]').forEach((el) => el.classList.add('seen'));
+        });
+      }
     </script>
   </>}
 

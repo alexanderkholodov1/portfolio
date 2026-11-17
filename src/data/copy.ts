@@ -22,7 +22,7 @@ export const copy = {
     certs: { kicker: 'Certifications', title: ['Certified ', 'by Microsoft'], lead: 'Cloud, security, development and artificial intelligence.' },
     showcase: {
       kicker: 'Projects', title: ['What I build, ', 'ready to try'], lead: 'Pick any project to see what it is for. Many of them are live right now.',
-      more: ['projects more', 'See them all'], open: 'View project', auto: 'Showing', paused: 'Paused',
+      more: ['activities, competitions and events', 'See my experience'], open: 'View project', auto: 'Showing', paused: 'Paused',
       actions: { play: 'Play', try: 'Try it', live: 'Live data', enter: 'Enter', code: 'View code' },
       purpose: {
         'farpoint-horizon': 'Live a real NASA mission, alone or with up to three friends.',
@@ -111,6 +111,13 @@ export const copy = {
       errors: { generic: 'Something went wrong. Please try again.', email: 'That email address is not valid.', inUse: 'This email already has an account. Sign in instead.', weak: 'The password needs at least 6 characters.', wrong: 'The email or the password is not correct.', required: 'Please answer to continue.' },
     },
     admin: { description: 'Requests', title: 'Requests', signin: 'Sign in', email: 'Email', password: 'Password', google: 'Continue with Google', denied: 'This account cannot open the request desk.', out: 'Sign out', all: 'All', empty: 'No requests here yet.', save: 'Save', saved: 'Saved', message: 'Message to the client', status: 'Status', note: 'Private note', addNote: 'Add note', notes: 'Private notes', priority: 'Priority', statuses: { submitted: 'Received', reviewing: 'In review', proposal: 'Proposal sent', 'in-progress': 'In progress', delivered: 'Delivered', closed: 'Closed', declined: 'Declined' }, fields: { email: 'Email', kinds: 'What', idea: 'Idea', forWhom: 'For', where: 'Where', when: 'When', budget: 'Budget', contact: 'Contact by', contactValue: 'Contact', lang: 'Language' } },
+    experiencePage: {
+      eyebrow: 'Experience', description: 'Work, IEEE Computer Society USFQ, competitions, teaching, volunteering and events of Alexander Kholodov.',
+      title: ['Everything I ', 'take part in'], lead: 'Work, leadership, competitions, teaching and community, apart from the projects I build.',
+      all: 'All', linkedin: 'See the post', more: 'Details', feed: 'All my posts on LinkedIn', solo: 'Organised by me',
+      kinds: { work: 'Work', ieee: 'IEEE CS USFQ board', competition: 'Competitions', teaching: 'Teaching', volunteer: 'Volunteering and outreach', award: 'Recognitions', event: 'Events attended' },
+      stats: [['work', 'internships'], ['competition', 'competitions'], ['ieee', 'activities with the chapter'], ['event', 'events attended']],
+    },
     galaxy: {
       eyebrow: 'Be a Dragon 2026 · USFQ', description: 'Collective Galaxy: a solar system that starts empty and grows with every visitor.',
       open: 'Open the galaxy', facts: 'Record',
@@ -139,7 +146,7 @@ export const copy = {
     certs: { kicker: 'Certificaciones', title: ['Certificado ', 'por Microsoft'], lead: 'Nube, seguridad, desarrollo e inteligencia artificial.' },
     showcase: {
       kicker: 'Proyectos', title: ['Lo que construyo, ', 'listo para probar'], lead: 'Elige cualquier proyecto para ver para qué sirve. Muchos están en línea ahora mismo.',
-      more: ['proyectos más', 'Verlos todos'], open: 'Ver proyecto', auto: 'Mostrando', paused: 'En pausa',
+      more: ['actividades, competencias y eventos', 'Ver mi experiencia'], open: 'Ver proyecto', auto: 'Mostrando', paused: 'En pausa',
       actions: { play: 'Jugar', try: 'Probar', live: 'Datos en vivo', enter: 'Entrar', code: 'Ver código' },
       purpose: {
         'farpoint-horizon': 'Vive una misión real de la NASA, solo o con hasta tres amigos.',
@@ -228,6 +235,13 @@ export const copy = {
       errors: { generic: 'Algo salió mal. Por favor, inténtalo de nuevo.', email: 'Ese correo no es válido.', inUse: 'Este correo ya tiene una cuenta. Inicia sesión.', weak: 'La contraseña necesita al menos 6 caracteres.', wrong: 'El correo o la contraseña no son correctos.', required: 'Responde para continuar.' },
     },
     admin: { description: 'Solicitudes', title: 'Solicitudes', signin: 'Iniciar sesión', email: 'Correo', password: 'Contraseña', google: 'Continuar con Google', denied: 'Esta cuenta no puede abrir el panel de solicitudes.', out: 'Cerrar sesión', all: 'Todas', empty: 'Aún no hay solicitudes aquí.', save: 'Guardar', saved: 'Guardado', message: 'Mensaje para el cliente', status: 'Estado', note: 'Nota privada', addNote: 'Agregar nota', notes: 'Notas privadas', priority: 'Prioridad', statuses: { submitted: 'Recibida', reviewing: 'En revisión', proposal: 'Propuesta enviada', 'in-progress': 'En desarrollo', delivered: 'Entregada', closed: 'Cerrada', declined: 'No aceptada' }, fields: { email: 'Correo', kinds: 'Qué', idea: 'Idea', forWhom: 'Para', where: 'Dónde', when: 'Cuándo', budget: 'Presupuesto', contact: 'Contacto por', contactValue: 'Contacto', lang: 'Idioma' } },
+    experiencePage: {
+      eyebrow: 'Experiencia', description: 'Trabajo, IEEE Computer Society USFQ, competencias, docencia, voluntariado y eventos de Alexander Kholodov.',
+      title: ['Todo en lo que ', 'participo'], lead: 'Trabajo, liderazgo, competencias, docencia y comunidad, aparte de los proyectos que construyo.',
+      all: 'Todo', linkedin: 'Ver la publicación', more: 'Detalles', feed: 'Todas mis publicaciones en LinkedIn', solo: 'Organizado por mí',
+      kinds: { work: 'Trabajo', ieee: 'Directiva IEEE CS USFQ', competition: 'Competencias', teaching: 'Docencia', volunteer: 'Voluntariado y vinculación', award: 'Reconocimientos', event: 'Eventos' },
+      stats: [['work', 'pasantías'], ['competition', 'competencias'], ['ieee', 'actividades con el capítulo'], ['event', 'eventos']],
+    },
     galaxy: {
       eyebrow: 'Be a Dragon 2026 · USFQ', description: 'Galaxia Colectiva: un sistema solar que empieza vacío y crece con cada visitante.',
       open: 'Abrir la galaxia', facts: 'Registro',
