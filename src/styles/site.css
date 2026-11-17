@@ -1175,3 +1175,40 @@ canvas, .cover, .sc, .b-out, .demo .art, .seal, .shapes { -webkit-user-select: n
 .xp-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
 .xp-chips li { display: grid; padding: .5rem .8rem; border-radius: 14px; background: var(--ak-card); box-shadow: 0 8px 18px -14px rgba(2,11,44,.45); }
 .xp-chips b { font-size: .92rem; } .xp-chips small { font-size: .75rem; color: var(--ak-soft); font-weight: 600; }
+
+/* Experience by category: a heading and one line per category, photo cards, the first one larger; events as photo tiles */
+.xp-hero { display: block; padding: clamp(1rem, 3vw, 2rem) 0 .4rem; }
+.xg { padding-block: clamp(1.4rem, 4vw, 2.6rem); }
+.xg[hidden] { display: none; }
+.xg-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem 1.2rem; margin-bottom: 1.1rem; }
+.xg-head h2 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.4rem); display: flex; align-items: center; gap: .7rem; }
+.xg-head h2::before { content: ''; width: .8rem; height: .8rem; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 5px color-mix(in oklab, var(--c) 22%, transparent); }
+.xg-head p { margin: 0; color: var(--ak-soft); }
+.xg-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 1000px) { .xg-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .xg-cards { grid-template-columns: 1fr; } }
+.xc { display: grid; grid-template-rows: auto 1fr; border-radius: 22px; overflow: hidden; background: var(--ak-card); box-shadow: 0 22px 40px -30px rgba(2,11,44,.55); transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s; }
+.xc:hover { box-shadow: 0 32px 54px -32px rgba(2,11,44,.65); }
+.xc.lead { grid-column: span 2; grid-template-columns: 1.15fr 1fr; grid-template-rows: auto; }
+@media (max-width: 620px) { .xc.lead { grid-column: auto; grid-template-columns: 1fr; } }
+.xc-shot { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; }
+.xc.lead .xc-shot { aspect-ratio: auto; min-height: 15rem; }
+.xc-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .8s cubic-bezier(.22,1,.36,1); }
+.xc:hover .xc-shot img { transform: scale(1.05); }
+.xc-shot::after { content: ''; position: absolute; inset: auto 0 0; height: 4px; background: var(--c); }
+.xc-flag { position: absolute; left: .8rem; top: .8rem; padding: .3rem .7rem; border-radius: 99px; font-size: .8rem; font-weight: 800; color: #2a0d00; background: linear-gradient(135deg in oklab, #ffd0b5, #ff8e52); box-shadow: 0 8px 18px -8px rgba(0,0,0,.45); }
+.xc-flag.solo { color: #fff; background: linear-gradient(135deg in oklab, #4a9bff, #056ad6); }
+.xc-body { padding: 1rem 1.2rem 1.2rem; display: grid; gap: .45rem; align-content: start; }
+.xc.lead .xc-body { padding: 1.4rem 1.6rem; align-content: center; }
+.xc-meta { margin: 0; display: flex; flex-wrap: wrap; gap: .25rem .8rem; font-size: .8rem; font-weight: 700; color: var(--ak-soft); }
+.xc-meta span:first-child { color: var(--c); }
+.xc h3 { margin: 0; font-size: 1.25rem; line-height: 1.2; }
+.xc.lead h3 { font-size: clamp(1.5rem, 2.4vw, 2rem); }
+.xc-text { margin: 0; font-size: .95rem; line-height: 1.5; color: var(--ak-soft); }
+.xg-events { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13.5rem), 1fr)); gap: .8rem; }
+.xe { position: relative; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; isolation: isolate; box-shadow: 0 16px 30px -24px rgba(2,11,44,.6); }
+.xe img { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; transition: transform .8s cubic-bezier(.22,1,.36,1); }
+.xe:hover img { transform: scale(1.06); }
+.xe::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, rgba(2,11,44,.9), rgba(2,11,44,0) 60%); }
+.xe span { position: absolute; left: 0; right: 0; bottom: 0; padding: .7rem .8rem; display: grid; color: #fff; }
+.xe b { font-size: .95rem; line-height: 1.2; } .xe small { font-size: .75rem; opacity: .75; }

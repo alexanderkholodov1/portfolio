@@ -115,8 +115,8 @@ export const copy = {
       eyebrow: 'Experience', description: 'Work, IEEE Computer Society USFQ, competitions, teaching, volunteering and events of Alexander Kholodov.',
       title: ['My ', 'experience'], lead: 'Work, leadership, competitions, teaching and community, apart from the projects I build.',
       all: 'All', linkedin: 'See the post', more: 'Details', feed: 'All my posts on LinkedIn', solo: 'Organised by me', endTitle: ['Follow what comes ', 'next'],
-      kinds: { work: 'Work', ieee: 'IEEE CS USFQ board', competition: 'Competitions', teaching: 'Teaching', volunteer: 'Volunteering and outreach', award: 'Recognitions', event: 'Events attended' },
-      stats: [['work', 'internships'], ['competition', 'competitions'], ['ieee', 'activities with the chapter'], ['event', 'events attended']],
+      kinds: { work: 'Work', ieee: 'Leadership in IEEE CS USFQ', teaching: 'Teaching', competition: 'Competitions', volunteer: 'Volunteering and outreach', award: 'Recognitions', event: 'Events' },
+      leads: { work: 'Internships in industry and at the university.', ieee: 'The chapter board, and what we organise for students.', teaching: 'Classes, courses and tutoring.', competition: 'Hackathons, programming contests and challenges.', volunteer: 'Time given to the community and to events.', award: 'Recognitions received.', event: 'Talks, fairs and visits I attended.' },
     },
     galaxy: {
       eyebrow: 'Be a Dragon 2026 · USFQ', description: 'Collective Galaxy: a solar system that starts empty and grows with every visitor.',
@@ -239,8 +239,8 @@ export const copy = {
       eyebrow: 'Experiencia', description: 'Trabajo, IEEE Computer Society USFQ, competencias, docencia, voluntariado y eventos de Alexander Kholodov.',
       title: ['Mi ', 'experiencia'], lead: 'Trabajo, liderazgo, competencias, docencia y comunidad, aparte de los proyectos que construyo.',
       all: 'Todo', linkedin: 'Ver la publicación', more: 'Detalles', feed: 'Todas mis publicaciones en LinkedIn', solo: 'Organizado por mí', endTitle: ['Sigue lo que ', 'viene'],
-      kinds: { work: 'Trabajo', ieee: 'Directiva IEEE CS USFQ', competition: 'Competencias', teaching: 'Docencia', volunteer: 'Voluntariado y vinculación', award: 'Reconocimientos', event: 'Eventos' },
-      stats: [['work', 'pasantías'], ['competition', 'competencias'], ['ieee', 'actividades con el capítulo'], ['event', 'eventos']],
+      kinds: { work: 'Trabajo', ieee: 'Liderazgo en IEEE CS USFQ', teaching: 'Docencia', competition: 'Competencias', volunteer: 'Voluntariado y vinculación', award: 'Reconocimientos', event: 'Eventos' },
+      leads: { work: 'Pasantías en la industria y en la universidad.', ieee: 'La directiva del capítulo y lo que organizamos para los estudiantes.', teaching: 'Clases, cursos y tutorías.', competition: 'Hackatones, competencias de programación y retos.', volunteer: 'Tiempo dedicado a la comunidad y a eventos.', award: 'Reconocimientos recibidos.', event: 'Charlas, ferias y visitas a las que asistí.' },
     },
     galaxy: {
       eyebrow: 'Be a Dragon 2026 · USFQ', description: 'Galaxia Colectiva: un sistema solar que empieza vacío y crece con cada visitante.',
