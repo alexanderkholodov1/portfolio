@@ -219,24 +219,29 @@ const startHref = href('start', lang);
   </>}
 
   {page === 'services' && <>
-    <section class="svc-hero verse bleed" data-verse data-v="0">
-      <div class="verse-bg" aria-hidden="true"><i class="rings"></i></div>
-      <div class="verse-cards" aria-hidden="true">
-        <span class="vc c-web"><i class="bar"></i><i class="h"></i><i class="b"></i></span>
-        <span class="vc c-app"><i></i><i></i><i></i></span>
-        <span class="vc c-game"><i class="p"></i><i class="o"></i></span>
-        <span class="vc c-poster"><i></i></span>
-        <span class="vc c-video"><i></i></span>
-        <span class="vc c-cube"><i></i></span>
-      </div>
-      <div class="verse-copy">
+    <section class="svc-hero builder" data-builder>
+      <canvas class="ribbon-bg" aria-hidden="true"></canvas>
+      <div class="b-copy">
         <p class="kicker">{s2.eyebrow}</p>
         <h1>{s2.title[0]}<em>{s2.title[1]}</em></h1>
         <p class="lede">{s2.lead}</p>
         <p class="calls"><a class="btn-a big" href={startHref}>{s2.start}<span class="arrow" aria-hidden="true">→</span></a></p>
         <p class="note">{s2.startNote}</p>
       </div>
-      <p class="verse-tag" aria-hidden="true"><b>{s2.universe} <span data-u>1</span></b><span>{s2.jump}</span></p>
+      <div class="b-stage">
+        <div class="b-window" aria-hidden="true">
+          <p class="b-prompt"><span class="spark">✦</span><span data-typed></span><i class="caret"></i></p>
+          <div class="b-out">
+            <div class="sc sc-web" data-scene="0"><p class="w-nav"><b></b><i></i><i></i><i></i></p><div class="w-hero"><div><span class="w-h"></span><span class="w-h s"></span><span class="w-btn"></span></div><span class="w-img"></span></div><p class="w-cards"><i></i><i></i><i></i></p></div>
+            <div class="sc sc-app" data-scene="1"><div class="a-phone"><span class="a-toast"></span><span class="a-ttl"></span><i></i><i></i><i></i><span class="a-tab"></span></div></div>
+            <div class="sc sc-game" data-scene="2"><span class="g-sun"></span><span class="g-hill"></span><span class="g-ground"></span><span class="g-hero"></span><span class="g-block"></span><span class="g-coin"></span><span class="g-coin c2"></span></div>
+            <div class="sc sc-3d" data-scene="3"><span class="m-floor"></span><div class="m-cube"><i class="f"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="t"></i><i class="d"></i></div></div>
+          </div>
+        </div>
+        <div class="b-ideas" role="group" aria-label={s2.gridTitle.join('')}>
+          {s2.builder.map((b, k) => <button type="button" data-idea={k} data-prompt={b.prompt} aria-pressed={k === 0 ? 'true' : 'false'}><i aria-hidden="true"></i>{b.label}</button>)}
+        </div>
+      </div>
     </section>
 
     <section class="band" aria-labelledby="demos-title">
@@ -338,7 +343,10 @@ const startHref = href('start', lang);
     <script>
       import { startMotion } from '../scripts/motion';
       import { startDemos } from '../scripts/demos';
+      import { startRibbon } from '../scripts/ribbon';
       startMotion(); startDemos();
+      const builder = document.querySelector<HTMLElement>('[data-builder]');
+      if (builder) startRibbon(builder);
     </script>
   </>}
 
