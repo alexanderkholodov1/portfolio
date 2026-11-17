@@ -12,12 +12,12 @@ export function startDemos() {
   if (builder) {
     const wins = [...builder.querySelectorAll<HTMLElement>('[data-build]')];
     let seen = true;
+    // Each card is always alive (never empty); only the idea above it is typed again now and then.
+    wins.forEach((w) => w.querySelector('.sc')?.classList.add('on'));
     const run = (w: HTMLElement, delay: number, first = false) => {
-      const typed = w.querySelector<HTMLElement>('[data-typed]')!; const scene = w.querySelector<HTMLElement>('.sc')!; const text = typed.dataset.text || '';
-      // The first view is never empty: each card opens already built, then rebuilds itself on the next rounds.
-      if (first || reduce) { typed.textContent = text; scene.classList.add('on', 'instant'); return; }
-      scene.classList.remove('on', 'instant'); typed.textContent = '';
-      window.setTimeout(() => { let n = 0; const id = window.setInterval(() => { n++; typed.textContent = text.slice(0, n); if (n >= text.length) { clearInterval(id); scene.classList.add('on'); } }, 26); }, delay);
+      const typed = w.querySelector<HTMLElement>('[data-typed]')!; const text = typed.dataset.text || '';
+      if (first || reduce) { typed.textContent = text; return; }
+      window.setTimeout(() => { let n = 0; typed.textContent = ''; const id = window.setInterval(() => { n++; typed.textContent = text.slice(0, n); if (n >= text.length) clearInterval(id); }, 26); }, delay);
     };
     const cycle = () => wins.forEach((w, k) => run(w, k * 450));
     new IntersectionObserver(([en]) => { seen = en.isIntersecting; }).observe(builder);

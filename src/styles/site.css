@@ -855,10 +855,6 @@ html.motion .cert[data-reveal] { transition: opacity .9s cubic-bezier(.2,.8,.2,1
 /* The Services opening centred in the visible space under the navigation, top and bottom alike */
 .builder { margin-top: calc(-1 * clamp(1.5rem, 4vw, 3rem)); min-height: calc(100svh - 7.7rem); padding-block: 1rem; align-content: center; }
 @media (max-width: 900px) { .builder { margin-top: 0; min-height: 0; } }
-/* A scene shown on arrival starts complete: its pieces skip their build delays */
-.sc.instant, .sc.instant *, .sc.instant *::before { animation-delay: 0s !important; }
-.sc.instant > *, .sc.instant .a-phone > *, .sc.instant .w-hero > div > *, .sc.instant .m-cube i { animation-duration: .01s !important; }
-.sc.instant .w-btn, .sc.instant .g-ground, .sc.instant .g-hero, .sc.instant .g-block, .sc.instant .g-coin, .sc.instant .a-toast, .sc.instant .m-cube { animation-duration: revert !important; }
 
 /* Certifications on a deep band: glass cards and a turning ring around the issuer mark */
 .certs .cert-row { margin-top: 1.6rem; }
@@ -897,3 +893,40 @@ canvas, .cover, .sc, .b-out, .demo .art, .seal, .shapes { -webkit-user-select: n
 .d-bots .bot { box-shadow: 0 0 0 6px rgba(255,142,82,.18), 0 0 30px rgba(255,142,82,.5); }
 .d-game .hero-sq { box-shadow: inset -4px -4px 0 rgba(0,0,0,.2), 0 8px 10px -4px rgba(0,0,0,.35); }
 @media (prefers-reduced-motion: reduce) { .demo, .demo[data-glow]::after, .cert::after { transition: none; } }
+
+/* Services fan, larger: the copy takes less room, cards overlap little, every scene is always alive */
+.builder { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); }
+@media (max-width: 900px) { .builder { grid-template-columns: 1fr; } }
+.builder .b-stage { height: clamp(26rem, 66vh, 38rem); }
+.b-window.mini { width: min(19rem, 30%); --dx: calc((var(--k) - 1.5) * 80%); --a: calc((var(--k) - 1.5) * 6deg); }
+.b-window.mini:hover { --s: 1.2; }
+@media (max-width: 900px) { .b-window.mini { width: 29%; } }
+.b-window.mini .sc > *, .b-window.mini .a-phone > *, .b-window.mini .w-hero > div > *, .b-window.mini .m-cube i { animation: none !important; }
+.b-window.mini .m-cube i { background: color-mix(in oklab, var(--c) 72%, transparent); }
+.b-window.mini .w-btn { animation: pulse 1.8s ease-in-out infinite !important; }
+.b-window.mini .a-toast { animation: toast-in 4.5s .8s infinite both !important; }
+.b-window.mini .g-ground { animation: ground 1.1s linear infinite !important; }
+.b-window.mini .g-hero { animation: b-hop 2s ease-in-out infinite !important; }
+.b-window.mini .g-block { animation: b-run 2s linear infinite !important; }
+.b-window.mini .g-coin { animation: b-run 2s .7s linear infinite !important; }
+.b-window.mini .g-coin.c2 { animation-delay: 1.2s !important; }
+.b-window.mini .m-cube { animation: m-turn 9s linear infinite !important; }
+@media (prefers-reduced-motion: reduce) { .b-window.mini * { animation: none !important; } }
+
+.b-window.mini { width: min(21rem, 31%); --dx: calc((var(--k) - 1.5) * 78%); }
+.b-window.mini .b-out { aspect-ratio: 1 / 1; }
+@media (max-width: 900px) { .b-window.mini .b-out { aspect-ratio: 4 / 3.4; } }
+
+/* Studium, featured: the app students can use today */
+.sf-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center; }
+@media (max-width: 900px) { .sf-grid { grid-template-columns: 1fr; } }
+.sf-points { list-style: none; margin: 1.2rem 0 0; padding: 0; display: grid; gap: .55rem; }
+.sf-points li { display: flex; gap: .7rem; align-items: center; font-weight: 600; }
+.sf-points li::before { content: '✓'; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; font-size: .8rem; color: #fff; background: linear-gradient(135deg in oklab, var(--ak-main), color-mix(in oklab, var(--ak-main) 60%, var(--ak-second))); flex: none; }
+.sf-shot { position: relative; display: block; border-radius: 26px; overflow: visible; transform: perspective(1200px) rotateY(calc(-8deg + var(--ry, 0deg))) rotateX(calc(3deg + var(--rx, 0deg))); transition: transform .7s cubic-bezier(.22,1,.36,1); }
+.sf-shot img { display: block; width: 100%; height: auto; border-radius: 26px; box-shadow: 0 60px 90px -50px rgba(2,11,44,.7), 0 0 0 1px rgba(2,11,44,.06); }
+.sf-badge { position: absolute; padding: .55rem .9rem; border-radius: 14px; background: var(--ak-card); color: var(--ak-text); font-weight: 800; font-size: .9rem; box-shadow: 0 20px 34px -18px rgba(2,11,44,.55); animation: bob 5s ease-in-out infinite alternate; }
+.sf-badge.b1 { left: -1.2rem; top: 18%; color: var(--ak-second); } .sf-badge.b2 { right: -1rem; top: 42%; color: var(--ak-main); animation-delay: -1.6s; } .sf-badge.b3 { left: 12%; bottom: -1rem; animation-delay: -3s; }
+@media (prefers-reduced-motion: reduce) { .sf-badge { animation: none; } }
+@media (max-width: 900px) { .builder .b-stage { height: 22rem; } }
+@media (max-width: 520px) { .builder .b-stage { height: 15.5rem; } }

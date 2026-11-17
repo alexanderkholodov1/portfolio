@@ -35,7 +35,7 @@ const fields = [
 const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? t.projects.other;
 const fieldIndex = (id: string) => { const k = fields.findIndex((f) => f.ids.includes(id)); return k < 0 ? 'o' : String(k); };
 // The panorama: the whole range at first sight; each tile opens the project's own page.
-const panorama = ['farpoint-horizon', 'galaxy', 'munhub-lab', 'pancho-bus', 'studium', 'nivela', 'unallocated', 'dragon-ocean-analyzer', 'sublime-airlift', 'vetweb', 'zkvote', 'tcs-ai'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
+const panorama = ['farpoint-horizon', 'studium', 'galaxy', 'munhub-lab', 'pancho-bus', 'nivela', 'unallocated', 'dragon-ocean-analyzer', 'sublime-airlift', 'vetweb', 'zkvote', 'tcs-ai'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
 // Six columns, three rows: two large tiles and ten small ones fill the grid exactly.
 const tileSize = (k: number) => (k < 2 ? 'big' : '');
 const related = current ? projects.items.filter((p) => p.id !== current.id && fieldIndex(p.id) === fieldIndex(current.id)).slice(0, 3) : [];
@@ -96,6 +96,22 @@ const startHref = href('start', lang);
       </ul>
     </section>
     <p class="all-work" data-reveal><a class="btn-b" href={href('projects', lang)}>{t.stage.all}</a></p>
+
+    {byId('studium') && <section class="band studium-feature bleed tint" aria-labelledby="studium-title">
+      <div class="sf-grid">
+        <div>
+          <p class="kicker" data-reveal>{t.studium.kicker}</p>
+          <h2 id="studium-title" data-reveal>{t.studium.title[0]}<em>{t.studium.title[1]}</em></h2>
+          <p class="lede" data-reveal>{t.studium.lead}</p>
+          <ul class="sf-points">{t.studium.points.map((x, k) => <li data-reveal style={`--i:${k}`}>{x}</li>)}</ul>
+          <p class="calls" data-reveal><a class="btn-a big" href={byId('studium')!.href}>{t.studium.enter}<span class="arrow" aria-hidden="true">↗</span></a><a class="btn-b" href={entryHref(byId('studium')!)}>{t.studium.more}</a></p>
+        </div>
+        <a class="sf-shot" href={byId('studium')!.href} data-glow data-reveal tabindex="-1" aria-hidden="true">
+          <img src="/projects/studium.webp" alt="" width="1280" height="800" loading="lazy" decoding="async" />
+          <span class="sf-badge b1">✦ {t.studium.badges[0]}</span><span class="sf-badge b2">{t.studium.badges[1]}</span><span class="sf-badge b3">{t.studium.badges[2]}</span>
+        </a>
+      </div>
+    </section>}
 
     <section class="band view bleed tint" aria-labelledby="view-title">
       <h2 class="kicker" id="view-title" data-reveal>{t.view.kicker}</h2>
