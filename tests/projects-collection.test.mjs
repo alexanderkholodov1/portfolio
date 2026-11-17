@@ -22,8 +22,8 @@ before(async () => {
 after(() => rm(out, { recursive: true, force: true }));
 
 for (const [lang, prefix, first, second, open] of [
-  ['en', '', 'Lantern Works', 'Collective Galaxy', 'Open'],
-  ['es', 'es/', 'Taller Linterna', 'Galaxia Colectiva', 'Abrir'],
+  ['en', '', 'Lantern Works', 'Little Galaxy', 'Open'],
+  ['es', 'es/', 'Taller Linterna', 'Little Galaxy', 'Abrir'],
 ]) {
   test(`Projects renders the whole collection in order, each project with its own link (${lang})`, async () => {
     const found = rows(await page(`${prefix}projects`));

@@ -51,6 +51,17 @@ test('rejects short identical private bytes, private paths and symbolic links', 
   await assert.rejects(checkPrivacy({ root }), /symbolic link/);
 });
 
+test('treats only declared public identifiers as public, never other private fields', async (t) => {
+  const root = await fixture(t);
+  const id = 'synthetic-public-project';
+  await writeFile(path.join(root, 'private/account.json'), JSON.stringify({ project_id: id, credential: 'synthetic-secret-credential' }));
+  await writeFile(path.join(root, 'dist/index.html'), `<link rel="canonical" href="https://${id}.web.app/">`);
+  await assert.rejects(checkPrivacy({ root }), /forbidden/);
+  assert.equal(await checkPrivacy({ root, publicIdentifiers: [id] }), 1);
+  await writeFile(path.join(root, 'dist/index.html'), `${id} synthetic-secret-credential`);
+  await assert.rejects(checkPrivacy({ root, publicIdentifiers: [id] }), /forbidden/);
+});
+
 test('allows only explicitly configured public web keys', async (t) => {
   const root = await fixture(t);
   const key = `AIza${'x'.repeat(35)}`;

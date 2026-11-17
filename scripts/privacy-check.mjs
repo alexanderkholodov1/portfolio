@@ -23,7 +23,7 @@ async function files(directory, optional = false) {
   return result;
 }
 
-export async function checkPrivacy({ root = process.cwd(), dist = path.join(root, 'dist'), allowedPublicKeys = [] } = {}) {
+export async function checkPrivacy({ root = process.cwd(), dist = path.join(root, 'dist'), allowedPublicKeys = [], publicIdentifiers = [] } = {}) {
   // Do not log private names, bytes, hashes or matched values. Private data is
   // used only for comparisons; it never enters an output or a build manifest.
   const privateFiles = await files(path.join(root, 'private'), true);
@@ -36,7 +36,9 @@ export async function checkPrivacy({ root = process.cwd(), dist = path.join(root
     try {
       const parsed = JSON.parse(bytes.toString('utf8'));
       const collect = (value) => {
-        if (typeof value === 'string' && value.length >= 16) privateValues.push(Buffer.from(value));
+        // A field equal to an identifier the site already publishes (its Firebase project id and domains, which are
+        // in every canonical URL) is not a secret; every other field, and the file's complete bytes, still count.
+        if (typeof value === 'string' && value.length >= 16 && !publicIdentifiers.includes(value)) privateValues.push(Buffer.from(value));
         else if (value && typeof value === 'object') Object.values(value).forEach(collect);
       };
       collect(parsed);
@@ -68,7 +70,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const games = JSON.parse(await readFile(path.join(process.cwd(), 'games.json'), 'utf8')).games ?? {};
     const declared = Object.values(games).flatMap((pin) => (Array.isArray(pin?.publicKeys) ? pin.publicKeys : []));
     // The site's own web app (client accounts) ships its public web config from src/data/firebase-web.json.
-    try { declared.push(JSON.parse(await readFile(path.join(process.cwd(), 'src/data/firebase-web.json'), 'utf8')).apiKey); } catch { /* no web app registered */ }
-    console.log(`Privacy gate passed: ${await checkPrivacy({ allowedPublicKeys: [process.env.VITE_FIREBASE_API_KEY, ...declared].filter(Boolean) })} files`);
+    const identifiers = [];
+    try {
+      const web = JSON.parse(await readFile(path.join(process.cwd(), 'src/data/firebase-web.json'), 'utf8'));
+      declared.push(web.apiKey); identifiers.push(web.projectId, web.authDomain, web.storageBucket);
+    } catch { /* no web app registered */ }
+    console.log(`Privacy gate passed: ${await checkPrivacy({ allowedPublicKeys: [process.env.VITE_FIREBASE_API_KEY, ...declared].filter(Boolean), publicIdentifiers: identifiers.filter((x) => typeof x === 'string') })} files`);
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

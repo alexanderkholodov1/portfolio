@@ -27,7 +27,7 @@ test.describe('live banner', () => {
     const requests = [];
     await answer(page, (route) => { requests.push(route.request().url()); return json(snapshot(17, 20_000))(route); });
     await page.goto('/');
-    await expect(banner(page)).toHaveText('Live: Collective Galaxy · Be a Dragon 2026 · 17 creators→');
+    await expect(banner(page)).toHaveText('Live: Little Galaxy · Be a Dragon 2026 · 17 creators→');
     await expect(banner(page)).toHaveAttribute('data-state', 'fresh');
     await expect(banner(page)).toHaveAttribute('href', '/little-galaxy/');
     expect(requests).toHaveLength(1);
@@ -39,7 +39,7 @@ test.describe('live banner', () => {
     await page.unroute(ENDPOINT);
     await answer(page, json(snapshot(1, 1000)));
     await page.goto('/es/');
-    await expect(banner(page)).toHaveText('En vivo: Galaxia Colectiva · Be a Dragon 2026 · 1 creador→');
+    await expect(banner(page)).toHaveText('En vivo: Little Galaxy · Be a Dragon 2026 · 1 creador→');
     await expect(banner(page)).toHaveAttribute('href', '/little-galaxy/?lang=es');
   });
 
@@ -47,7 +47,7 @@ test.describe('live banner', () => {
     await answer(page, json(snapshot(99, 11 * 60_000)));
     await page.goto('/');
     await expect(banner(page)).toHaveAttribute('data-state', 'stale');
-    await expect(banner(page)).toContainText('Collective Galaxy · Be a Dragon 2026 · last updated');
+    await expect(banner(page)).toContainText('Little Galaxy · Be a Dragon 2026 · last updated');
     await expect(banner(page)).not.toContainText('Live:');
     await expect(banner(page)).not.toContainText('99');
   });
@@ -63,7 +63,7 @@ test.describe('live banner', () => {
       await page.goto('/');
       await page.waitForLoadState('load');
       await page.waitForTimeout(300);
-      await expect(banner(page)).toHaveText('Collective Galaxy · Be a Dragon 2026→');
+      await expect(banner(page)).toHaveText('Little Galaxy · Be a Dragon 2026→');
       await expect(banner(page)).toHaveAttribute('data-state', 'idle');
     });
   }
@@ -80,7 +80,7 @@ test('without JavaScript the banner links to the galaxy and prints no number', a
   const context = await browser.newContext({ javaScriptEnabled: false });
   try {
     const page = await context.newPage();
-    for (const [route, text, target] of [['/', 'Collective Galaxy · Be a Dragon 2026', '/little-galaxy/'], ['/es/', 'Galaxia Colectiva · Be a Dragon 2026', '/little-galaxy/?lang=es']]) {
+    for (const [route, text, target] of [['/', 'Little Galaxy · Be a Dragon 2026', '/little-galaxy/'], ['/es/', 'Little Galaxy · Be a Dragon 2026', '/little-galaxy/?lang=es']]) {
       await page.goto(`http://127.0.0.1:4173${route}`);
       await expect(page.locator('[data-live]')).toHaveText(`${text}→`);
       await expect(page.locator('[data-live]')).toHaveAttribute('href', target);
@@ -141,7 +141,7 @@ test('visitors never see placeholders, pending markers or the private repository
   const profile = await (await page.request.get('/profile.json')).json();
   expect(JSON.stringify(profile)).not.toContain('alexanderkholodov1/portfolio');
   expect(profile.links).toEqual([
-    { label: 'Collective Galaxy on GitHub', href: 'https://github.com/alexanderkholodov1/little-galaxy' },
+    { label: 'Little Galaxy on GitHub', href: 'https://github.com/alexanderkholodov1/little-galaxy' },
     { label: 'MunHub Lab', href: 'https://munra-1.web.app/' },
     { label: 'ZKVote on GitHub', href: 'https://github.com/AlexanderKholodov1/zkvote' },
     { label: 'Dragon Ocean Analyzer on GitHub', href: 'https://github.com/DhamarAM/hackathon_sala2026' },

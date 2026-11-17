@@ -80,8 +80,8 @@ export const projects: List<Project> = {
     },
     {
       id: 'galaxy',
-      title: { en: 'Collective Galaxy', es: 'Galaxia Colectiva' },
-      context: { en: 'Be a Dragon 2026 · USFQ', es: 'Be a Dragon 2026 · USFQ' },
+      title: { en: 'Little Galaxy', es: 'Little Galaxy' },
+      context: { en: 'Made for the Be a Dragon 2026 fair · USFQ', es: 'Hecho para la feria Be a Dragon 2026 · USFQ' },
       pitch: {
         en: 'A solar system that starts empty. Each visitor designs a planet, star, or moon on their phone, hears its sound fingerprint, and launches it into orbit on the shared screen; celestial bodies orbit in real time and respond to touch.',
         es: 'Un sistema solar que empieza vacío. Cada visitante diseña un planeta, estrella o luna en su celular, escucha su firma sonora y lo lanza a órbita en la pantalla compartida; los cuerpos celestes orbitan en tiempo real y responden a caricias e interacción táctil.',
@@ -89,14 +89,14 @@ export const projects: List<Project> = {
       href: '/little-galaxy/',
       source: {
         id: 'galaxy-source',
-        label: { en: 'Collective Galaxy source on GitHub', es: 'Código de Galaxia Colectiva en GitHub' },
+        label: { en: 'Little Galaxy source on GitHub', es: 'Código de Little Galaxy en GitHub' },
         href: 'https://github.com/alexanderkholodov1/little-galaxy',
         external: true,
       },
       role: { en: 'Design and development', es: 'Diseño y desarrollo' },
       stack: ['React', 'Three.js', 'React Three Fiber', 'Tone.js', 'Firebase', 'TypeScript', 'Vite'],
-      dates: { en: 'Oct 2026 – Be a Dragon 2026', es: 'Oct 2026 – Be a Dragon 2026' },
-      image: { src: '/projects/collective-galaxy.webp', alt: { en: 'Collective Galaxy welcome screen: a spiral galaxy of light around the title and the Enter button.', es: 'Pantalla de bienvenida de Galaxia Colectiva: una galaxia espiral de luz alrededor del título y el botón para entrar.' } },
+      dates: { en: 'Oct 2026', es: 'Oct 2026' },
+      image: { src: '/projects/collective-galaxy.webp', alt: { en: 'Little Galaxy welcome screen: a spiral galaxy of light around the title and the Enter button.', es: 'Pantalla de bienvenida de Little Galaxy: una galaxia espiral de luz alrededor del título y el botón para entrar.' } },
     },
     {
       id: 'studium',
@@ -389,13 +389,13 @@ export const links: List<Link> = {
   items: [
     {
       id: 'galaxy',
-      label: { en: 'Collective Galaxy', es: 'Galaxia Colectiva' },
+      label: { en: 'Little Galaxy', es: 'Little Galaxy' },
       detail: { en: 'The live event', es: 'El evento en vivo' },
       href: '/little-galaxy/',
     },
     {
       id: 'galaxy-source',
-      label: { en: 'Collective Galaxy on GitHub', es: 'Galaxia Colectiva en GitHub' },
+      label: { en: 'Little Galaxy on GitHub', es: 'Little Galaxy en GitHub' },
       detail: { en: 'Source code', es: 'Código fuente' },
       href: 'https://github.com/alexanderkholodov1/little-galaxy',
       external: true,
