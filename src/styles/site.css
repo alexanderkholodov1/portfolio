@@ -982,3 +982,25 @@ canvas, .cover, .sc, .b-out, .demo .art, .seal, .shapes { -webkit-user-select: n
 .page-hero { padding-top: clamp(.5rem, 2vw, 1.5rem); padding-bottom: .5rem; }
 .page-hero h1 { margin-bottom: .8rem; }
 @media (prefers-reduced-motion: reduce) { .livetag i { animation: none; } }
+
+/* Request desk (admin) */
+.admin { padding: 1.5rem 0 3rem; }
+.admin-head { display: flex; justify-content: space-between; align-items: center; }
+.admin-table { display: grid; gap: .4rem; margin-top: 1rem; }
+.admin-row { display: grid; grid-template-columns: 9rem 1fr 1.4fr 7rem 11rem; gap: 1rem; align-items: center; text-align: left; padding: .8rem 1rem; border: 0; border-radius: 14px; background: var(--ak-card); box-shadow: inset 0 0 0 1px var(--ak-line); }
+.admin-row:hover { box-shadow: inset 0 0 0 1.5px var(--ak-main); }
+@media (max-width: 860px) { .admin-row { grid-template-columns: 1fr; gap: .2rem; } }
+.pill { justify-self: start; padding: .2rem .6rem; border-radius: 99px; font-size: .78rem; font-weight: 800; background: color-mix(in oklab, var(--ak-main) 14%, transparent); color: var(--ak-main); }
+.pill.s-reviewing, .pill.s-proposal { background: color-mix(in oklab, var(--ak-warm) 22%, transparent); color: #b34a12; }
+.pill.s-in-progress { background: color-mix(in oklab, #2fbf71 20%, transparent); color: #1d7a52; }
+.pill.s-declined, .pill.s-closed { background: color-mix(in oklab, var(--ak-text) 10%, transparent); color: var(--ak-soft); }
+.admin-cols { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; align-items: start; }
+@media (max-width: 860px) { .admin-cols { grid-template-columns: 1fr; } }
+.admin .card { padding: 1.2rem; border-radius: 20px; background: var(--ak-card); box-shadow: 0 20px 36px -30px rgba(2,11,44,.5); }
+.admin-actions { display: grid; gap: .8rem; }
+.admin-actions select, .admin-actions textarea { font: inherit; color: var(--ak-text); background: var(--ak-page); border: 1.5px solid var(--ak-line); border-radius: 12px; padding: .6rem .8rem; }
+.notes { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.notes li { padding: .6rem .8rem; border-radius: 12px; background: var(--ak-page); } .notes time { font-size: .75rem; color: var(--ak-soft); } .notes p { margin: .2rem 0 0; font-size: .95rem; }
+.admin-login { max-width: 26rem; display: grid; gap: .8rem; }
+.admin-msg { margin: 1rem auto; max-width: 34rem; text-align: left; padding: 1rem 1.2rem; border-radius: 16px; background: color-mix(in oklab, var(--ak-main) 8%, var(--ak-card)); }
+.admin-msg small { font-weight: 800; color: var(--ak-main); } .admin-msg p { margin: .3rem 0 0; white-space: pre-wrap; }

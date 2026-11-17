@@ -67,6 +67,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // Public web keys: the site's own (environment) plus the ones mounted apps declare in games.json.
     const games = JSON.parse(await readFile(path.join(process.cwd(), 'games.json'), 'utf8')).games ?? {};
     const declared = Object.values(games).flatMap((pin) => (Array.isArray(pin?.publicKeys) ? pin.publicKeys : []));
+    // The site's own web app (client accounts) ships its public web config from src/data/firebase-web.json.
+    try { declared.push(JSON.parse(await readFile(path.join(process.cwd(), 'src/data/firebase-web.json'), 'utf8')).apiKey); } catch { /* no web app registered */ }
     console.log(`Privacy gate passed: ${await checkPrivacy({ allowedPublicKeys: [process.env.VITE_FIREBASE_API_KEY, ...declared].filter(Boolean) })} files`);
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

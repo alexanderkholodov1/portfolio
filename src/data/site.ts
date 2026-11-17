@@ -1,17 +1,17 @@
 import { links, socials, profile, projects, isPending } from './content';
 
 export type Language = 'en' | 'es';
-export type Page = 'home' | 'projects' | 'services' | 'about' | 'links' | 'galaxy' | 'start' | 'project';
-export const pages: Page[] = ['home', 'projects', 'services', 'about', 'links', 'galaxy', 'start'];
+export type Page = 'home' | 'projects' | 'services' | 'about' | 'links' | 'galaxy' | 'start' | 'project' | 'admin';
+export const pages: Page[] = ['home', 'projects', 'services', 'about', 'links', 'galaxy', 'start', 'admin'];
 // The top navigation holds only what a visitor needs (his note of 2026-11-17): Links and the galaxy's entry stay as
 // pages, reached from the footer and from Projects.
 export const navPages: Page[] = ['home', 'projects', 'services', 'about'];
 export const paths: Record<Page, string> = {
-  home: '', projects: 'projects/', services: 'services/', about: 'about/', links: 'links/', galaxy: 'projects/galaxy/', start: 'start/', project: 'projects/',
+  home: '', projects: 'projects/', services: 'services/', about: 'about/', links: 'links/', galaxy: 'projects/galaxy/', start: 'start/', project: 'projects/', admin: 'admin/',
 };
 export const labels = {
-  en: { home: 'Home', projects: 'Projects', services: 'Services', about: 'About', links: 'Links', galaxy: 'Galaxy', start: 'Start your project', project: 'Project' },
-  es: { home: 'Inicio', projects: 'Proyectos', services: 'Servicios', about: 'Acerca de', links: 'Enlaces', galaxy: 'Galaxia', start: 'Comienza tu proyecto', project: 'Proyecto' },
+  en: { home: 'Home', projects: 'Projects', services: 'Services', about: 'About', links: 'Links', galaxy: 'Galaxy', start: 'Start your project', project: 'Project', admin: 'Requests' },
+  es: { home: 'Inicio', projects: 'Proyectos', services: 'Servicios', about: 'Acerca de', links: 'Enlaces', galaxy: 'Galaxia', start: 'Comienza tu proyecto', project: 'Proyecto', admin: 'Solicitudes' },
 };
 export function href(page: Page, lang: Language) { return `${lang === 'es' ? '/es/' : '/'}${paths[page]}`; }
 // Every project has its own page; the galaxy keeps the entry page it already had.

@@ -1,7 +1,6 @@
 // Client accounts for project requests: Firebase Authentication and one Firestore document per person
 // (`requests/{uid}`, guarded by firestore.rules). The web config is public by design and comes from the build
-// environment. Without it, the page talks to the local emulators under a demo project, which never reaches any
-// real Firebase resource; that is how the flow is developed and tested.
+// file src/data/firebase-web.json.
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import {
   connectAuthEmulator, createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, onAuthStateChanged,
@@ -9,12 +8,12 @@ import {
 } from 'firebase/auth';
 import { connectFirestoreEmulator, doc, getDoc, getFirestore, serverTimestamp, setDoc, type Firestore } from 'firebase/firestore';
 
-const config = {
-  apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY as string | undefined,
-  authDomain: import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN as string | undefined,
-  projectId: import.meta.env.PUBLIC_FIREBASE_PROJECT_ID as string | undefined,
-};
-export const usesEmulators = !config.projectId;
+import web from '../data/firebase-web.json';
+
+// Production uses the site's own Firebase web app (public config). For local work and tests, set
+// PUBLIC_ACCOUNTS_EMULATORS=1 to talk to the Auth and Firestore emulators under a demo project instead.
+export const usesEmulators = import.meta.env.PUBLIC_ACCOUNTS_EMULATORS === '1';
+const config = { apiKey: web.apiKey, authDomain: web.authDomain, projectId: web.projectId, appId: web.appId };
 
 let app: FirebaseApp, auth: Auth, db: Firestore;
 export function accounts() {
@@ -28,7 +27,7 @@ export function accounts() {
 
 export type Request = {
   name?: string; email?: string; kinds?: string[]; idea?: string; forWhom?: string; where?: string; when?: string;
-  budget?: string; contact?: string; contactValue?: string; lang?: string; status: 'draft' | 'submitted'; step?: number;
+  budget?: string; contact?: string; contactValue?: string; lang?: string; status: string; step?: number; message?: string;
 };
 
 export const watchUser = (fn: (user: User | null) => void) => onAuthStateChanged(accounts().auth, fn);

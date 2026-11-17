@@ -537,6 +537,18 @@ const startHref = href('start', lang);
     </script>
   </>}
 
+  {page === 'admin' && <>
+    <section class="admin" data-admin data-copy={JSON.stringify(t.admin)}>
+      <p class="kicker">{t.admin.title}</p>
+      <div data-view aria-live="polite"></div>
+    </section>
+    <script>
+      import { startAdmin } from '../scripts/admin';
+      const root = document.querySelector<HTMLElement>('[data-admin]');
+      if (root) startAdmin(root);
+    </script>
+  </>}
+
   {page === 'links' && <>
     <h1>{labels[lang].links}</h1>
     <ul class="ledger callsigns">

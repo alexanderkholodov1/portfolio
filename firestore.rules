@@ -1,27 +1,45 @@
 rules_version = '2';
 
-// Client project requests for the portfolio. Deny by default; a signed-in person reads and writes only their own
-// request, only the fields the questionnaire collects, and cannot change it after sending it. The operator reads
-// and manages every request from the admin side (Admin SDK, which these rules do not restrict).
+// Client project requests for the portfolio. Deny by default.
+// A signed-in person reads and writes only their own request, only the fields the questionnaire collects, and
+// cannot change it after sending it. The operator (custom claim admin, granted with scripts/grant-admin.mjs) reads
+// every request, moves it through its statuses, writes a message the client sees, and keeps private notes.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+
     match /requests/{uid} {
-      function own() { return request.auth != null && request.auth.uid == uid; }
-      function fields() {
+      function own() { return signedIn() && request.auth.uid == uid; }
+      function clientFields() {
         return request.resource.data.keys().hasOnly(['name', 'email', 'kinds', 'idea', 'forWhom', 'where', 'when', 'budget', 'contact', 'contactValue', 'lang', 'status', 'step', 'createdAt', 'updatedAt', 'submittedAt']);
       }
-      function valid() {
+      function validClient() {
         let d = request.resource.data;
-        return fields()
+        return clientFields()
           && d.status in ['draft', 'submitted']
           && (!('idea' in d) || (d.idea is string && d.idea.size() <= 5000))
           && (!('kinds' in d) || (d.kinds is list && d.kinds.size() <= 12))
           && (!('contactValue' in d) || (d.contactValue is string && d.contactValue.size() <= 200));
       }
-      allow read: if own();
-      allow create: if own() && valid();
-      allow update: if own() && valid() && resource.data.status == 'draft';
+      // The admin changes only the workflow fields; the client's answers stay as the client wrote them.
+      function validAdmin() {
+        let changed = request.resource.data.diff(resource.data).affectedKeys();
+        return changed.hasOnly(['status', 'message', 'priority', 'updatedAt'])
+          && request.resource.data.status in ['submitted', 'reviewing', 'proposal', 'in-progress', 'delivered', 'closed', 'declined']
+          && (!('message' in request.resource.data) || (request.resource.data.message is string && request.resource.data.message.size() <= 4000));
+      }
+      allow read: if own() || isAdmin();
+      allow create: if own() && validClient();
+      allow update: if (own() && validClient() && resource.data.status == 'draft') || (isAdmin() && validAdmin());
       allow delete: if false;
+
+      // Private notes, seen only by the admin.
+      match /notes/{note} {
+        allow read: if isAdmin();
+        allow create: if isAdmin() && request.resource.data.keys().hasOnly(['text', 'at']) && request.resource.data.text is string && request.resource.data.text.size() <= 4000;
+        allow update, delete: if false;
+      }
     }
     match /{document=**} {
       allow read, write: if false;

@@ -5,7 +5,7 @@ import { leave, loadRequest, saveRequest, signIn, signInGoogle, signUp, watchUse
 type Q = { key: string; title: string; hint?: string; time: string; type: 'multi' | 'one' | 'text' | 'contact'; options?: string[]; placeholder?: string; optional?: boolean };
 type Copy = {
   steps: string[]; question: string; of: string; next: string; back: string; optional: string;
-  account: Record<string, string>; q: Q[]; review: Record<string, string>; done: { title: string[]; lead: string; status: string; received: string; out: string };
+  account: Record<string, string>; q: Q[]; review: Record<string, string>; done: { title: string[]; lead: string; status: string; received: string; out: string; from: string; statuses: Record<string, string> };
   errors: Record<string, string>;
 };
 
@@ -135,7 +135,8 @@ export function startFlow(root: HTMLElement) {
     const out = el('button', { type: 'button', class: 'link' }, c.done.out); out.addEventListener('click', () => leave());
     const h = el('h2', {}, c.done.title[0], el('em', {}, c.done.title[1]));
     return el('div', { class: 'card done' }, el('span', { class: 'burst' }, ...Array.from({ length: 10 }, () => el('i'))), h, el('p', { class: 'lede' }, c.done.lead),
-      el('p', { class: 'status' }, el('span', {}, c.done.status), el('b', {}, c.done.received)), out);
+      el('p', { class: 'status' }, el('span', {}, c.done.status), el('b', {}, c.done.statuses[data.status] || c.done.received)),
+      data.message ? el('div', { class: 'admin-msg' }, el('small', {}, c.done.from), el('p', {}, data.message)) : null, out);
   };
 
   watchUser(async (user) => {
@@ -144,7 +145,7 @@ export function startFlow(root: HTMLElement) {
     const saved = await loadRequest(uid).catch(() => null);
     isNew = !saved;
     data = saved || { status: 'draft', name: user.displayName || '', email: user.email || '' };
-    if (data.status === 'submitted') show(doneView());
+    if (data.status !== 'draft') show(doneView());
     else if ((data.step || 0) >= c.q.length) show(reviewView());
     else show(questionView(data.step || 0));
   });
