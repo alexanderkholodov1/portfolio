@@ -3,11 +3,11 @@ import Layout from '../layouts/Layout.astro';
 import LiveBanner from './LiveBanner.astro';
 import Mark from './Mark.astro';
 import { copy } from '../data/copy';
-import { certifications, experience, isPending, links, profile, projects, services, socials } from '../data/content';
+import { achievements, certifications, experience, isPending, links, profile, projects, services, socials } from '../data/content';
 import { galaxy, galaxyHref, href, labels, projectHref, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; projectId?: string; }
 const { lang, page, projectId } = Astro.props;
-const current = projectId ? projects.items.find((p) => p.id === projectId) : undefined;
+const current = projectId ? [...projects.items, ...achievements].find((p) => p.id === projectId) : undefined;
 const t = copy[lang];
 const role = isPending(profile.role) ? null : profile.role[lang];
 const bio = isPending(profile.bio) ? null : profile.bio[lang].split(/\n{2,}/);
@@ -27,7 +27,7 @@ const description = page === 'home' ? t.home.description : current ? current.pit
 // Home: projects grouped by field (his note of 2026-10-26: not one list) and real results.
 const byId = (id: string) => projects.items.find((p) => p.id === id);
 const fields = [
-  { name: t.build.games, ids: ['galaxy', 'farpoint-horizon', 'unallocated', 'sublime-airlift', 'dragons-never-die'] },
+  { name: t.build.games, ids: ['galaxy', 'farpoint-horizon', 'unallocated', 'sublime-airlift'] },
   { name: t.build.science, ids: ['munhub-lab', 'dragon-ocean-analyzer'] },
   { name: t.build.web, ids: ['studium', 'pancho-bus', 'nivela', 'aklabs-store'] },
   { name: t.build.work, ids: ['agent-workshops'] },
@@ -35,15 +35,26 @@ const fields = [
 const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? t.projects.other;
 const fieldIndex = (id: string) => { const k = fields.findIndex((f) => f.ids.includes(id)); return k < 0 ? 'o' : String(k); };
 // The panorama: the whole range at first sight; each tile opens the project's own page.
-const panorama = ['farpoint-horizon', 'studium', 'galaxy', 'munhub-lab', 'pancho-bus', 'nivela', 'unallocated', 'dragon-ocean-analyzer', 'sublime-airlift', 'aklabs-store', 'dragons-never-die', 'devfest-ctf'].map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p));
-// Six columns, three rows: two large tiles and ten small ones fill the grid exactly.
-const tileSize = (k: number) => (k < 2 ? 'big' : '');
 const related = current ? projects.items.filter((p) => p.id !== current.id && fieldIndex(p.id) === fieldIndex(current.id)).slice(0, 3) : [];
-const results = [
-  { figure: 3, suffix: lang === 'es' ? 'º' : 'rd', project: byId('sublime-airlift') },
-  { figure: 4, suffix: lang === 'es' ? 'º' : 'th', project: byId('dragons-never-die') },
-  { figure: 5, suffix: lang === 'es' ? 'º' : 'th', project: byId('devfest-ctf') },
-].filter((r) => r.project);
+// Highlights in the community section: the result first, then where it happened.
+const byAny = (id: string) => byId(id) ?? achievements.find((x) => x.id === id);
+const highlights = [
+  { badge: lang === 'es' ? '3.er lugar' : '3rd place', item: byAny('sublime-airlift') },
+  { badge: lang === 'es' ? '5.º lugar' : '5th place', item: byAny('devfest-ctf') },
+  { badge: lang === 'es' ? 'Ronda 2' : 'Round 2', item: byAny('codevita') },
+  { badge: 'Outstanding Innovator', item: byAny('blue-challenge') },
+  { badge: lang === 'es' ? 'Embajador' : 'Ambassador', item: byAny('ieeextreme-ambassador') },
+].filter((h): h is { badge: string; item: NonNullable<typeof h.item> } => Boolean(h.item));
+// The showcase: a spotlight that rotates through the projects (or follows the visitor's pick) beside the grid.
+const SHOW = ['farpoint-horizon', 'studium', 'galaxy', 'munhub-lab', 'pancho-bus', 'nivela', 'sublime-airlift', 'unallocated', 'dragon-ocean-analyzer', 'aklabs-store'];
+const actionOf: Record<string, 'play' | 'try' | 'live' | 'enter' | 'code'> = { 'farpoint-horizon': 'play', galaxy: 'play', 'sublime-airlift': 'play', studium: 'enter', 'pancho-bus': 'try', nivela: 'try', 'munhub-lab': 'live', unallocated: 'code', 'dragon-ocean-analyzer': 'code', 'aklabs-store': 'code' };
+const shown = SHOW.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p)).map((p) => ({
+  id: p.id, title: p.title[lang], field: '', context: p.context[lang], purpose: (t.showcase.purpose as Record<string, string>)[p.id] ?? p.pitch[lang],
+  image: isPending(p.image) ? '' : p.image.src, action: actionOf[p.id] ?? 'code',
+  actionHref: actionOf[p.id] === 'code' ? (p.source?.href ?? '') : p.href ? resolveHref(p.href, lang) : '', page: projectHref(p.id, lang),
+}));
+for (const x of shown) x.field = fieldOf(x.id);
+const moreCount = projects.items.length - shown.length;
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
 const github = socials.items.find((s) => s.id === 'github');
 // Events he took part in, by the names in his projects and his bio (content.ts).
@@ -73,52 +84,42 @@ const startHref = href('start', lang);
       <a class="cue" href="#work"><span>{t.intro.cue}</span><i aria-hidden="true"></i></a>
     </section>
 
-    <section class="band panorama" id="work" aria-labelledby="work-title">
-      <p class="kicker" data-reveal>{t.intro.work}</p>
-      <h2 id="work-title" data-reveal>{t.panorama.title[0]}<em>{t.panorama.title[1]}</em></h2>
-      <p class="lede" data-reveal>{t.panorama.lead}</p>
-      <ul class="mosaic">
-        {panorama.map((p, k) => (
-          <li class={'tile ' + tileSize(k)} data-reveal style={`--i:${k % 4}`}>
-            <a href={entryHref(p)} data-glow>
-              <span class={'cover f' + fieldIndex(p.id)}>
-                {!isPending(p.image) ? <img src={p.image.src} alt="" width="640" height="400" loading={k < 4 ? 'eager' : 'lazy'} decoding="async" /> : <span class="glyph" aria-hidden="true">{p.title[lang].slice(0, 1)}</span>}
-              </span>
-              <span class="tile-text">
-                <small>{fieldOf(p.id)}</small>
-                <b>{p.title[lang]}</b>
-                <span class="ctx">{p.context[lang]}</span>
-                <span class="go">{t.panorama.open} <i aria-hidden="true">→</i></span>
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
+    <section class="band showcase" id="work" aria-labelledby="work-title" data-showcase>
+      <p class="kicker" data-reveal>{t.showcase.kicker}</p>
+      <h2 id="work-title" data-reveal>{t.showcase.title[0]}<em>{t.showcase.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.showcase.lead}</p>
+      <div class="sc-grid">
+        <article class="spot" aria-live="polite" data-spot>
+          {shown.map((x, k) => (
+            <div class="spot-slide" data-slide={k} hidden={k !== 0}>
+              <span class="spot-shot">{x.image && <img src={x.image} alt="" width="1280" height="800" loading={k === 0 ? 'eager' : 'lazy'} decoding="async" />}</span>
+              <div class="spot-body">
+                <p class="spot-meta">{x.action !== 'code' && <span class="livetag"><i></i>{t.tryNow.live}</span>}<span>{x.field}</span></p>
+                <h3>{x.title}</h3>
+                <p class="spot-purpose">{x.purpose}</p>
+                <p class="spot-ctx">{x.context}</p>
+                <p class="spot-actions">
+                  {x.actionHref && <a class={'act act-' + x.action} href={x.actionHref}><span class="ico" aria-hidden="true"></span>{t.showcase.actions[x.action]}</a>}
+                  <a class="act act-page" href={x.page}>{t.showcase.open} <span aria-hidden="true">→</span></a>
+                </p>
+              </div>
+            </div>
+          ))}
+          <span class="spot-bar" aria-hidden="true"><i></i></span>
+        </article>
+        <ul class="picks" role="list">
+          {shown.map((x, k) => (
+            <li><button type="button" class="pick" data-pick={k} aria-pressed={k === 0 ? 'true' : 'false'} aria-label={x.title}>
+              <span class="pick-shot">{x.image && <img src={x.image} alt="" width="640" height="400" loading="lazy" decoding="async" />}</span>
+              <span class="pick-text">{x.action !== 'code' && <i class="dot" aria-hidden="true"></i>}<b>{x.title}</b></span>
+            </button></li>
+          ))}
+          <li><a class="pick more" href={href('projects', lang)}><b>+{moreCount}</b><span>{t.showcase.more[0]}</span><small>{t.showcase.more[1]} →</small></a></li>
+        </ul>
+      </div>
     </section>
     <p class="all-work" data-reveal><a class="btn-b" href={href('projects', lang)}>{t.stage.all}</a></p>
 
-    <section class="band try-now bleed tint" aria-labelledby="try-title">
-      <p class="kicker" data-reveal>{t.tryNow.kicker}</p>
-      <h2 id="try-title" data-reveal>{t.tryNow.title[0]}<em>{t.tryNow.title[1]}</em></h2>
-      <p class="lede" data-reveal>{t.tryNow.lead}</p>
-      <div class="try-grid">
-        {byId('studium') && <a class="try-hero" href={byId('studium')!.href} data-glow data-reveal>
-          <span class="try-shot"><img src="/projects/studium.webp" alt="" width="1280" height="800" loading="lazy" decoding="async" /></span>
-          <span class="try-body">
-            <span class="livetag"><i></i>{t.tryNow.live} · {t.studium.kicker}</span>
-            <b>{t.studium.title[0]}<em>{t.studium.title[1]}</em></b>
-            <span class="try-points">{t.studium.points.map((x) => <span>{x}</span>)}</span>
-            <span class="btn-a">{t.studium.enter}<span class="arrow" aria-hidden="true">↗</span></span>
-          </span>
-        </a>}
-        {Object.entries(t.tryNow.verbs).map(([id, verb], k) => { const p = byId(id); return p && p.href && (
-          <a class="try-card" href={resolveHref(p.href, lang)} data-glow data-reveal style={`--i:${k % 3}`}>
-            <span class="try-shot">{!isPending(p.image) && <img src={p.image.src} alt="" width="640" height="400" loading="lazy" decoding="async" />}</span>
-            <span class="try-text"><span class="livetag"><i></i>{t.tryNow.live}</span><b>{p.title[lang]}</b><span class="go">{verb} <i aria-hidden="true">↗</i></span></span>
-          </a>
-        ); })}
-      </div>
-    </section>
 
     <section class="band view bleed tint" aria-labelledby="view-title">
       <h2 class="kicker" id="view-title" data-reveal>{t.view.kicker}</h2>
@@ -149,18 +150,21 @@ const startHref = href('start', lang);
           </div>
         ))}
       </div>
-      <div class="events-grid">
-        <ul class="roles">{t.events.roles.map((r, k) => <li data-reveal style={`--i:${k}`}>{r}</li>)}</ul>
-        <div class="results">
-          <h3 class="kicker" data-reveal>{t.events.podium}</h3>
-          <ul>{results.map((r, k) => (
-            <li data-reveal style={`--i:${k};--n:${r.figure}`}>
-              <b><span class="roll" aria-hidden="true"><span>{Array.from({ length: r.figure }, (_, d) => <span>{d + 1}</span>)}</span></span><span class="sr">{r.figure}</span><sup>{r.suffix}</sup></b>
-              <span>{r.project!.title[lang]}</span><span class="soft">{r.project!.context[lang].split(' · ')[0]}</span>
-            </li>
-          ))}</ul>
-        </div>
-      </div>
+      <h3 class="kicker comm-sub" data-reveal>{t.achieve.kicker}</h3>
+      <ul class="highlights">
+        {highlights.map((h, k) => (
+          <li data-reveal style={`--i:${k}`}>
+            <a class="hl" href={projectHref(h.item.id, lang)} data-glow>
+              <span class="hl-shot">{!isPending(h.item.image) && <img src={h.item.image.src} alt="" width="640" height="400" loading="lazy" decoding="async" />}</span>
+              <span class="hl-badge">{h.badge}</span>
+              <b>{h.item.title[lang]}</b>
+              <small>{h.item.context[lang].split(' · ')[0]}</small>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <h3 class="kicker comm-sub" data-reveal>{t.achieve.roles}</h3>
+      <ul class="roles">{t.events.roles.map((r, k) => <li data-reveal style={`--i:${k}`}>{r}</li>)}</ul>
     </section>
 
     <section class="band certs bleed ink deep" aria-labelledby="certs-title">
@@ -229,6 +233,9 @@ const startHref = href('start', lang);
       import { startMotion } from '../scripts/motion';
       import { startRibbon } from '../scripts/ribbon';
       import { startLetters } from '../scripts/letters';
+      import { startShowcase } from '../scripts/showcase';
+      const sc = document.querySelector<HTMLElement>('[data-showcase]');
+      if (sc) startShowcase(sc);
       const hero = document.querySelector<HTMLElement>('[data-hero]');
       if (hero) { startRibbon(hero); startLetters(hero); }
       startMotion();
@@ -539,7 +546,7 @@ const startHref = href('start', lang);
 
   {page === 'admin' && <>
     <section class="admin" data-admin data-copy={JSON.stringify(t.admin)}>
-      <p class="kicker">{t.admin.title}</p>
+      <h1 class="admin-title">{t.admin.title}</h1>
       <div data-view aria-live="polite"></div>
     </section>
     <script>

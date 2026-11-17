@@ -172,32 +172,6 @@ export const projects: List<Project> = {
       image: { src: '/projects/nivela.webp', alt: { en: 'Nivela home: "AI judgment that doesn\u2019t expire" beside a mentor chat and a learning route.', es: 'Inicio de Nivela: "Criterio con IA que no caduca" junto a un chat con el mentor y una ruta de aprendizaje.' } },
     },
     {
-      id: 'ieeextreme-ambassador',
-      title: { en: 'IEEEXtreme 20.0 Ambassador and Mini IEEEXtreme 2.0', es: 'Embajador de IEEEXtreme 20.0 y Mini IEEEXtreme 2.0' },
-      context: { en: 'IEEE · IEEE Computer Society USFQ', es: 'IEEE · IEEE Computer Society USFQ' },
-      pitch: {
-        en: 'Selected as IEEEXtreme 20.0 Student Branch Ambassador, representing USFQ in Ecuador, and applied with the chapter board for USFQ to host the 24-hour contest. Direct organiser of Mini IEEEXtreme 2.0, with participants from other universities and provinces.',
-        es: 'Seleccionado como Student Branch Ambassador de IEEEXtreme 20.0, representando a la USFQ en Ecuador, y postulación junto a la directiva del capítulo para que la USFQ fuera sede de la competencia de 24 horas. Organizador directo de Mini IEEEXtreme 2.0, con participantes de otras universidades y provincias.',
-      },
-      role: { en: 'Student Branch Ambassador and organiser', es: 'Student Branch Ambassador y organizador' },
-      stack: ['Competitive programming', 'Event organisation'],
-      dates: { en: 'Aug – Oct 2026', es: 'Ago – Oct 2026' },
-      image: { src: '/projects/ieeextreme-ambassador.webp', alt: { en: 'IEEEXtreme 20.0 ambassador materials with the ambassador code.', es: 'Materiales de embajador de IEEEXtreme 20.0 con el código de embajador.' } },
-    },
-    {
-      id: 'devfest-ctf',
-      title: { en: 'Capture The Flag at DevFest 2026', es: 'Capture The Flag en DevFest 2026' },
-      context: { en: 'Google DevFest 2026 · CyberMinds EPN · 5th Place', es: 'Google DevFest 2026 · CyberMinds EPN · 5.º lugar' },
-      pitch: {
-        en: 'Fifth place with my team in the CyberMinds EPN Capture The Flag at Google DevFest 2026, an event of more than 2,000 attendees where I also served as staff in attendee registration.',
-        es: 'Quinto lugar con mi equipo en el Capture The Flag de CyberMinds EPN en Google DevFest 2026, un evento de más de 2.000 asistentes donde también formé parte del staff en el registro de asistentes.',
-      },
-      role: { en: 'Competitor, with Estefanía Solórzano and Steven Merino; event staff', es: 'Competidor, con Estefanía Solórzano y Steven Merino; staff del evento' },
-      stack: ['Cybersecurity', 'CTF'],
-      dates: { en: 'Sep 2026', es: 'Sep 2026' },
-      image: { src: '/projects/devfest-ctf.webp', alt: { en: 'Google DevFest 2026 in Quito: the crowd around the stage.', es: 'Google DevFest 2026 en Quito: el público alrededor del escenario.' } },
-    },
-    {
       id: 'agent-workshops',
       title: { en: 'Agentic Development Workshops', es: 'Prácticas de talleres con agentes' },
       context: { en: 'Cursor Community Quito · NEST.Lab · USFQ', es: 'Cursor Community Quito · NEST.Lab · USFQ' },
@@ -324,32 +298,6 @@ export const projects: List<Project> = {
       dates: { en: 'Sep – Dec 2025', es: 'Sep – Dic 2025' },
       image: { src: '/projects/blue-challenge.webp', alt: { en: 'Receiving the Outstanding Innovator diploma at the Blue Challenge.', es: 'Recibiendo el diploma Outstanding Innovator en el Blue Challenge.' } },
     },
-    {
-      id: 'dragons-never-die',
-      title: { en: 'Dragons Never Die', es: 'Dragons Never Die' },
-      context: { en: 'USFQ IEEE CS Game Jam 2025', es: 'USFQ IEEE CS Game Jam 2025' },
-      pitch: {
-        en: '2D video game built for the dragon-themed USFQ CS Game Jam. Our team developed a playable release and earned 4th place at the jam.',
-        es: 'Videojuego 2D desarrollado para la USFQ CS Game Jam con temática de dragones. Nuestro equipo construyó una versión jugable y obtuvo el cuarto lugar en la competencia.',
-      },
-      role: { en: 'Pixel art in Aseprite and game development in Unity', es: 'Arte en píxeles con Aseprite y desarrollo en Unity' },
-      stack: ['Unity', 'Aseprite'],
-      dates: { en: 'Oct 2025', es: 'Oct 2025' },
-      image: { src: '/projects/dragons-never-die.webp', alt: { en: 'Dragons Never Die title art in pixel art, for the USFQ Game Jam.', es: 'Arte del título de Dragons Never Die en pixel art, para la USFQ Game Jam.' } },
-    },
-    {
-      id: 'codevita',
-      title: { en: 'TCS CodeVita Season 13', es: 'TCS CodeVita Temporada 13' },
-      context: { en: 'Tata Consultancy Services · Round 2 qualifier', es: 'Tata Consultancy Services · Clasificado a la Ronda 2' },
-      pitch: {
-        en: 'Qualified for Round 2 of TCS CodeVita Season 13, a programming competition with more than 600,000 participants, as one of only five USFQ students to get that far, and received a special recognition from TCS during a visit to its Quito office.',
-        es: 'Clasificado a la Ronda 2 de TCS CodeVita Temporada 13, una competencia de programación con más de 600.000 participantes, como uno de solo cinco estudiantes de la USFQ en llegar hasta ahí, y reconocimiento especial de TCS durante una visita a su oficina en Quito.',
-      },
-      role: { en: 'Competitor', es: 'Competidor' },
-      stack: ['Competitive programming'],
-      dates: { en: 'Oct – Nov 2025', es: 'Oct – Nov 2025' },
-      image: { src: '/projects/codevita.webp', alt: { en: 'A group visit to TCS in Quito, where the CodeVita recognition was given.', es: 'La visita grupal a TCS en Quito, donde se entregó el reconocimiento de CodeVita.' } },
-    },
   ],
   todo: 'P3: exact start and completion dates where only month or year is known; image and alt text for each project; role details for unconfirmed initiatives.',
 };
@@ -362,6 +310,49 @@ export const certifications: Certification[] = [
   { code: 'GH-900', name: 'GitHub Foundations', issuer: 'Microsoft · GitHub', area: { en: 'Development', es: 'Desarrollo' } },
   { code: 'AB-730', name: 'AI Business Professional', issuer: 'Microsoft', area: { en: 'Artificial intelligence', es: 'Inteligencia artificial' } },
   { code: 'AB-731', name: 'AI Transformation Leader', issuer: 'Microsoft', area: { en: 'Artificial intelligence', es: 'Inteligencia artificial' } },
+];
+
+// Competitions and roles, shown with the community, not as projects (his note of 2026-11-17).
+export const achievements: Project[] = [
+    {
+    id: 'devfest-ctf',
+    title: { en: 'Capture The Flag at DevFest 2026', es: 'Capture The Flag en DevFest 2026' },
+    context: { en: 'Google DevFest 2026 · CyberMinds EPN · 5th Place', es: 'Google DevFest 2026 · CyberMinds EPN · 5.º lugar' },
+    pitch: {
+      en: 'Fifth place with my team in the CyberMinds EPN Capture The Flag at Google DevFest 2026, an event of more than 2,000 attendees where I also served as staff in attendee registration.',
+      es: 'Quinto lugar con mi equipo en el Capture The Flag de CyberMinds EPN en Google DevFest 2026, un evento de más de 2.000 asistentes donde también formé parte del staff en el registro de asistentes.',
+    },
+    role: { en: 'Competitor, with Estefanía Solórzano and Steven Merino; event staff', es: 'Competidor, con Estefanía Solórzano y Steven Merino; staff del evento' },
+    stack: ['Cybersecurity', 'CTF'],
+    dates: { en: 'Sep 2026', es: 'Sep 2026' },
+    image: { src: '/projects/devfest-ctf.webp', alt: { en: 'Google DevFest 2026 in Quito: the crowd around the stage.', es: 'Google DevFest 2026 en Quito: el público alrededor del escenario.' } },
+  },
+    {
+    id: 'codevita',
+    title: { en: 'TCS CodeVita Season 13', es: 'TCS CodeVita Temporada 13' },
+    context: { en: 'Tata Consultancy Services · Round 2 qualifier', es: 'Tata Consultancy Services · Clasificado a la Ronda 2' },
+    pitch: {
+      en: 'Qualified for Round 2 of TCS CodeVita Season 13, a programming competition with more than 600,000 participants, as one of only five USFQ students to get that far, and received a special recognition from TCS during a visit to its Quito office.',
+      es: 'Clasificado a la Ronda 2 de TCS CodeVita Temporada 13, una competencia de programación con más de 600.000 participantes, como uno de solo cinco estudiantes de la USFQ en llegar hasta ahí, y reconocimiento especial de TCS durante una visita a su oficina en Quito.',
+    },
+    role: { en: 'Competitor', es: 'Competidor' },
+    stack: ['Competitive programming'],
+    dates: { en: 'Oct – Nov 2025', es: 'Oct – Nov 2025' },
+    image: { src: '/projects/codevita.webp', alt: { en: 'A group visit to TCS in Quito, where the CodeVita recognition was given.', es: 'La visita grupal a TCS en Quito, donde se entregó el reconocimiento de CodeVita.' } },
+  },
+    {
+    id: 'ieeextreme-ambassador',
+    title: { en: 'IEEEXtreme 20.0 Ambassador and Mini IEEEXtreme 2.0', es: 'Embajador de IEEEXtreme 20.0 y Mini IEEEXtreme 2.0' },
+    context: { en: 'IEEE · IEEE Computer Society USFQ', es: 'IEEE · IEEE Computer Society USFQ' },
+    pitch: {
+      en: 'Selected as IEEEXtreme 20.0 Student Branch Ambassador, representing USFQ in Ecuador, and applied with the chapter board for USFQ to host the 24-hour contest. Direct organiser of Mini IEEEXtreme 2.0, with participants from other universities and provinces.',
+      es: 'Seleccionado como Student Branch Ambassador de IEEEXtreme 20.0, representando a la USFQ en Ecuador, y postulación junto a la directiva del capítulo para que la USFQ fuera sede de la competencia de 24 horas. Organizador directo de Mini IEEEXtreme 2.0, con participantes de otras universidades y provincias.',
+    },
+    role: { en: 'Student Branch Ambassador and organiser', es: 'Student Branch Ambassador y organizador' },
+    stack: ['Competitive programming', 'Event organisation'],
+    dates: { en: 'Aug – Oct 2026', es: 'Ago – Oct 2026' },
+    image: { src: '/projects/ieeextreme-ambassador.webp', alt: { en: 'IEEEXtreme 20.0 ambassador materials with the ambassador code.', es: 'Materiales de embajador de IEEEXtreme 20.0 con el código de embajador.' } },
+  },
 ];
 
 // Work experience, kept apart from projects (his note of 2026-11-17).
