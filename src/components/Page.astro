@@ -49,11 +49,15 @@ const s2 = t.services;
 ---
 <Layout lang={lang} page={page} title={title} description={description}>
   {page === 'home' && <>
-    <section class="intro" aria-labelledby="name">
-      <h1><span class="name" id="name">Alexander <em>Kholodov</em></span></h1>
+    <section class="hero" aria-labelledby="name" data-hero>
+      <canvas aria-hidden="true"></canvas>
+      <h1><span class="name" id="name"><span data-light>Alexander</span> <em data-light>Kholodov</em></span></h1>
       <p class="iam">{t.intro.iam}</p>
+      <p class="also">{t.intro.also}</p>
+      <a class="cue" href="#work"><span>{t.intro.cue}</span><i aria-hidden="true"></i></a>
     </section>
 
+    <p class="kicker work-kicker" data-reveal>{t.intro.work}</p>
     <section class="stage" id="work" aria-label={t.stage.label} data-stage>
       <div class="stage-index" role="tablist" aria-orientation="vertical" aria-label={t.stage.label}>
         {showcase.map((p, i) => (
@@ -129,6 +133,9 @@ const s2 = t.services;
     <script>
       import { startMotion } from '../scripts/motion';
       import { startStage } from '../scripts/stage';
+      import { startNameLight } from '../scripts/name-light';
+      const hero = document.querySelector<HTMLElement>('[data-hero]');
+      if (hero) startNameLight(hero);
       const stage = document.querySelector<HTMLElement>('[data-stage]');
       if (stage) startStage(stage);
       startMotion();
