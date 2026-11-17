@@ -186,7 +186,7 @@ test('every page works in light and dark at phone width without horizontal scrol
   }
 });
 
-const paper = { light: 'rgb(241, 245, 249)', dark: 'rgb(7, 20, 33)' };
+const paper = { light: 'rgb(243, 244, 247)', dark: 'rgb(7, 20, 33)' };
 for (const [system, chosen] of [['light', 'dark'], ['dark', 'light']]) {
   test(`a ${chosen} choice against a ${system} system survives Home, Links, reload and Spanish Links`, async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
@@ -195,7 +195,7 @@ for (const [system, chosen] of [['light', 'dark'], ['dark', 'light']]) {
     await expect(page.locator('html')).toHaveAttribute('data-theme', system);
     await page.locator('#theme').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', chosen);
-    await page.locator('nav a', { hasText: 'Links' }).click();
+    await page.locator('footer a', { hasText: 'Links' }).click();
     await expect(page).toHaveURL(/\/links\/$/);
     const check = async () => {
       await expect(page.locator('html')).toHaveAttribute('data-theme', chosen);

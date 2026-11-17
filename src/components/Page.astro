@@ -4,7 +4,7 @@ import LiveBanner from './LiveBanner.astro';
 import Mark from './Mark.astro';
 import { copy } from '../data/copy';
 import { isPending, links, profile, projects, services, socials } from '../data/content';
-import { galaxy, galaxyHref, href, labels, name, resolveHref, type Language, type Page } from '../data/site';
+import { galaxy, galaxyHref, href, labels, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; }
 const { lang, page } = Astro.props;
 const t = copy[lang];
@@ -51,6 +51,8 @@ const icons: Record<string, string> = {
   other: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',
 };
 const s2 = t.services;
+// One simple way in. Until client accounts exist, the start button opens a conversation on LinkedIn.
+const startHref = socials.items.find((x) => x.id === 'linkedin')?.href ?? href('projects', lang);
 ---
 <Layout lang={lang} page={page} title={title} description={description}>
   {page === 'home' && <>
@@ -217,111 +219,150 @@ const s2 = t.services;
   </>}
 
   {page === 'services' && <>
-    <section class="svc-top">
+    <section class="svc-hero" data-shapes>
+      <div class="shapes" aria-hidden="true"><i class="s1"></i><i class="s2"></i><i class="s3"></i><i class="s4"></i><i class="s5"></i></div>
       <p class="kicker">{s2.eyebrow}</p>
-      <h1>{s2.title}</h1>
-      <p class="lede">{s2.pick}</p>
-      <div class="paths" role="list">
-        {services.map((p) => <button type="button" class="path" data-path={p.id} aria-pressed="false" role="listitem"><svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg><span>{p.title[lang]}</span></button>)}
+      <h1>{s2.title[0]}<em>{s2.title[1]}</em></h1>
+      <p class="lede">{s2.lead}</p>
+      <p class="calls"><a class="btn-a big" href={startHref}>{s2.start}<span class="arrow" aria-hidden="true">→</span></a></p>
+    </section>
+
+    <section class="band" aria-labelledby="demos-title">
+      <h2 id="demos-title" data-reveal>{s2.gridTitle[0]}<em>{s2.gridTitle[1]}</em></h2>
+      <div class="demos">
+        <figure class="demo d-web" data-demo>
+          <div class="art" aria-hidden="true"><div class="browser"><p class="dots"><i></i><i></i><i></i></p><span class="hdr"></span><span class="pic"></span><span class="t1"></span><span class="t2"></span><span class="go"></span></div></div>
+          <figcaption>{s2.demos.web}</figcaption>
+        </figure>
+        <figure class="demo d-app" data-demo>
+          <div class="art" aria-hidden="true"><div class="phone"><div class="screens"><span class="sc a"></span><span class="sc b"></span><span class="sc c"></span></div></div></div>
+          <figcaption>{s2.demos.app}</figcaption>
+        </figure>
+        <figure class="demo d-bots" data-demo>
+          <div class="art" aria-hidden="true"><span class="gear">⚙</span>{[0, 1, 2, 3, 4].map((k) => <i style={`--k:${k}`}></i>)}</div>
+          <figcaption>{s2.demos.bots}</figcaption>
+        </figure>
+        <figure class="demo d-ai" data-demo>
+          <div class="art" aria-hidden="true"><p class="q">{s2.chat[0]}</p><p class="typing"><i></i><i></i><i></i></p><p class="a">{s2.chat[1]}</p></div>
+          <figcaption>{s2.demos.ai}</figcaption>
+        </figure>
+        <figure class="demo d-game" data-demo data-game>
+          <div class="art"><span class="sky" aria-hidden="true"></span><span class="hero-sq" aria-hidden="true"></span><span class="block" aria-hidden="true"></span><span class="ground" aria-hidden="true"></span><button type="button" class="try">{s2.tryIt}</button></div>
+          <figcaption>{s2.demos.game}</figcaption>
+        </figure>
+        <figure class="demo d-design" data-demo data-design>
+          <div class="art" aria-hidden="true"><div class="poster"><span class="sun"></span><span class="band1"></span><span class="band2"></span><b>Aa</b></div></div>
+          <figcaption>{s2.demos.design}</figcaption>
+        </figure>
+        <figure class="demo d-video" data-demo>
+          <div class="art" aria-hidden="true"><p class="rec">REC</p><div class="film">{[0, 1, 2, 3, 4, 5, 6, 7].map((k) => <span style={`--k:${k}`}></span>)}</div><div class="timeline"><span class="c1"></span><span class="c2"></span><span class="c3"></span><i class="head"></i></div></div>
+          <figcaption>{s2.demos.video}</figcaption>
+        </figure>
+        <figure class="demo d-model" data-demo data-model>
+          <div class="art" aria-hidden="true"><div class="cube">{['f', 'b', 'l', 'r', 't', 'd'].map((f) => <span class={'face ' + f}></span>)}</div></div>
+          <figcaption>{s2.demos.model}</figcaption>
+        </figure>
+        <figure class="demo d-learn" data-demo>
+          <div class="art" aria-hidden="true"><div class="deck"><span class="slide s1"><b></b><i></i><i></i></span><span class="slide s2"><b></b><i></i></span><span class="slide s3"><b></b><i></i><i></i></span></div></div>
+          <figcaption>{s2.demos.learn}</figcaption>
+        </figure>
       </div>
-      {services.map((p) => (
-        <div class="path-detail" data-detail={p.id} hidden>
-          <h2>{p.ask[lang]}</h2>
-          {p.offers.length > 0 && <>
-            <div class="who" role="group" aria-label={s2.who}>{s2.audience.map((a, i) => <button type="button" data-who={i} aria-pressed={i === 0 ? 'true' : 'false'}>{a}</button>)}</div>
-            <ul class="offers">{p.offers.map((o) => <li><span>{o.title[lang]}</span><b><small>{s2.from}</small> <span data-prices={JSON.stringify(o.price)}>{o.price[0]}</span></b></li>)}</ul>
-          </>}
-          <label class="describe"><span>{s2.describe}</span><textarea rows="4" placeholder={s2.placeholder} data-text={p.id}></textarea></label>
-          <button type="button" class="btn-a" data-next={p.id}>{s2.next}<span class="arrow" aria-hidden="true">→</span></button>
-          <div class="send" data-send={p.id} hidden>
-            <h3>{s2.sendTitle}</h3>
-            <p>{s2.sendLead}</p>
-            <pre data-out={p.id}></pre>
-            <p class="calls"><button type="button" class="btn-b" data-copy={p.id} data-done={s2.copied}>{s2.copy}</button>{linkedin && <a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{s2.write}</a>}</p>
+    </section>
+
+    <section class="band ideas bleed warm" aria-labelledby="ideas-title">
+      <h2 id="ideas-title" data-reveal>{s2.ideasTitle[0]}<em>{s2.ideasTitle[1]}</em></h2>
+      <div class="marquee" aria-label={s2.ideas.join(', ')}>
+        {[0, 1].map((row) => (
+          <div class={'track' + (row ? ' back' : '')} aria-hidden="true">
+            {[0, 1].map(() => <span class="run">{(row ? [...s2.ideas].reverse() : s2.ideas).map((e) => <span class="ev">{e}</span>)}</span>)}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </section>
-    <section class="band glow-l" aria-labelledby="how-title">
-      <h2 id="how-title">{s2.howTitle}</h2>
-      <ol class="how">{s2.how.map((step) => <li>{step}</li>)}</ol>
-      <p class="soft">{s2.big}</p>
-    </section>
-    <section class="band" aria-label={s2.guarantee.map((g) => g[0]).join(', ')}>
-      <div class="promises">{s2.guarantee.map(([a, b]) => <div><b>{a}</b><span>{b}</span></div>)}</div>
-    </section>
-    <section class="band glow-r" aria-labelledby="pay-title">
-      <h2 id="pay-title">{s2.payTitle}</h2>
-      <ul class="chips">{s2.pay.map((m) => <li>{m}</li>)}</ul>
-    </section>
-    <section class="band" aria-labelledby="faq-title">
-      <h2 id="faq-title">{s2.faqTitle}</h2>
-      <div class="faq">{s2.faq.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}</div>
+
+    <section class="band svc-end bleed ink deep" aria-labelledby="end-title">
+      <h2 id="end-title" data-reveal>{s2.endTitle[0]}<em>{s2.endTitle[1]}</em></h2>
+      <p class="lede" data-reveal>{s2.endLead}</p>
+      <p class="calls" data-reveal><a class="btn-a big" href={startHref}>{s2.start}<span class="arrow" aria-hidden="true">→</span></a></p>
     </section>
     <script>
-      // The path he picks reveals its question, its prices for the chosen audience and the request text.
-      const detail = (id: string) => document.querySelector<HTMLElement>(`[data-detail="${id}"]`);
-      const pick = (id: string | null) => {
-        document.querySelectorAll<HTMLButtonElement>('[data-path]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.path === id)));
-        document.querySelectorAll<HTMLElement>('[data-detail]').forEach((d) => { d.hidden = d.dataset.detail !== id; });
-        if (id) detail(id)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
-      };
-      document.addEventListener('click', (e) => {
-        const b = (e.target as HTMLElement).closest('button'); if (!b) return;
-        if (b.dataset.path) { const on = b.getAttribute('aria-pressed') === 'true'; pick(on ? null : b.dataset.path); history.replaceState(null, '', on ? location.pathname : '?path=' + b.dataset.path); }
-        else if (b.dataset.who) { const box = b.closest('[data-detail]')!; box.querySelectorAll('[data-who]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); box.querySelectorAll<HTMLElement>('[data-prices]').forEach((p) => { p.textContent = JSON.parse(p.dataset.prices!)[Number(b.dataset.who)]; }); }
-        else if (b.dataset.next) { const id = b.dataset.next; const box = detail(id)!; const who = box.querySelector('[data-who][aria-pressed="true"]')?.textContent ?? '';
-          const title = document.querySelector(`[data-path="${id}"] span`)?.textContent ?? id; const text = (box.querySelector('textarea') as HTMLTextAreaElement).value.trim();
-          box.querySelector<HTMLElement>('[data-out]')!.textContent = [title + (who ? ' · ' + who : ''), text].filter(Boolean).join('\n\n');
-          const send = box.querySelector<HTMLElement>('[data-send]')!; send.hidden = false; send.scrollIntoView({ block: 'nearest' }); }
-        else if (b.dataset.copy) { const out = detail(b.dataset.copy)!.querySelector('[data-out]')!.textContent ?? ''; navigator.clipboard?.writeText(out).then(() => { const old = b.textContent; b.textContent = b.dataset.done || '✓'; setTimeout(() => { b.textContent = old; }, 1600); }).catch(() => {}); }
-      });
-      const start = new URLSearchParams(location.search).get('path'); if (start && detail(start)) pick(start);
+      import { startMotion } from '../scripts/motion';
+      import { startDemos } from '../scripts/demos';
+      startMotion(); startDemos();
     </script>
   </>}
 
   {page === 'projects' && <>
-    <div class="eyebrow">{t.projects.eyebrow}</div>
-    <h1>{labels[lang].projects}</h1>
-    <ol class="ledger">
-      {projects.items.map((project, index) => (
-        <li class="entry project">
-          <span class="figure number">{pad(index + 1)}</span>
-          <div class="body">
-            <h2>{project.href ? <a class="tap" href={entryHref(project)}>{project.title[lang]}</a> : <span class="tap">{project.title[lang]}</span>}</h2>
-            <p class="meta">
-              {[
-                project.context[lang],
-                !isPending(project.dates) ? project.dates[lang] : null,
-              ].filter(Boolean).join(' · ')}
-            </p>
-            <p>{project.pitch[lang]}</p>
-            {!isPending(project.stack) && project.stack && project.stack.length > 0 && (
-              <p class="meta">{project.stack.join(', ')}</p>
-            )}
-            {(project.href || project.source) && (
-              <p class="actions">
-                {project.href && <a class="tap" href={resolveHref(project.href, lang)}>{t.projects.open} <Mark external={project.id !== galaxy.id && project.href.startsWith('http')} /></a>}
-                {project.source && <a class="tap" href={project.source.href}>{project.source.label ? project.source.label[lang] : t.projects.source} <Mark external /></a>}
-              </p>
-            )}
-          </div>
-        </li>
-      ))}
+    <section class="page-hero">
+      <p class="kicker">{t.projects.eyebrow}</p>
+      <h1>{t.projects.title[0]}<em>{t.projects.title[1]}</em></h1>
+      <div class="filters" role="group" aria-label={t.projects.eyebrow} data-filters hidden>
+        {[['all', t.projects.all], ...fields.map((f, k) => [String(k), f.name]), ['other', t.projects.other]].map(([id, label], k) => <button type="button" data-filter={id} aria-pressed={k === 0 ? 'true' : 'false'}>{label}</button>)}
+      </div>
+    </section>
+    <ol class="pgrid" data-grid>
+      {projects.items.map((project, index) => {
+        const field = fields.findIndex((f) => f.ids.includes(project.id));
+        const go = entryHref(project);
+        return (
+          <li class="pcard" data-field={field < 0 ? 'other' : String(field)} data-reveal data-glow style={`--i:${index % 3}`}>
+            <div class={'cover f' + (field < 0 ? 'o' : field)}>
+              {!isPending(project.image) ? <img src={project.image.src} alt={project.image.alt[lang]} width="640" height="400" loading="lazy" decoding="async" /> : <span class="glyph" aria-hidden="true">{pad(index + 1)}</span>}
+            </div>
+            <div class="pbody">
+              <p class="kicker">{project.context[lang]}{!isPending(project.dates) && ' · ' + project.dates[lang]}</p>
+              <h2>{go ? <a href={go}>{project.title[lang]}</a> : project.title[lang]}</h2>
+              <p class="pitch">{project.pitch[lang]}</p>
+              {!isPending(project.stack) && project.stack.length > 0 && <ul class="stack-chips">{project.stack.map((s) => <li>{s}</li>)}</ul>}
+              {(project.href || project.source) && (
+                <p class="actions">
+                  {project.href && <a class="tap" href={resolveHref(project.href, lang)}>{t.projects.open} <Mark external={project.id !== galaxy.id && project.href.startsWith('http')} /></a>}
+                  {project.source && <a class="tap" href={project.source.href}>{t.projects.source} <Mark external /></a>}
+                </p>
+              )}
+            </div>
+          </li>
+        );
+      })}
     </ol>
+    <script>
+      import { startMotion } from '../scripts/motion';
+      startMotion();
+      const bar = document.querySelector<HTMLElement>('[data-filters]');
+      if (bar) {
+        bar.hidden = false;
+        bar.addEventListener('click', (e) => {
+          const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]'); if (!b) return;
+          bar.querySelectorAll('[data-filter]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          document.querySelectorAll<HTMLElement>('[data-grid] > li').forEach((li) => { li.hidden = b.dataset.filter !== 'all' && li.dataset.field !== b.dataset.filter; });
+        });
+      }
+    </script>
   </>}
 
   {page === 'about' && <>
-    <div class="eyebrow">{t.about.eyebrow}</div>
-    <h1>{name}</h1>
-    {role && <p class="role">{role}</p>}
-    {bio && bio.map((paragraph) => <p>{paragraph}</p>)}
-    <ul class="ledger">
-      {cv && <li><a class="entry slim" href={cv.href}><span class="title">{cv.label[lang]}</span><span class="arrow"><Mark external /></span></a></li>}
-      {socials.items.map((social) => <li><a class="entry slim" href={social.href}><span class="title">{social.label}</span><span class="meta">{social.handle}</span><span class="arrow"><Mark external /></span></a></li>)}
-      <li><a class="entry slim" href={href('projects', lang)}><span class="title">{labels[lang].projects}</span><span class="arrow"><Mark /></span></a></li>
-      <li><a class="entry slim" href={href('links', lang)}><span class="title">{labels[lang].links}</span><span class="arrow"><Mark /></span></a></li>
-    </ul>
+    <section class="page-hero about-hero">
+      <div class="shapes" aria-hidden="true"><i class="s1"></i><i class="s2"></i><i class="s3"></i></div>
+      <p class="kicker">{t.about.eyebrow}</p>
+      <h1>Alexander <em>Kholodov</em></h1>
+      {role && <p class="lede">{role}</p>}
+    </section>
+    {bio && <section class="band bio" aria-label={t.about.eyebrow}>
+      <p class="first" data-reveal>{bio[1]}</p>
+      <div class="cols">{bio.slice(2).map((paragraph, k) => <p data-reveal style={`--i:${k % 2}`}>{paragraph}</p>)}</div>
+    </section>}
+    <section class="band find bleed tint" aria-labelledby="find-title">
+      <h2 id="find-title" data-reveal>{t.about.find}</h2>
+      <ul class="socials">
+        {cv && <li><a class="soc s-cv" href={cv.href} data-glow><b>{cv.label[lang]}</b><Mark external /></a></li>}
+        {socials.items.map((social, k) => <li data-reveal style={`--i:${k}`}><a class={'soc s-' + social.id} href={social.href} data-glow><b>{social.label}</b><span>{social.handle}</span></a></li>)}
+      </ul>
+      <p class="calls" data-reveal><a class="btn-b" href={href('projects', lang)}>{labels[lang].projects}</a><a class="btn-b" href={href('links', lang)}>{labels[lang].links}</a></p>
+    </section>
+    <script>
+      import { startMotion } from '../scripts/motion';
+      startMotion();
+    </script>
   </>}
 
   {page === 'links' && <>
@@ -339,15 +380,18 @@ const s2 = t.services;
   </>}
 
   {page === 'galaxy' && <>
-    <div class="eyebrow">{t.galaxy.eyebrow}</div>
-    <h1>{galaxy.title[lang]}</h1>
-    <div class="galaxy-entry">
-      {image ? <img src={image.src} alt={image.alt[lang]} width="960" height="540" /> : <div class="orbit" aria-hidden="true"><i></i><b></b></div>}
-      <p>{galaxy.pitch[lang]}</p>
-      <a class="entry-link" href={galaxyHref(lang)}>{t.galaxy.open} <Mark /></a>
+    <section class="band galaxy-page bleed ink">
+      <p class="kicker">{t.galaxy.eyebrow}</p>
+      <h1>{galaxy.title[lang]}</h1>
+      <div class="galaxy-grid">
+        <div>
+          <p class="lede">{galaxy.pitch[lang]}</p>
+          <p class="calls"><a class="btn-a" href={galaxyHref(lang)}>{t.galaxy.open}<span class="arrow" aria-hidden="true">↗</span></a>{galaxy.source && <a class="btn-b" href={galaxy.source.href}>{galaxy.source.label[lang]}</a>}</p>
+        </div>
+        {image ? <img class="shot-big" src={image.src} alt={image.alt[lang]} width="1280" height="800" /> : <div class="orbit" aria-hidden="true"><i></i><b></b></div>}
+      </div>
       <h2 class="label">{t.galaxy.facts}</h2>
-      <dl class="record">{record.map(([term, value]) => <><dt>{term}</dt><dd>{value}</dd></>)}</dl>
-      {galaxy.source && <p class="actions"><a class="tap" href={galaxy.source.href}>{galaxy.source.label[lang]} <Mark external /></a></p>}
-    </div>
+      <dl class="record">{record.map(([term, value]) => <div><dt>{term}</dt><dd>{value}</dd></div>)}</dl>
+    </section>
   </>}
 </Layout>

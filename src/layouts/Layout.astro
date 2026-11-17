@@ -1,6 +1,6 @@
 ---
 import { copy } from '../data/copy';
-import { href, labels, name, origin, pages, type Language, type Page } from '../data/site';
+import { href, labels, name, navPages, origin, type Language, type Page } from '../data/site';
 import '../styles/site.css';
 interface Props { lang: Language; page?: Page; title: string; description?: string; }
 const { lang, page, title, description } = Astro.props;
@@ -45,7 +45,7 @@ const own = page ? href(page, lang) : undefined;
       </div>
     </header>
     <nav aria-label={t.nav}>
-      {pages.map((item) => <a href={href(item, lang)} aria-current={page === item ? 'page' : undefined}>{labels[lang][item]}</a>)}
+      {navPages.map((item) => <a href={href(item, lang)} aria-current={page === item || (page === 'galaxy' && item === 'projects') ? 'page' : undefined}>{labels[lang][item]}</a>)}
     </nav>
     <main id="main" tabindex="-1"><slot /></main>
     <footer><span>{name}</span><a class="tap" href={href('links', lang)}>{t.footerLinks} →</a></footer>

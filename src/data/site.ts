@@ -3,6 +3,9 @@ import { links, socials, profile, projects, isPending } from './content';
 export type Language = 'en' | 'es';
 export type Page = 'home' | 'projects' | 'services' | 'about' | 'links' | 'galaxy';
 export const pages: Page[] = ['home', 'projects', 'services', 'about', 'links', 'galaxy'];
+// The top navigation holds only what a visitor needs (his note of 2026-11-17): Links and the galaxy's entry stay as
+// pages, reached from the footer and from Projects.
+export const navPages: Page[] = ['home', 'projects', 'services', 'about'];
 export const paths: Record<Page, string> = {
   home: '', projects: 'projects/', services: 'services/', about: 'about/', links: 'links/', galaxy: 'projects/galaxy/',
 };
