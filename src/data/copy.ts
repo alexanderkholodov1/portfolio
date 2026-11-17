@@ -5,7 +5,7 @@ export const copy = {
   en: {
     skip: 'Skip to content', nav: 'Main navigation', theme: 'Dark theme', brand: 'Portfolio', language: 'Read this page in Spanish',
     home: {
-      title: 'Portfolio', description: 'Alexander Kholodov’s portfolio. Collective Galaxy is a live galaxy built by the visitors of Be a Dragon 2026 at USFQ.',
+      title: 'Portfolio', description: 'Alexander Kholodov builds games, scientific platforms, AI tools and websites in Quito. Projects you can try now, his experience and services.',
       eyebrow: 'Portfolio', featured: 'Featured', index: 'Index',
     },
     projects: {
@@ -72,7 +72,7 @@ export const copy = {
       items: ['Research and science', 'Games and interactive worlds', 'Artificial intelligence', 'Hackathon teams', 'Talks and conferences', 'Workshops', 'Sponsorships', 'Project advice'],
       write: 'Let’s talk',
     },
-    serviceTeaser: { kicker: 'Services', title: ['Services ', 'tailored to you'], lead: 'Design and development of websites, apps, games, visual content and 3D models, shaped around what your project needs.', see: 'Learn more', cta: 'Explore services' },
+    serviceTeaser: { kicker: 'Services', title: ['Services ', 'tailored to you'], lead: 'Design and development of websites, apps, games, visual content and 3D models, shaped around what your project needs.', see: 'See it in action', cta: 'Explore services', start: 'Start my project', lines: { software: 'Scripts, automations and bots that take repetitive work off your hands.', web: 'From a one-page site to a complete web or mobile app.', design: 'Posters, logos, certificates and presentations with a clear identity.', video: 'Reels and longer videos, edited and ready to publish.', '3d': '3D models of your product or idea, ready to show or print.', other: 'Something else in mind? Tell me and we shape it together.' } },
     contact: { title: ['Let’s ', 'talk'], lead: 'For projects, talks, sponsorships or any question, you can reach me on LinkedIn.', project: 'Explore services', other: 'Everything else' },
     services: {
       eyebrow: 'Services', description: 'Websites, apps, games, automation, AI agents, design, video and 3D models by Alexander Kholodov.',
@@ -129,7 +129,7 @@ export const copy = {
   es: {
     skip: 'Saltar al contenido', nav: 'Navegación principal', theme: 'Tema oscuro', brand: 'Portafolio', language: 'Leer esta página en inglés',
     home: {
-      title: 'Portafolio', description: 'Portafolio de Alexander Kholodov. Galaxia Colectiva es una galaxia en vivo construida por los visitantes de Be a Dragon 2026 en la USFQ.',
+      title: 'Portafolio', description: 'Alexander Kholodov crea videojuegos, plataformas científicas, herramientas de IA y sitios web en Quito. Proyectos para probar ahora, su experiencia y servicios.',
       eyebrow: 'Portafolio', featured: 'Destacado', index: 'Índice',
     },
     projects: {
@@ -196,7 +196,7 @@ export const copy = {
       items: ['Investigación y ciencia', 'Videojuegos y mundos interactivos', 'Inteligencia artificial', 'Equipos para hackatones', 'Charlas y conferencias', 'Talleres', 'Patrocinios', 'Asesoría de proyectos'],
       write: 'Conversemos',
     },
-    serviceTeaser: { kicker: 'Servicios', title: ['Servicios ', 'a la medida'], lead: 'Diseño y desarrollo de páginas web, aplicaciones, videojuegos, contenido visual y modelos 3D, adaptados a lo que tu proyecto necesita.', see: 'Más información', cta: 'Explorar servicios' },
+    serviceTeaser: { kicker: 'Servicios', title: ['Servicios ', 'a la medida'], lead: 'Diseño y desarrollo de páginas web, aplicaciones, videojuegos, contenido visual y modelos 3D, adaptados a lo que tu proyecto necesita.', see: 'Verlo en acción', cta: 'Explorar servicios', start: 'Comenzar mi proyecto', lines: { software: 'Scripts, automatizaciones y bots que hacen el trabajo repetitivo por ti.', web: 'Desde una página sencilla hasta una aplicación web o móvil completa.', design: 'Pósters, logos, certificados y presentaciones con una identidad clara.', video: 'Reels y videos largos, editados y listos para publicar.', '3d': 'Modelos 3D de tu producto o idea, listos para mostrar o imprimir.', other: '¿Tienes otra idea? Cuéntamela y le damos forma juntos.' } },
     contact: { title: ['', 'Hablemos'], lead: 'Para proyectos, charlas, patrocinios o cualquier consulta, puedes escribirme por LinkedIn.', project: 'Explorar servicios', other: 'Todo lo demás' },
     services: {
       eyebrow: 'Servicios', description: 'Páginas web, aplicaciones, videojuegos, automatizaciones, agentes de IA, diseño, video y modelos 3D, por Alexander Kholodov.',

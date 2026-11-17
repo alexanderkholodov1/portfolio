@@ -183,7 +183,7 @@ export const projects: List<Project> = {
       role: { en: 'Level design, mechanics implementation, narrative, and team coordination', es: 'Construcción de niveles, implementación de mecánicas y narrativa, y organización del equipo' },
       stack: ['Godot Engine'],
       dates: { en: 'Apr 2026', es: 'Abr 2026' },
-      image: { src: '/projects/sublime-airlift.webp', alt: { en: 'Sublime Airlift main menu in pixel art: Play, Credits, Settings and Exit over a dark purple world.', es: 'Menú principal de Sublime Airlift en pixel art: Jugar, Créditos, Ajustes y Salir sobre un mundo morado y oscuro.' } },
+      image: { src: '/projects/sublime-airlift.webp', alt: { en: 'Sublime Airlift in pixel art: the hero crosses a dark forest of twisted trees and creatures.', es: 'Sublime Airlift en pixel art: el protagonista cruza un bosque oscuro de árboles retorcidos y criaturas.' } },
     },
     {
       id: 'dragon-ocean-analyzer',
@@ -286,7 +286,7 @@ export const achievements: Project[] = [
     role: { en: 'Instructor', es: 'Instructor' },
     stack: ['Git', 'GitHub', 'GitHub Desktop', 'GitHub Copilot'],
     dates: { en: 'Mar 2026', es: 'Mar 2026' },
-    image: { src: '/projects/github-desde-cero.webp', alt: { en: 'A GitHub Desde Cero session in a USFQ classroom.', es: 'Una sesión de GitHub Desde Cero en un aula de la USFQ.' } },
+    image: { src: '/projects/github-desde-cero.webp', alt: { en: 'A GitHub Desde Cero class at USFQ: a presenter explains pull requests beside the IEEE Computer Society banner.', es: 'Una clase de GitHub Desde Cero en la USFQ: una ponente explica los pull requests junto al banner de IEEE Computer Society.' } },
   },
     {
     id: 'slb-computer-repowering',

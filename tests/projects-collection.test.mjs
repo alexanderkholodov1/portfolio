@@ -28,7 +28,8 @@ for (const [lang, prefix, first, second, open] of [
   test(`Projects renders the whole collection in order, each project with its own link (${lang})`, async () => {
     const found = rows(await page(`${prefix}projects`));
     assert.equal(found.length, 2);
-    assert.match(found[0], new RegExp(`<h2><a [^>]*href="https://example.org/lantern/"[^>]*>${first}</a></h2>`));
+    // Each title opens the project's own page; the action button goes to the live project.
+    assert.match(found[0], new RegExp(`<h2><a [^>]*href="/${prefix}projects/lantern/"[^>]*>${first}</a></h2>`));
     assert.match(found[0], new RegExp(`href="https://example.org/lantern/"[^>]*>${open} `));
     assert.ok(!found[0].includes('little-galaxy') && !found[0].includes('/galaxy/'));
     assert.match(found[1], new RegExp(`<h2><a [^>]*href="/${prefix}projects/galaxy/"[^>]*>${second}</a></h2>`));
@@ -38,9 +39,10 @@ for (const [lang, prefix, first, second, open] of [
 
   test(`Home and the galaxy entry pick the galaxy by id, not by position (${lang})`, async () => {
     const home = await page(prefix.replace(/\/$/, ''));
-    // The home's stage shows the galaxy by its id, with its own entry page, wherever it sits in the list.
-    const panel = home.split('id="panel-galaxy"')[1]?.split('</article>')[0];
-    assert.ok(panel, 'galaxy panel on the home stage');
+    // The home's showcase has a spotlight slide for the galaxy, found by its id, linking to its own entry page.
+    const slides = home.split('class="spot-bar"')[0].split('class="spot-slide"').slice(1);
+    const panel = slides.find((slide) => slide.includes(`<h3>${second}</h3>`));
+    assert.ok(panel, 'galaxy slide in the home showcase');
     assert.ok(panel.includes(second) && !panel.includes(first));
     assert.match(panel, new RegExp(`href="/${prefix}projects/galaxy/"`));
     const entry = await page(`${prefix}projects/galaxy`);

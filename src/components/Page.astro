@@ -76,6 +76,8 @@ const MS_LOGO = `<svg class="ms" viewBox="0 0 23 23" aria-hidden="true"><path fi
 const GH_LOGO = `<svg class="gh" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>`;
 // One simple way in: the button opens account creation and the questionnaire.
 const startHref = href('start', lang);
+// Each service on the home opens its own live demo on the Services page; 'other' goes straight to the start flow.
+const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: 'design', video: 'video', '3d': 'model' };
 ---
 <Layout lang={lang} page={page} title={title} description={description}>
   {page === 'home' && <>
@@ -92,7 +94,7 @@ const startHref = href('start', lang);
       <h2 id="work-title" data-reveal>{t.showcase.title[0]}<em>{t.showcase.title[1]}</em></h2>
       <p class="lede" data-reveal>{t.showcase.lead}</p>
       <div class="sc-grid">
-        <article class="spot" aria-live="polite" data-spot>
+        <article class="spot" aria-live="off" data-spot>
           {shown.map((x, k) => (
             <div class="spot-slide" data-slide={k} hidden={k !== 0}>
               <span class="spot-shot">{x.image && <img src={x.image} alt="" width="1280" height="800" loading={k === 0 ? 'eager' : 'lazy'} decoding="async" />}</span>
@@ -117,7 +119,7 @@ const startHref = href('start', lang);
               <span class="pick-text">{x.action !== 'code' && <i class="dot" aria-hidden="true"></i>}<b>{x.title}</b></span>
             </button></li>
           ))}
-          <li><a class="pick more" href={href('experience', lang)}><b>+{moreCount}</b><span>{t.showcase.more[0]}</span><small>{t.showcase.more[1]} →</small></a></li>
+          <li class="more-cell"><a class="pick more" href={href('experience', lang)}><b>+{moreCount}</b><span>{t.showcase.more[0]}</span><small>{t.showcase.more[1]} →</small></a></li>
         </ul>
       </div>
     </section>
@@ -214,23 +216,15 @@ const startHref = href('start', lang);
       <p class="lede" data-reveal>{t.serviceTeaser.lead}</p>
       <div class="offer-grid">
         {services.filter((p) => p.id !== 'learn').map((p, k) => (
-          <a class="offer-card" data-reveal data-glow style={`--i:${k}`} href={href('services', lang) + '?path=' + p.id}>
+          <a class="offer-card" data-reveal data-glow style={`--i:${k}`} href={demoOf[p.id] ? href('services', lang) + '#demo-' + demoOf[p.id] : startHref}>
             <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[p.id]}></svg>
             <b>{p.title[lang]}</b>
-            <span>{p.offers.length ? p.offers.map((o) => o.title[lang]).join(' · ') : p.ask[lang]}</span>
-            <span class="see">{t.serviceTeaser.see} <span aria-hidden="true">→</span></span>
+            <span>{t.serviceTeaser.lines[p.id as keyof typeof t.serviceTeaser.lines]}</span>
+            <span class="see">{demoOf[p.id] ? t.serviceTeaser.see : t.serviceTeaser.start} <span aria-hidden="true">→</span></span>
           </a>
         ))}
       </div>
-      <p class="calls" data-reveal><a class="btn-a" href={href('services', lang)}>{t.serviceTeaser.cta}<span class="arrow" aria-hidden="true">→</span></a></p>
-    </section>
-
-    <section class="band contact glow-r" aria-labelledby="contact-title">
-      <h2 id="contact-title" data-reveal>{t.contact.title[0]}<em>{t.contact.title[1]}</em></h2>
-      <p class="lede" data-reveal>{t.contact.lead}</p>
-      <p class="calls" data-reveal>
-        {linkedin && <a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.invite.write} · LinkedIn</a>}
-      </p>
+      <p class="calls" data-reveal><a class="btn-a big" href={startHref}>{t.serviceTeaser.start}<span class="arrow" aria-hidden="true">→</span></a><a class="btn-b" href={href('services', lang)}>{t.serviceTeaser.cta}</a></p>
     </section>
     <script>
       import { startMotion } from '../scripts/motion';
@@ -274,7 +268,7 @@ const startHref = href('start', lang);
     <section class="band" aria-labelledby="demos-title">
       <h2 id="demos-title" data-reveal>{s2.gridTitle[0]}<em>{s2.gridTitle[1]}</em></h2>
       <div class="demos">
-        <figure data-glow class="demo d-web" data-demo>
+        <figure data-glow class="demo d-web" id="demo-web" data-demo>
           <div class="art" aria-hidden="true">
             <div class="browser">
               <p class="chrome"><i></i><i></i><i></i><span class="url">{s2.web.url}</span></p>
@@ -288,7 +282,7 @@ const startHref = href('start', lang);
           </div>
           <figcaption>{s2.demos.web}</figcaption>
         </figure>
-        <figure data-glow class="demo d-app" data-demo>
+        <figure data-glow class="demo d-app" id="demo-app" data-demo>
           <div class="art" aria-hidden="true">
             <div class="phone"><div class="scr">
               <p class="toast">{s2.app.toast}</p>
@@ -299,7 +293,7 @@ const startHref = href('start', lang);
           </div>
           <figcaption>{s2.demos.app}</figcaption>
         </figure>
-        <figure data-glow class="demo d-bots" data-demo>
+        <figure data-glow class="demo d-bots" id="demo-bots" data-demo>
           <div class="art" aria-hidden="true">
             <div class="col in"><p>{s2.bots.inbox}</p>{[0, 1, 2, 3].map((k) => <i style={`--k:${k}`}></i>)}</div>
             <span class="bot"><b></b></span>
@@ -307,7 +301,7 @@ const startHref = href('start', lang);
           </div>
           <figcaption>{s2.demos.bots}</figcaption>
         </figure>
-        <figure data-glow class="demo d-ai" data-demo>
+        <figure data-glow class="demo d-ai" id="demo-ai" data-demo>
           <div class="art" aria-hidden="true">
             <p class="who"><span class="av"></span>{s2.chat.name}<i class="on"></i></p>
             <p class="q">{s2.chat.q}</p>
@@ -316,7 +310,7 @@ const startHref = href('start', lang);
           </div>
           <figcaption>{s2.demos.ai}</figcaption>
         </figure>
-        <figure data-glow class="demo d-game" data-demo data-game>
+        <figure data-glow class="demo d-game" id="demo-game" data-demo data-game>
           <div class="art">
             <span class="sun" aria-hidden="true"></span><span class="hills" aria-hidden="true"></span><span class="hills b" aria-hidden="true"></span>
             <span class="ground" aria-hidden="true"></span><span class="hero-sq" aria-hidden="true"><i></i></span><span class="block" aria-hidden="true"></span><span class="coin" aria-hidden="true"></span>
@@ -325,7 +319,7 @@ const startHref = href('start', lang);
           </div>
           <figcaption>{s2.demos.game}</figcaption>
         </figure>
-        <figure data-glow class="demo d-design" data-demo data-design>
+        <figure data-glow class="demo d-design" id="demo-design" data-demo data-design>
           <div class="art" aria-hidden="true">
             <p class="tools"><i></i><i></i><i></i><i></i></p>
             <div class="canvas"><div class="poster"><span class="sun"></span><span class="band1"></span><span class="band2"></span><b>Aa</b></div><span class="sel"></span></div>
@@ -333,14 +327,14 @@ const startHref = href('start', lang);
           </div>
           <figcaption>{s2.demos.design}</figcaption>
         </figure>
-        <figure data-glow class="demo d-video" data-demo>
+        <figure data-glow class="demo d-video" id="demo-video" data-demo>
           <div class="art" aria-hidden="true">
             <div class="viewer"><span class="scene"><i class="sun"></i><i class="hill"></i></span><p class="rec">REC</p><p class="tc">00:00:<b>12</b></p></div>
             <div class="tracks"><p class="trk v"><span class="c1"></span><span class="c2"></span><span class="c3"></span></p><p class="trk a">{Array.from({ length: 36 }, (_, k) => <i style={`--h:${20 + ((k * 37) % 70)}%`}></i>)}</p><i class="head"></i></div>
           </div>
           <figcaption>{s2.demos.video}</figcaption>
         </figure>
-        <figure data-glow class="demo d-model" data-demo data-model>
+        <figure data-glow class="demo d-model" id="demo-model" data-demo data-model>
           <div class="art" aria-hidden="true">
             <span class="floor"></span>
             <div class="cube">{['f', 'b', 'l', 'r', 't', 'd'].map((f) => <span class={'face ' + f}></span>)}</div>
@@ -465,7 +459,7 @@ const startHref = href('start', lang);
         {cv && <li><a class="soc s-cv" href={cv.href} data-glow><b>{cv.label[lang]}</b><Mark external /></a></li>}
         {socials.items.map((social, k) => <li data-reveal style={`--i:${k}`}><a class={'soc s-' + social.id} href={social.href} data-glow><b>{social.label}</b><span>{social.handle}</span></a></li>)}
       </ul>
-      <p class="calls" data-reveal><a class="btn-b" href={href('projects', lang)}>{labels[lang].projects}</a><a class="btn-b" href={href('links', lang)}>{labels[lang].links}</a></p>
+      <p class="calls" data-reveal><a class="btn-b" href={href('projects', lang)}>{labels[lang].projects}</a></p>
     </section>
     <script>
       import { startMotion } from '../scripts/motion';
@@ -571,7 +565,7 @@ const startHref = href('start', lang);
               <span><b>{a.title[lang]}</b><small>{a.date[lang]}</small></span>
             </li>
           ) : (
-            <li class={'xc' + (i === 0 && g.items.length > 2 ? ' lead' : '')} data-reveal data-glow style={`--i:${i % 3}`}>
+            <li class={'xc' + (i < (g.items.length === 1 ? 1 : (3 - g.items.length % 3) % 3) ? ' lead' : '') + (g.items.length === 1 ? ' only' : '')} data-reveal data-glow style={`--i:${i % 3}`}>
               <span class="xc-shot"><img src={a.image} alt="" width="960" height="600" loading="lazy" decoding="async" />
                 {(a.result || a.solo) && <span class={'xc-flag' + (a.solo ? ' solo' : '')}>{a.result ? a.result[lang] : '★ ' + t.experiencePage.solo}</span>}
               </span>
@@ -594,6 +588,10 @@ const startHref = href('start', lang);
       import { startMotion } from '../scripts/motion';
       startMotion();
       const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-exp-tabs] [data-kind]')];
+      // On a phone the tab bar scrolls sideways; its right edge fades until the last tab is in view.
+      const bar = document.querySelector<HTMLElement>('[data-exp-tabs]');
+      const edge = () => bar?.classList.toggle('at-end', bar.scrollLeft + bar.clientWidth >= bar.scrollWidth - 4);
+      bar?.addEventListener('scroll', edge, { passive: true }); addEventListener('resize', edge); edge();
       tabs.forEach((b) => b.addEventListener('click', () => {
         tabs.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
         document.querySelectorAll<HTMLElement>('[data-group]').forEach((g) => { g.hidden = b.dataset.kind !== 'all' && g.dataset.group !== b.dataset.kind; g.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('seen')); });

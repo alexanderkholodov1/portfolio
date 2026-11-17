@@ -10,7 +10,10 @@ export function startShowcase(root: HTMLElement) {
   const DWELL = 6500;
   let current = 0, timer = 0, paused = false, seen = true;
 
-  const show = (i: number) => {
+  const spot = root.querySelector<HTMLElement>('[data-spot]');
+  // Screen readers hear the spotlight only when the visitor picks a project, never on the automatic turns.
+  const show = (i: number, picked = false) => {
+    if (spot) spot.setAttribute('aria-live', picked ? 'polite' : 'off');
     if (i === current) return;
     slides[current].classList.remove('in'); slides[current].hidden = true;
     current = i; slides[i].hidden = false; void slides[i].offsetWidth; slides[i].classList.add('in');
@@ -25,9 +28,9 @@ export function startShowcase(root: HTMLElement) {
   root.style.setProperty('--dwell', `${DWELL}ms`);
   slides[0].classList.add('in');
   picks.forEach((p, k) => {
-    p.addEventListener('click', () => show(k));
-    p.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') show(k); });
-    p.addEventListener('focus', () => show(k));
+    p.addEventListener('click', () => show(k, true));
+    p.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') show(k, true); });
+    p.addEventListener('focus', () => show(k, true));
   });
   const area = root.querySelector('.sc-grid')!;
   area.addEventListener('pointerenter', () => { paused = true; restart(); });

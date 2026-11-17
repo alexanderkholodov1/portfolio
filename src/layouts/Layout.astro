@@ -17,6 +17,13 @@ const own = page ? href(page, lang) : undefined;
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#f3f4f7" />
     {description && <meta name="description" content={description} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${title} · ${name}`} />
+    {description && <meta property="og:description" content={description} />}
+    {own && <meta property="og:url" content={origin + own} />}
+    <meta property="og:image" content={`${origin}/og.jpg`} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_EC' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>{title} · {name}</title>
     {own && <link rel="canonical" href={origin + own} />}
     {own && <link rel="alternate" hreflang={lang} href={origin + own} />}
@@ -30,7 +37,7 @@ const own = page ? href(page, lang) : undefined;
       (()=>{const d=document.documentElement,m=matchMedia('(prefers-color-scheme: dark)'),q=(x)=>document.querySelector(x);let s;try{s=localStorage.getItem('portfolio.theme')}catch{}
       const a=(k)=>{d.dataset.theme=k?'dark':'light';q('meta[name=theme-color]').content=k?'#071421':'#f3f4f7';const b=q('#theme');b&&b.setAttribute('aria-pressed',k)};
       a(s=='dark'||s!='light'&&m.matches);d.dataset.js='';
-      addEventListener('DOMContentLoaded',()=>a(d.dataset.theme=='dark'));
+      addEventListener('DOMContentLoaded',()=>{a(d.dataset.theme=='dark');const n=q('body>nav'),c=q('body>nav [aria-current]');if(n&&c&&n.scrollWidth>n.clientWidth)n.scrollLeft=c.offsetLeft-(n.clientWidth-c.offsetWidth)/2});
       addEventListener('click',(e)=>{if(e.target.closest('#theme')){const k=d.dataset.theme!='dark';s=k?'dark':'light';a(k);try{localStorage.setItem('portfolio.theme',s)}catch{}}});
       m.onchange=(e)=>{s||a(e.matches)}})()
     </script>
@@ -41,7 +48,7 @@ const own = page ? href(page, lang) : undefined;
       <a class="signature" href={href('home', lang)}>{name}<span>{t.brand}</span></a>
       <div class="preferences">
         <a class="tap" href={counterpart} lang={other} hreflang={other} aria-label={t.language}>{other === 'es' ? 'Español' : 'English'}</a>
-        <button id="theme" aria-pressed="false">{t.theme}</button>
+        <button id="theme" aria-pressed="false"><span class="t-label">{t.theme}</span></button>
       </div>
     </header>
     <nav aria-label={t.nav}>
