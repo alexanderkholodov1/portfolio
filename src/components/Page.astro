@@ -56,7 +56,7 @@ const s2 = t.services;
   {page === 'home' && <>
     <section class="hero" aria-labelledby="name" data-hero>
       <canvas aria-hidden="true"></canvas>
-      <h1><span class="name" id="name"><span data-light>Alexander</span> <em data-light>Kholodov</em></span></h1>
+      <h1><span class="name" id="name"><span class="sr">Alexander Kholodov</span><span class="l1" aria-hidden="true">{[...'Alexander'].map((c, i) => <span class="ch" style={`--c:${i}`}>{c}</span>)}</span> <em aria-hidden="true">{[...'Kholodov'].map((c, i) => <span class="ch" style={`--c:${i + 9}`}>{c}</span>)}</em></span></h1>
       <p class="iam">{t.intro.iam}</p>
       <p class="also">{t.intro.also}</p>
       <a class="cue" href="#work"><span>{t.intro.cue}</span><i aria-hidden="true"></i></a>
@@ -96,23 +96,25 @@ const s2 = t.services;
 
     <p class="all-work" data-reveal><a class="btn-b" href={href('projects', lang)}>{t.stage.all}</a></p>
 
-    <section class="band view glow-l" aria-labelledby="view-title">
+    <section class="band view bleed tint" aria-labelledby="view-title">
       <h2 class="kicker" id="view-title" data-reveal>{t.view.kicker}</h2>
-      <ol class="view-lines">
-        {t.view.lines.map((line, k) => {
-          const words = (s: string) => s.split(/(\s+)/).filter(Boolean);
-          let n = 0;
-          return (
-            <li data-reveal>
-              <span class="num" aria-hidden="true">{pad(k + 1)}</span>
-              <p>{words(line[0]).map((w) => <span class="w" style={`--w:${n++}`}>{w}</span>)}<em>{words(line[1]).map((w) => <span class="w" style={`--w:${n++}`}>{w}</span>)}</em>{line[2]}</p>
-            </li>
-          );
-        })}
-      </ol>
+      <div class="view-grid">
+        <figure class="vcard" data-reveal style="--i:0">
+          <div class="art fields-art" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+          <figcaption>{t.view.items[0][0]}<em>{t.view.items[0][1]}</em></figcaption>
+        </figure>
+        <figure class="vcard" data-reveal style="--i:1">
+          <div class="art polish-art" aria-hidden="true"><span class="bar"></span><span class="img"></span><span class="ln"></span><span class="ln s"></span><span class="btn"></span></div>
+          <figcaption>{t.view.items[1][0]}<em>{t.view.items[1][1]}</em></figcaption>
+        </figure>
+        <figure class="vcard" data-reveal style="--i:2">
+          <div class="art use-art" aria-hidden="true"><span class="press">▶</span><span class="ring"></span><span class="plus">+1</span><svg class="cursor" viewBox="0 0 24 24"><path d="M4 2l15 9-7 1.5L8.5 20z"/></svg></div>
+          <figcaption>{t.view.items[2][0]}<em>{t.view.items[2][1]}</em></figcaption>
+        </figure>
+      </div>
     </section>
 
-    <section class="band events glow-r" aria-labelledby="events-title">
+    <section class="band events bleed ink" aria-labelledby="events-title">
       <p class="kicker" data-reveal>{t.events.kicker}</p>
       <h2 id="events-title" data-reveal>{t.events.title[0]}<em>{t.events.title[1]}</em></h2>
       <p class="lede" data-reveal>{t.events.lead}</p>
@@ -155,7 +157,7 @@ const s2 = t.services;
       </div>
     </section>
 
-    <section class="band open glow-r" aria-labelledby="open-title">
+    <section class="band open bleed warm" aria-labelledby="open-title">
       <div class="open-grid">
         <div>
           <p class="kicker" data-reveal>{t.open.kicker}</p>
@@ -178,7 +180,7 @@ const s2 = t.services;
       {linkedin && <p class="calls" data-reveal><a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.invite.write} · LinkedIn</a></p>}
     </section>
 
-    <section class="band offer glow-r" aria-labelledby="teaser-title">
+    <section class="band offer bleed ink deep" aria-labelledby="teaser-title">
       <p class="kicker" data-reveal>{t.serviceTeaser.kicker}</p>
       <h2 id="teaser-title" data-reveal>{t.serviceTeaser.title[0]}<em>{t.serviceTeaser.title[1]}</em></h2>
       <p class="lede" data-reveal>{t.serviceTeaser.lead}</p>
@@ -199,15 +201,15 @@ const s2 = t.services;
       <h2 id="contact-title" data-reveal>{t.contact.title[0]}<em>{t.contact.title[1]}</em></h2>
       <p class="lede" data-reveal>{t.contact.lead}</p>
       <p class="calls" data-reveal>
-        {linkedin && <a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.contact.other} · LinkedIn</a>}
+        {linkedin && <a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.invite.write} · LinkedIn</a>}
       </p>
     </section>
     <script>
       import { startMotion } from '../scripts/motion';
       import { startStage } from '../scripts/stage';
-      import { startNameLight } from '../scripts/name-light';
+      import { startRibbon } from '../scripts/ribbon';
       const hero = document.querySelector<HTMLElement>('[data-hero]');
-      if (hero) startNameLight(hero);
+      if (hero) startRibbon(hero);
       const stage = document.querySelector<HTMLElement>('[data-stage]');
       if (stage) startStage(stage);
       startMotion();

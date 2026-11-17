@@ -22,11 +22,7 @@ export const copy = {
     results: { kicker: 'Results' },
     view: {
       kicker: 'How I see things',
-      lines: [
-        ['I learn from everything, because the best ideas are born ', 'between fields', '.'],
-        ['I think like an engineer and like a maker. It has to work, ', 'and it has to feel right', '.'],
-        ['An idea is worth something ', 'when someone can use it', '.'],
-      ],
+      items: [['Ideas are born ', 'between fields'], ['It works ', 'and it feels right'], ['Made ', 'for someone to use']],
     },
     events: {
       kicker: 'Events', title: ['If there is an event, ', 'I am there'],
@@ -100,11 +96,7 @@ export const copy = {
     results: { kicker: 'Resultados' },
     view: {
       kicker: 'Cómo veo las cosas',
-      lines: [
-        ['Aprendo de todo, porque las mejores ideas nacen ', 'entre campos', '.'],
-        ['Pienso como ingeniero y como creador. Tiene que funcionar ', 'y tiene que sentirse bien', '.'],
-        ['Una idea vale ', 'cuando alguien la puede usar', '.'],
-      ],
+      items: [['Las ideas nacen ', 'entre campos'], ['Que funcione ', 'y se sienta bien'], ['Hecho para ', 'que alguien lo use']],
     },
     events: {
       kicker: 'Eventos', title: ['Si hay un evento, ', 'ahí estoy'],

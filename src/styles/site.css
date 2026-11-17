@@ -85,12 +85,7 @@ p { font-size: 1.1rem; line-height: 1.6; max-width: 60ch; margin: .5rem 0 1rem; 
 @keyframes breathe { to { transform: scale(1.08) translateX(2%); opacity: .8; } }
 .hero h1 { margin: 0; max-width: none; font-size: inherit; pointer-events: none; }
 .name { display: block; font-size: clamp(3.4rem, 15vw, 10rem); line-height: .9; letter-spacing: -.05em; }
-.name [data-light] { display: block; width: fit-content; margin-inline: auto; transition: color .8s; }
-.name em { color: var(--ak-main); font-size: 1.12em; padding: 0 .08em; }
-/* The light gathers first; then the letters settle in, solid and readable, and the light stays as an aura. */
-.hero.lit .name [data-light] { color: transparent; }
-.hero.lit.formed .name [data-light] { color: var(--ak-text); transition: color 1.1s; }
-.hero.lit.formed .name em[data-light] { color: var(--ak-main); }
+.name em { color: var(--ak-main); font-size: 1.12em; padding: 0 .08em; pointer-events: none; }
 .iam { margin: 2rem auto 0; font-size: clamp(1.15rem, 2vw, 1.5rem); font-weight: 600; line-height: 1.35; max-width: 32ch; animation: rise 1s .5s cubic-bezier(.2,.8,.2,1) both; }
 .also { margin: .4rem auto 0; color: var(--ak-soft); font-size: clamp(1rem, 1.6vw, 1.2rem); animation: rise 1s .7s cubic-bezier(.2,.8,.2,1) both; }
 .also::before { content: ''; display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; margin-right: .6rem; vertical-align: .12em; background: var(--ak-second); }
@@ -305,14 +300,6 @@ svg.mark { width: .8em; height: .8em; }
 /* The story after his work: how he sees things, events, problems, open code, what he is open to, then services */
 .all-work { margin: 1.6rem 0 0; max-width: none; display: flex; justify-content: flex-end; }
 
-.view-lines { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: clamp(1.6rem, 4vw, 3rem); }
-.view-lines li { display: grid; grid-template-columns: 3.2rem 1fr; gap: 1rem; align-items: baseline; }
-.view-lines .num { font-weight: 800; color: var(--ak-main); font-variant-numeric: tabular-nums; }
-.view-lines p { margin: 0; max-width: 24ch; font-size: clamp(1.8rem, 4.4vw, 3.6rem); font-weight: 800; line-height: 1.08; letter-spacing: -.035em; }
-.view-lines em { color: var(--ak-second); padding-right: 0; }
-html.motion .view-lines li[data-reveal] { opacity: 1; translate: 0 0; }
-html.motion .view-lines .w { opacity: .14; transition: opacity .7s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--w) * 55ms); }
-html.motion .view-lines .seen .w { opacity: 1; }
 
 .marquee { margin: 2rem calc(-1 * clamp(1.1rem, 5vw, 4.5rem)); display: grid; gap: .8rem; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
 .track { display: flex; width: max-content; animation: slide 46s linear infinite; }
@@ -379,3 +366,73 @@ html.motion .offer-card[data-reveal] { transition: opacity .9s cubic-bezier(.2,.
 @media (prefers-reduced-motion: reduce) { .track { animation: none; } }
 .events .results ul { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .events .results b { font-size: clamp(2.6rem, 6vw, 4.6rem); }
+
+/* His name: solid letters that rise one by one and answer the pointer, over a ribbon of light */
+.name .l1, .name em { display: block; width: fit-content; margin-inline: auto; }
+.name .ch { display: inline-block; animation: rise 1s calc(.2s + var(--c) * 45ms) cubic-bezier(.2,.8,.2,1) both; transition: transform .45s cubic-bezier(.2,.9,.3,1.6), color .35s; pointer-events: auto; }
+.name .ch:hover { transform: translateY(-.09em) rotate(-4deg); color: var(--ak-warm); }
+.name em .ch:hover { color: var(--ak-second); }
+.hero h1 { pointer-events: none; }
+
+/* Grounds: sections get their own field of colour, edge to edge */
+.bleed { margin-inline: calc(50% - 50vw); padding-inline: calc(50vw - 50%); }
+.tint { background: radial-gradient(60% 80% at 15% 20% in oklab, color-mix(in oklab, var(--ak-main) 14%, var(--ak-page)), transparent 70%), radial-gradient(50% 70% at 90% 90% in oklab, color-mix(in oklab, var(--ak-warm) 16%, var(--ak-page)), transparent 70%), color-mix(in oklab, var(--ak-main) 4%, var(--ak-page)); }
+.warm { background: radial-gradient(55% 80% at 85% 30% in oklab, color-mix(in oklab, var(--ak-warm) 24%, var(--ak-page)), transparent 70%), radial-gradient(45% 60% at 10% 90% in oklab, color-mix(in oklab, var(--ak-second) 10%, var(--ak-page)), transparent 70%), color-mix(in oklab, var(--ak-warm) 6%, var(--ak-page)); }
+.ink { --ak-text: #eef3fb; --ak-soft: rgba(238,243,251,.68); --ak-card: rgba(255,255,255,.07); --ak-line: rgba(255,255,255,.14); --ak-main: #7ab6ff; --ak-second: #ff7a80; color: var(--ak-text);
+  background: radial-gradient(50% 60% at 85% 15% in oklab, rgba(5,106,214,.55), transparent 70%), radial-gradient(40% 50% at 10% 95% in oklab, rgba(189,31,39,.35), transparent 70%), #020b2c; }
+.ink.deep { background: radial-gradient(60% 70% at 15% 10% in oklab, rgba(255,142,82,.28), transparent 70%), radial-gradient(60% 70% at 90% 90% in oklab, rgba(5,106,214,.75), transparent 70%), linear-gradient(160deg in oklab, #031648, #020b2c); }
+.ink .ev { box-shadow: inset 0 0 0 1px var(--ak-line); }
+.ink .roles li { background: rgba(255,255,255,.06); }
+.ink .offer-card { box-shadow: inset 0 0 0 1px var(--ak-line), 0 24px 40px -30px rgba(0,0,0,.8); backdrop-filter: blur(6px); }
+.ink .offer-card:hover { background: rgba(255,255,255,.12); }
+.ink .btn-a { box-shadow: inset 0 0 0 1px var(--ak-line); }
+.ink .btn-a .arrow { background: linear-gradient(180deg in oklab, #ffb48a, #ff8e52); color: #2a0d00; }
+.ink a:hover { color: #fff; }
+.ink [data-glow]::after { background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%) in oklab, rgba(255,142,82,.18), transparent 70%); }
+.band.bleed + .band.bleed { margin-top: 0; }
+
+/* How he sees things: three small animations, a short caption each */
+.view-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.4rem; }
+@media (max-width: 860px) { .view-grid { grid-template-columns: 1fr; } }
+.vcard { margin: 0; display: grid; gap: 1rem; padding: 1rem 1rem 1.4rem; border-radius: 26px; background: color-mix(in oklab, var(--ak-card) 80%, transparent); box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 70%, transparent), 0 24px 40px -32px rgba(2,11,44,.55); }
+.vcard figcaption { font-size: clamp(1.25rem, 2vw, 1.6rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.15; padding: 0 .4rem; }
+.vcard em { color: var(--ak-second); }
+.art { position: relative; height: 12rem; border-radius: 18px; overflow: hidden; background: color-mix(in oklab, var(--ak-page) 70%, transparent); }
+
+/* Between fields: three fields orbit, and meet when you come close */
+.fields-art i { position: absolute; left: 50%; top: 50%; width: 6.5rem; height: 6.5rem; margin: -3.25rem; border-radius: 50%; mix-blend-mode: multiply; opacity: .85; animation: orbit 7s linear infinite; transition: translate .8s cubic-bezier(.2,.9,.3,1.3); }
+:root[data-theme='dark'] .fields-art i { mix-blend-mode: screen; }
+.fields-art i:nth-child(1) { background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--ak-main) 55%, #fff), var(--ak-main)); }
+.fields-art i:nth-child(2) { background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--ak-second) 55%, #fff), var(--ak-second)); animation-delay: -2.33s; }
+.fields-art i:nth-child(3) { background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--ak-warm) 55%, #fff), var(--ak-warm)); animation-delay: -4.66s; }
+.fields-art b { position: absolute; left: 50%; top: 50%; width: .9rem; height: .9rem; margin: -.45rem; border-radius: 50%; background: #fff; box-shadow: 0 0 0 0 rgba(255,255,255,.9), 0 0 24px 8px rgba(255,255,255,.9); opacity: 0; transition: opacity .6s .3s, transform .6s .3s cubic-bezier(.2,.9,.3,1.6); transform: scale(.2); }
+@keyframes orbit { from { transform: rotate(0) translateX(3.2rem) rotate(0); } to { transform: rotate(360deg) translateX(3.2rem) rotate(-360deg); } }
+.vcard:hover .fields-art i { animation-duration: 2.4s; }
+.vcard:hover .fields-art i, .vcard.seen .fields-art i { animation-name: orbit-near; }
+@keyframes orbit-near { from { transform: rotate(0) translateX(1.6rem) rotate(0); } to { transform: rotate(360deg) translateX(1.6rem) rotate(-360deg); } }
+.vcard:hover .fields-art b { opacity: 1; transform: scale(1); }
+
+/* It works and it feels right: a wireframe that becomes a finished screen, and back */
+.polish-art { display: grid; place-content: center; }
+.polish-art::before { content: ''; position: absolute; inset: 1.2rem 18%; border-radius: 10px; border: 2px dashed color-mix(in oklab, var(--ak-text) 35%, transparent); animation: shell 5s ease-in-out infinite; }
+.polish-art span { position: absolute; left: calc(18% + 1rem); right: calc(18% + 1rem); border-radius: 4px; border: 1.5px dashed color-mix(in oklab, var(--ak-text) 35%, transparent); animation: fill 5s ease-in-out infinite; }
+.polish-art .bar { top: 2rem; height: .8rem; }
+.polish-art .img { top: 3.4rem; height: 3.6rem; --c: linear-gradient(135deg in oklab, var(--ak-main), var(--ak-second) 60%, var(--ak-warm)); }
+.polish-art .ln { top: 7.6rem; height: .5rem; right: calc(18% + 3rem); }
+.polish-art .ln.s { top: 8.5rem; right: calc(18% + 5rem); }
+.polish-art .btn { top: 9.6rem; height: 1.1rem; right: auto; width: 4rem; --c: var(--ak-main); }
+@keyframes shell { 0%, 30% { border-radius: 4px; border-color: color-mix(in oklab, var(--ak-text) 35%, transparent); background: transparent; box-shadow: none; } 55%, 90% { border-radius: 18px; border-color: transparent; background: var(--ak-card); box-shadow: 0 20px 34px -18px rgba(2,11,44,.45); } 100% { border-radius: 4px; } }
+@keyframes fill { 0%, 34% { border-color: color-mix(in oklab, var(--ak-text) 35%, transparent); background: transparent; border-radius: 3px; } 58%, 88% { border-color: transparent; background: var(--c, color-mix(in oklab, var(--ak-text) 14%, transparent)); border-radius: 8px; } 100% { background: transparent; } }
+.polish-art .bar { --c: color-mix(in oklab, var(--ak-text) 70%, transparent); }
+
+/* Made for someone to use: a pointer comes, presses, and the count grows */
+.use-art .press { position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: grid; place-items: center; width: 4.4rem; height: 4.4rem; border-radius: 22px; color: #fff; font-size: 1.3rem; background: linear-gradient(160deg in oklab, color-mix(in oklab, var(--ak-main) 70%, #fff), var(--ak-main)); box-shadow: 0 14px 26px -12px color-mix(in oklab, var(--ak-main) 80%, transparent); animation: press 3.2s ease-in-out infinite; }
+.use-art .ring { position: absolute; left: 50%; top: 50%; width: 4.4rem; height: 4.4rem; translate: -50% -50%; border-radius: 22px; border: 2px solid var(--ak-main); opacity: 0; animation: ring 3.2s ease-out infinite; }
+.use-art .plus { position: absolute; left: 50%; top: 50%; translate: 1.6rem -3.2rem; font-weight: 800; font-size: 1.4rem; color: var(--ak-second); opacity: 0; animation: plus 3.2s ease-out infinite; }
+.use-art .cursor { position: absolute; left: 50%; top: 50%; width: 1.9rem; height: 1.9rem; fill: var(--ak-text); stroke: var(--ak-page); stroke-width: 1.4; animation: point 3.2s cubic-bezier(.6,0,.2,1) infinite; }
+@keyframes point { 0% { transform: translate(5rem, 3.5rem); } 40%, 52% { transform: translate(.4rem, .3rem); } 47% { transform: translate(.4rem, .3rem) scale(.85); } 100% { transform: translate(5rem, 3.5rem); } }
+@keyframes press { 0%, 42% { scale: 1; } 47% { scale: .9; } 54%, 100% { scale: 1; } }
+@keyframes ring { 0%, 46% { opacity: 0; scale: 1; } 48% { opacity: .9; } 80%, 100% { opacity: 0; scale: 1.8; } }
+@keyframes plus { 0%, 48% { opacity: 0; translate: 1.6rem -2.4rem; } 58% { opacity: 1; } 90%, 100% { opacity: 0; translate: 1.6rem -4.4rem; } }
+@media (prefers-reduced-motion: reduce) { .fields-art i, .polish-art::before, .polish-art span, .use-art *, .name .ch { animation: none; } }
+.hero .iam, .hero .also, .hero .cue { text-shadow: 0 0 6px var(--ak-page), 0 0 16px var(--ak-page), 0 0 28px var(--ak-page); }
