@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import LiveBanner from './LiveBanner.astro';
 import Mark from './Mark.astro';
 import { copy } from '../data/copy';
-import { isPending, links, profile, projects, services, socials } from '../data/content';
+import { certifications, isPending, links, profile, projects, services, socials } from '../data/content';
 import { galaxy, galaxyHref, href, labels, projectHref, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; projectId?: string; }
 const { lang, page, projectId } = Astro.props;
@@ -135,6 +135,22 @@ const startHref = href('start', lang);
           ))}</ul>
         </div>
       </div>
+    </section>
+
+    <section class="band certs" aria-labelledby="certs-title">
+      <p class="kicker" data-reveal>{t.certs.kicker}</p>
+      <h2 id="certs-title" data-reveal>{t.certs.title[0]}<em>{t.certs.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.certs.lead}</p>
+      <ul class="cert-row">
+        {certifications.map((c, k) => (
+          <li class="cert" data-reveal data-glow style={`--i:${k}`}>
+            <span class="seal" aria-hidden="true"><i></i><b>{c.code.split('-')[0]}</b></span>
+            <b class="code">{c.code}</b>
+            <span class="cname">{c.name}</span>
+            <small>{c.issuer} · {c.area[lang]}</small>
+          </li>
+        ))}
+      </ul>
     </section>
 
     <section class="band solve glow-l" aria-labelledby="solve-title">
@@ -403,6 +419,22 @@ const startHref = href('start', lang);
       <p class="first" data-reveal>{bio[1]}</p>
       <div class="cols">{bio.slice(2).map((paragraph, k) => <p data-reveal style={`--i:${k % 2}`}>{paragraph}</p>)}</div>
     </section>}
+    <section class="band certs" aria-labelledby="certs-title-about">
+      <p class="kicker" data-reveal>{t.certs.kicker}</p>
+      <h2 id="certs-title-about" data-reveal>{t.certs.title[0]}<em>{t.certs.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.certs.lead}</p>
+      <ul class="cert-row">
+        {certifications.map((c, k) => (
+          <li class="cert" data-reveal data-glow style={`--i:${k}`}>
+            <span class="seal" aria-hidden="true"><i></i><b>{c.code.split('-')[0]}</b></span>
+            <b class="code">{c.code}</b>
+            <span class="cname">{c.name}</span>
+            <small>{c.issuer} · {c.area[lang]}</small>
+          </li>
+        ))}
+      </ul>
+    </section>
+
     <section class="band find bleed tint" aria-labelledby="find-title">
       <h2 id="find-title" data-reveal>{t.about.find}</h2>
       <ul class="socials">

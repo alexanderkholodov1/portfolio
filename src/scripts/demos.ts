@@ -22,11 +22,14 @@ export function startDemos() {
     new IntersectionObserver(([en]) => { seen = en.isIntersecting; }).observe(builder);
     cycle();
     if (!reduce) window.setInterval(() => { if (seen && !document.hidden) cycle(); }, 11000);
-    if (matchMedia('(pointer: fine)').matches && !reduce) builder.addEventListener('pointermove', (e) => {
-      const r = builder.getBoundingClientRect();
-      builder.style.setProperty('--px', String((e.clientX - r.left) / r.width - .5));
-      builder.style.setProperty('--py', String((e.clientY - r.top) / r.height - .5));
-    });
+    // The fan follows the pointer with an eased lag, never a jump.
+    if (matchMedia('(pointer: fine)').matches && !reduce) {
+      let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+      const step = () => { x += (tx - x) * .08; y += (ty - y) * .08; builder.style.setProperty('--sx', x.toFixed(3)); builder.style.setProperty('--sy', y.toFixed(3)); raf = Math.abs(tx - x) + Math.abs(ty - y) > .002 ? requestAnimationFrame(step) : 0; };
+      const go = () => { if (!raf) raf = requestAnimationFrame(step); };
+      builder.addEventListener('pointermove', (e) => { const r = builder.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width - .5; ty = (e.clientY - r.top) / r.height - .5; go(); });
+      builder.addEventListener('pointerleave', () => { tx = 0; ty = 0; go(); });
+    }
   }
 
   const game = document.querySelector<HTMLElement>('[data-game]');

@@ -764,14 +764,17 @@ main:has(.galaxy-page), main:has(.svc-end) { padding-bottom: 0; }
 
 /* The Services opening as a fanned deck of cards: all four options visible, each card building its idea;
    the hovered card rises out of the fan, the others make room. */
-.builder .b-stage { position: relative; display: block; height: clamp(24rem, calc(100svh - 14rem), 32rem); }
-.b-window.mini { position: absolute; left: 50%; bottom: 1rem; width: min(17rem, 42%); padding: .6rem; border-radius: 20px; transform-origin: 50% 135%;
-  --a: calc((var(--k) - 1.5) * 13deg); --dx: calc((var(--k) - 1.5) * 1.6rem);
-  transform: translateX(calc(-50% + var(--dx) + var(--px, 0) * 14px)) rotate(calc(var(--a) + var(--px, 0) * 3deg));
-  transition: transform .55s cubic-bezier(.2,.9,.3,1.25), box-shadow .4s; z-index: calc(1 + var(--k)); box-shadow: 0 30px 50px -30px rgba(2,11,44,.6), inset 0 1px 0 color-mix(in oklab, #fff 70%, transparent); animation: deal .9s calc(.15s + var(--k) * .12s) cubic-bezier(.2,.9,.3,1.2) both; }
-@keyframes deal { from { opacity: 0; transform: translateX(-50%) translateY(40px) rotate(0); } }
-.b-stage:hover .b-window.mini { --a: calc((var(--k) - 1.5) * 17deg); --dx: calc((var(--k) - 1.5) * 2.6rem); }
-.b-window.mini:hover { z-index: 9; transform: translateX(calc(-50% + var(--dx))) rotate(calc(var(--a) * .4)) translateY(-2.6rem) scale(1.06); box-shadow: 0 50px 80px -36px rgba(2,11,44,.75); }
+.builder .b-stage { position: relative; display: block; height: clamp(22rem, 52vh, 27rem); align-self: center; }
+/* Four cards in a gentle arc, overlapping little so each one reads; the pointed card comes closer.
+   Motion is eased (no overshoot) and the pointer tilt is smoothed in JavaScript. */
+.b-window.mini { position: absolute; left: 50%; top: 50%; width: min(12.5rem, 27%); padding: .55rem; border-radius: 20px; transform-origin: 50% 50%;
+  --a: calc((var(--k) - 1.5) * 7deg); --dx: calc((var(--k) - 1.5) * 82%); --dy: calc(((var(--k) - 1.5) * (var(--k) - 1.5)) * 5%);
+  transform: translate(calc(-50% + var(--dx) + var(--sx, 0) * 12px), calc(-50% + var(--dy) + var(--sy, 0) * 8px)) rotate(var(--a)) scale(var(--s, 1));
+  transition: transform .7s cubic-bezier(.22,1,.36,1), box-shadow .5s, filter .5s; z-index: calc(1 + var(--k)); box-shadow: 0 26px 44px -28px rgba(2,11,44,.55), inset 0 1px 0 color-mix(in oklab, #fff 70%, transparent);
+  animation: deal 1s calc(.15s + var(--k) * .12s) cubic-bezier(.22,1,.36,1) both; cursor: default; }
+@keyframes deal { from { opacity: 0; translate: 0 50px; } }
+.b-stage:has(.b-window.mini:hover) .b-window.mini:not(:hover) { filter: saturate(.75) brightness(.97); --s: .94; }
+.b-window.mini:hover { z-index: 9; --s: 1.35; --a: 0deg; --dy: -4%; box-shadow: 0 50px 80px -36px rgba(2,11,44,.7); }
 .b-window.mini .b-label { margin: 0 0 .4rem .2rem; font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ak-main); }
 .b-window.mini .b-prompt { min-height: 2.4rem; margin-bottom: .5rem; padding: .35rem .7rem; font-size: .74rem; border-radius: 12px; }
 .b-window.mini .b-out { aspect-ratio: 4 / 3.4; max-height: none; min-height: 0; border-radius: 12px; }
@@ -781,7 +784,7 @@ main:has(.galaxy-page), main:has(.svc-end) { padding-bottom: 0; }
 .b-window.mini .m-cube { width: 3.6rem; height: 3.6rem; }
 .b-window.mini .m-cube .f { transform: translateZ(1.8rem); } .b-window.mini .m-cube .b { transform: rotateY(180deg) translateZ(1.8rem); } .b-window.mini .m-cube .l { transform: rotateY(-90deg) translateZ(1.8rem); }
 .b-window.mini .m-cube .r { transform: rotateY(90deg) translateZ(1.8rem); } .b-window.mini .m-cube .t { transform: rotateX(90deg) translateZ(1.8rem); } .b-window.mini .m-cube .d { transform: rotateX(-90deg) translateZ(1.8rem); }
-@media (max-width: 900px) { .builder .b-stage { height: 23rem; } .b-window.mini { width: 13.5rem; --dx: calc((var(--k) - 1.5) * 1.1rem); } .b-stage:hover .b-window.mini { --dx: calc((var(--k) - 1.5) * 1.1rem); } }
+@media (max-width: 900px) { .builder .b-stage { height: 21rem; } .b-window.mini { width: 27%; } }
 @media (prefers-reduced-motion: reduce) { .b-window.mini { animation: none; transition: none; } }
 
 /* The panorama: every kind of work visible at once, each tile opening its own page */
@@ -830,4 +833,21 @@ html.motion .mosaic .tile[data-reveal] { transition: opacity .8s cubic-bezier(.2
 .pp-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
 @media (prefers-reduced-motion: reduce) { .cover .glyph, .pp-visual { animation: none; } }
 
-@media (max-width: 520px) { .b-window.mini { width: 10.5rem; --dx: calc((var(--k) - 1.5) * .6rem); } .b-stage:hover .b-window.mini { --dx: calc((var(--k) - 1.5) * .6rem); } .builder .b-stage { height: 19rem; } }
+@media (max-width: 520px) { .builder .b-stage { height: 17rem; } .b-window.mini { width: 27%; padding: .35rem; } .b-window.mini .b-prompt { display: none; } .b-window.mini:hover { --s: 1.15; } }
+
+/* Certifications: five seals that turn toward the pointer */
+.cert-row { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .9rem; }
+@media (max-width: 1000px) { .cert-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .cert-row { grid-template-columns: 1fr; } }
+.cert { position: relative; display: grid; gap: .3rem; align-content: start; padding: 1.2rem; border-radius: 22px; background: var(--ak-card); box-shadow: inset 0 0 0 1px var(--ak-line), 0 20px 36px -30px rgba(2,11,44,.5); transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .5s cubic-bezier(.22,1,.36,1); }
+html.motion .cert[data-reveal] { transition: opacity .9s cubic-bezier(.2,.8,.2,1), translate .9s cubic-bezier(.2,.8,.2,1), transform .5s cubic-bezier(.22,1,.36,1); transition-delay: calc(var(--i) * 90ms), calc(var(--i) * 90ms), 0s; }
+.cert .seal { position: relative; width: 3.4rem; height: 3.4rem; display: grid; place-items: center; margin-bottom: .5rem; }
+.cert .seal i { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg in oklab, var(--ak-main), var(--ak-warm), var(--ak-second), var(--ak-main)); animation: swirl 9s linear infinite; }
+.cert .seal i::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--ak-card); }
+.cert .seal b { position: relative; font-size: .8rem; font-weight: 800; color: var(--ak-main); letter-spacing: .04em; }
+.cert:hover .seal i { animation-duration: 2.5s; }
+.cert .code { font-size: 1.35rem; letter-spacing: -.02em; }
+.cert .cname { font-weight: 600; line-height: 1.3; }
+.cert small { color: var(--ak-soft); font-size: .8rem; }
+@media (prefers-reduced-motion: reduce) { .cert .seal i { animation: none; } }
+@keyframes swirl { to { rotate: 360deg; } }

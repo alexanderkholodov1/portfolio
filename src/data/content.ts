@@ -416,6 +416,16 @@ export const projects: List<Project> = {
   todo: 'P3: exact start and completion dates where only month or year is known; image and alt text for each project; role details for unconfirmed initiatives.',
 };
 
+// Certifications he passed (his TCS post, Projects/Publicaciones/33; confirmed by him on 2026-11-17).
+export type Certification = { code: string; name: string; issuer: string; area: Localized };
+export const certifications: Certification[] = [
+  { code: 'AZ-900', name: 'Azure Fundamentals', issuer: 'Microsoft', area: { en: 'Cloud', es: 'Nube' } },
+  { code: 'SC-900', name: 'Security, Compliance, and Identity Fundamentals', issuer: 'Microsoft', area: { en: 'Security', es: 'Seguridad' } },
+  { code: 'GH-900', name: 'GitHub Foundations', issuer: 'Microsoft · GitHub', area: { en: 'Development', es: 'Desarrollo' } },
+  { code: 'AB-730', name: 'AI Business Professional', issuer: 'Microsoft', area: { en: 'Artificial intelligence', es: 'Inteligencia artificial' } },
+  { code: 'AB-731', name: 'AI Transformation Leader', issuer: 'Microsoft', area: { en: 'Artificial intelligence', es: 'Inteligencia artificial' } },
+];
+
 export const links: List<Link> = {
   items: [
     {
