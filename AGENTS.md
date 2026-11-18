@@ -10,9 +10,12 @@
 0. **A Faun's brigadista owns its Faun end to end, alone**: requirements, plan, hitos, workers, verification and the
    PR. The Adjutant is not involved. Before acting, read the CASPIAN normative context in `caspian-kb`.
 
-1. **Branch + PR per version** (`vX.Y.Z: <what it delivers>`) for history and CI previews. There is
-   no "never touch `main`" rule: the operator decides in the moment who merges (default: the agent
-   merges once CI is green, unless he says otherwise).
+1. **Only the operator merges. An agent never merges a PR, never marks one ready in order to merge
+   it, and never pushes to or rewrites `main`, in this repo or any other.** His words (2026-11-18,
+   after an agent merged PR #11 and production shipped a home he had never seen): "no mergear al main
+   por agentes, porque lo hacen solo los humanos". "Publish" or "deploy" from him means: open the PR
+   (as a draft until CI is green), share its preview, and wait for his merge. Branch + PR per version
+   (`vX.Y.Z: <what it delivers>`) for history and CI previews.
 2. Every PR is a milestone titled **`vX.Y.Z: <what it delivers>`** (see `docs/plan/06-roadmap.md`).
 3. **Commits are authored as the operator** (his git config). **No AI co-author trailers.** History
    states what the change delivers — never process narration, never "as requested", never apologies.
