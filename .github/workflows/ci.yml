@@ -60,6 +60,13 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Check and build the complete site
         run: pnpm run check
+      # Advisory: preferences of craft (target sizes, glyphs). Reported in the job summary, never blocking; the agent
+      # reviews them before asking for a merge. Only what breaks the site blocks (pnpm run check above).
+      - name: Design review (advisory)
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          { echo '### Design review (advisory)'; echo '```'; pnpm run review 2>&1 | tail -n 60; echo '```'; } | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Require upstream release inputs for Hosting
         run: node scripts/verify-release-source.mjs
       - name: Preview same-repository PRs

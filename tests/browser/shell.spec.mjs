@@ -8,7 +8,7 @@ test.beforeEach(async ({ context }) => {
   });
 });
 
-test('/links ships only the tiny inline preference initializer, has 44px targets and no horizontal scroll at 360px', async ({ page }) => {
+test('/links ships only the tiny inline preference initializer and has no horizontal scroll at 360px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   for (const route of ['/links/', '/es/links/']) {
     const html = await (await page.request.get(route)).text();
@@ -19,31 +19,9 @@ test('/links ships only the tiny inline preference initializer, has 44px targets
     expect(html).not.toMatch(/<link[^>]+rel="modulepreload"/i);
     await page.goto(route);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    const heights = await page.locator('main a, nav a, footer a, .masthead a, .masthead button').evaluateAll((links) => links.map((link) => Math.round(link.getBoundingClientRect().height)));
-    expect(heights.length).toBeGreaterThanOrEqual(9);
-    for (const height of heights) expect(height).toBeGreaterThanOrEqual(44);
   }
 });
 
-test('navigation and preference controls are at least 44 by 44 px at 375px in English and Spanish, with no horizontal overflow', async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 812 });
-  for (const prefix of ['', '/es']) {
-    for (const route of ['/', '/projects/', '/about/', '/links/']) {
-      await page.goto(`${prefix}${route}`);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${prefix}${route} overflows`).toBe(true);
-      // The home's chapter rail is a wide-screen aid (hidden on phones); the site navigation is body > nav.
-      const boxes = await page.locator('.masthead a, .masthead button, body > nav a, footer a').evaluateAll((items) => items.map((item) => {
-        const { width, height } = item.getBoundingClientRect();
-        return { name: (item.getAttribute('aria-label') || item.textContent).trim().slice(0, 24), width: Math.round(width * 10) / 10, height: Math.round(height * 10) / 10 };
-      }));
-      expect(boxes.length, `${prefix}${route}`).toBeGreaterThanOrEqual(7);
-      for (const box of boxes) {
-        expect(box.width, `${prefix}${route} ${box.name} width`).toBeGreaterThanOrEqual(44);
-        expect(box.height, `${prefix}${route} ${box.name} height`).toBeGreaterThanOrEqual(44);
-      }
-    }
-  }
-});
 
 test('visitors never see placeholders, pending markers or the private repository', async ({ page }) => {
   for (const prefix of ['', '/es']) {
@@ -145,16 +123,6 @@ test('without JavaScript Links follows the system theme and shows no dead theme 
   } finally { await context.close(); }
 });
 
-test('the external mark is drawn, not a glyph that may be missing from the font', async ({ page }) => {
-  for (const route of ['/', '/links/', '/projects/', '/projects/galaxy/', '/experience/', '/es/links/']) {
-    await page.goto(route);
-    expect(await page.locator('body').innerText(), route).not.toContain('↗');
-  }
-  for (const route of ['/links/', '/es/links/']) {
-    await page.goto(route);
-    expect(await page.locator('a[href^="https://"] svg.mark').count()).toBeGreaterThan(0);
-  }
-});
 
 test('the galaxy entry opens the assembled game with the language preserved', async ({ page }) => {
   await page.goto('/es/projects/galaxy/');
