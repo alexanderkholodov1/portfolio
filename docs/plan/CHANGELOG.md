@@ -3,6 +3,10 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-11-18 — New `11-home-story.md`: handoff to a new session with the home rebuild as one story (uncommitted work in
+  progress, its state and what is missing), the header mark as proposals for him to choose (he rejected the plain dot
+  and a monogram made without asking), who decides what, and how he wants the page judged — decided by operator.
+
 - 2026-11-18 — New `10-client-services.md`: every portfolio request in his Squire voice notes (2026-11-16 and
   2026-11-18), phase 1 built in 0.2.26 (questionnaire by delivery and tier, plans with milestones and payments,
   accepted agreements, ratings and testimonials, free projects, prepared emails) and phase 2 waiting on his accounts
