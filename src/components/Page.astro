@@ -47,23 +47,25 @@ const moreCount = activities.length;
 // The Experience page, by category, newest first inside each.
 const groups = kinds.map((k) => ({ k, items: activities.filter((a) => a.kind === k).sort((a, b) => b.sort.localeCompare(a.sort)) })).filter((g) => g.items.length);
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
-// Community on the home (his note of 2026-11-18): real roles with their periods, events he organised, volunteering;
-// no competition results (they are experience and projects) and no tutoring (not a role).
-const act = (id: string) => activities.find((x) => x.id === id);
-const community = [
-  { key: 'lead', ids: ['ieee-vp', 'ieeextreme-20', 'prog-club'] },
-  { key: 'organize', ids: ['mini-ieeextreme-2', 'prompt-course', 'github-course'] },
-  { key: 'volunteer', ids: ['staff-devfest', 'staff-cursor', 'staff-sala', 'vecinos', 'ingenieros', 'slb'] },
-].map((col) => ({ key: col.key, items: col.ids.map(act).filter((x): x is NonNullable<typeof x> => Boolean(x)).map((x) => ({
-  primary: col.key === 'lead' && x.role ? x.role[lang] : x.title[lang],
-  secondary: col.key === 'lead' ? (x.role ? x.title[lang] : x.org?.[lang] ?? '') : (x.role?.[lang] ?? x.org?.[lang] ?? ''),
-  date: x.date[lang], solo: Boolean(x.solo),
-})) }));
-const commIcons: Record<string, string> = {
-  lead: '<path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/>',
-  organize: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4M8 14h3"/>',
-  volunteer: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+// Highlights in the community section: the result first, then where it happened.
+const byAny = (id: string) => byId(id) ?? achievements.find((x) => x.id === id);
+const highlights = [
+  { badge: lang === 'es' ? '3.er lugar' : '3rd place', item: byAny('sublime-airlift') },
+  { badge: lang === 'es' ? '5.º lugar' : '5th place', item: byAny('devfest-ctf') },
+  { badge: lang === 'es' ? 'Ronda 2' : 'Round 2', item: byAny('codevita') },
+  { badge: 'Outstanding Innovator', item: byAny('blue-challenge') },
+  { badge: lang === 'es' ? 'Embajador' : 'Ambassador', item: byAny('ieeextreme-ambassador') },
+].filter((h): h is { badge: string; item: NonNullable<typeof h.item> } => Boolean(h.item));
+// Every channel, not only LinkedIn (his note of 2026-11-18).
+const socialIcons: Record<string, string> = {
+  linkedin: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.3 0-2.9-1.8-2.9s-2.1 1.4-2.1 2.8V21h-4z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+  github: '<svg viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.6 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.3c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V10.4H7.9v3h2.6V21z"/></svg>',
 };
+// The paper plane's route in the closing scene (an idea that leaves and arrives).
+const FLIGHT = 'M30 320 C 110 300, 70 200, 170 196 S 300 290, 350 200 S 440 70, 492 52';
+
 // Events he took part in, by the names in his projects and his bio (content.ts).
 const eventNames = ['NASA Space Apps Challenge 2026', 'Be a Dragon 2026', 'IEEEXtreme 20.0', 'Mini IEEEXtreme 2.0', 'Google DevFest 2026', 'IGNITE Summit 2026', 'Interact2Hack 2026', 'SALA 2026', 'Space Expo', 'Build With AI', 'AWS Gen AI Day', 'Cursor Workshop Quito', 'Cursor x Supabase', 'TCS CodeVita 13', 'IEEEXtreme 19.0', 'DevFest Quito 2025', 'Diners Club Blue Challenge', 'USFQ IEEE CS Game Jam 2025'];
 const cases = t.solve.cases.map(([id, problem]) => ({ problem, project: byId(id)! })).filter((c) => c.project);
@@ -142,23 +144,21 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
           </div>
         ))}
       </div>
-      <div class="comm-cols">
-        {community.map((col, k) => (
-          <section class={'comm-col c-' + col.key} data-reveal data-glow style={`--i:${k}`} aria-labelledby={'comm-' + col.key}>
-            <span class="comm-ico" aria-hidden="true"><i></i><svg viewBox="0 0 24 24" set:html={commIcons[col.key]}></svg></span>
-            <h3 id={'comm-' + col.key}>{t.events.cols[col.key as keyof typeof t.events.cols]}</h3>
-            <ul>
-              {col.items.map((x) => (
-                <li>
-                  <span class="cm-what"><b>{x.primary}</b>{x.secondary && <small>{x.secondary}</small>}{x.solo && <span class="cm-solo">★ {t.experiencePage.solo}</span>}</span>
-                  <time>{x.date}</time>
-                </li>
-              ))}
-            </ul>
-          </section>
+      <h3 class="kicker comm-sub" data-reveal>{t.achieve.kicker}</h3>
+      <ul class="highlights">
+        {highlights.map((h, k) => (
+          <li data-reveal style={`--i:${k}`}>
+            <a class="hl" href={projectHref(h.item.id, lang)} data-glow>
+              <span class="hl-shot">{!isPending(h.item.image) && <img src={h.item.image.src} alt="" width="640" height="400" loading="lazy" decoding="async" />}</span>
+              <span class="hl-badge">{h.badge}</span>
+              <b>{h.item.title[lang]}</b>
+              <small>{h.item.context[lang].split(' · ')[0]}</small>
+            </a>
+          </li>
         ))}
-      </div>
-      <p class="calls" data-reveal><a class="btn-b light" href={href('experience', lang)}>{t.events.more} <span aria-hidden="true">→</span></a></p>
+      </ul>
+      <h3 class="kicker comm-sub" data-reveal>{t.achieve.roles}</h3>
+      <ul class="roles">{t.events.roles.map((r, k) => <li data-reveal style={`--i:${k}`}>{r}</li>)}</ul>
     </section>
 
     <section class="band certs bleed ink deep" aria-labelledby="certs-title">
@@ -206,23 +206,40 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
           </a>
         ))}
       </div>
-      <div class="process" data-reveal aria-labelledby="process-title">
-        <h3 id="process-title" class="kicker">{t.serviceTeaser.process.title}</h3>
-        <ol class="steps-row">
-          <span class="track" aria-hidden="true"><i></i></span>
-          {t.serviceTeaser.process.steps.map(([title, text], k) => (
-            <li style={`--k:${k}`}><span class="node" aria-hidden="true">{k + 1}</span><b>{title}</b><span>{text}</span></li>
-          ))}
-        </ol>
-      </div>
       <p class="calls" data-reveal><a class="btn-a big" href={startHref}>{t.serviceTeaser.start}<span class="arrow" aria-hidden="true">→</span></a><a class="btn-b" href={href('services', lang)}>{t.serviceTeaser.cta}</a></p>
     </section>
-    <section class="band invite contact-end glow-l" aria-labelledby="invite-title">
-      <p class="kicker" data-reveal>{t.invite.kicker}</p>
-      <h2 id="invite-title" data-reveal>{t.invite.title[0]}<em>{t.invite.title[1]}</em></h2>
-      <p class="lede" data-reveal>{t.invite.lead}</p>
-      <ul class="chips-big">{t.invite.items.map((item, k) => <li data-reveal style={`--i:${k}`}>{item}</li>)}</ul>
-      {linkedin && <p class="calls" data-reveal><a class="btn-a big" href={linkedin.href}>{t.invite.contact}<span class="arrow" aria-hidden="true">↗</span></a><span class="via">LinkedIn</span></p>}
+    <section class="band talk" id="contact" aria-labelledby="talk-title" data-talk>
+      <div class="talk-grid">
+        <div class="talk-copy">
+          <p class="kicker" data-reveal>{t.talk.kicker}</p>
+          <h2 id="talk-title" data-reveal>{t.talk.title[0]}<em>{t.talk.title[1]}</em></h2>
+          <p class="lede" data-reveal>{t.talk.lead}</p>
+          <p class="calls" data-reveal>
+            {linkedin && <a class="btn-c big" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.talk.primary}</a>}
+            <a class="btn-b" href={startHref}>{t.talk.start}</a>
+          </p>
+          <p class="talk-or" data-reveal>{t.talk.or}</p>
+          <ul class="talk-socials" data-reveal>
+            {socials.items.map((s) => (
+              <li><a href={s.href} class={'soc-ico s-' + s.id} aria-label={`${s.label} · ${s.handle}`}><Fragment set:html={socialIcons[s.id] ?? ''} /><span>{s.label}</span></a></li>
+            ))}
+          </ul>
+        </div>
+        <div class="talk-art" aria-hidden="true">
+          <svg class="flight" viewBox="0 0 520 380">
+            <path class="trail" d={FLIGHT} />
+            <g class="from"><circle cx="30" cy="320" r="22" /><path d="M30 306v-6M18 312l-4-4M42 312l4-4M24 330h12M25 336h10" /><circle class="bulb" cx="30" cy="318" r="9" /></g>
+            <g class="to"><circle class="halo" cx="492" cy="52" r="30" /><circle cx="492" cy="52" r="18" /><path d="M492 43l2.6 6 6.4.6-4.9 4.3 1.5 6.3-5.6-3.4-5.6 3.4 1.5-6.3-4.9-4.3 6.4-.6z" /></g>
+            <g class="plane">
+              <path d="M24 0-20-15-9 0-20 15z" fill="#fff" />
+              <path d="M24 0-9 0-15 9z" fill="#c9dcff" />
+              <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path={FLIGHT} keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".45 0 .4 1" />
+            </g>
+          </svg>
+          <p class="topics-label">{t.talk.topics}</p>
+          <ul class="topics">{t.invite.items.slice(0, 6).map((item, k) => <li style={`--i:${k}`}>{item}</li>)}</ul>
+        </div>
+      </div>
     </section>
     <script>
       import { startMotion } from '../scripts/motion';
@@ -233,6 +250,16 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
       if (sc) startShowcase(sc);
       const hero = document.querySelector<HTMLElement>('[data-hero]');
       if (hero) { startRibbon(hero); startLetters(hero); }
+      const talk = document.querySelector<HTMLElement>('[data-talk]');
+      const flight = talk?.querySelector<SVGSVGElement>('svg.flight');
+      if (talk && flight) {
+        const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        flight.pauseAnimations();
+        new IntersectionObserver(([e]) => {
+          talk.classList.toggle('in-view', e.isIntersecting);
+          if (e.isIntersecting && !still) flight.unpauseAnimations(); else flight.pauseAnimations();
+        }, { rootMargin: '10% 0px' }).observe(talk);
+      }
       startMotion();
     </script>
   </>}

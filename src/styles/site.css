@@ -1665,3 +1665,48 @@ a.con-row:hover { color: var(--ak-text); transform: translateX(3px); box-shadow:
 @media (max-width: 900px) { .focus-row, .ov-mid { grid-template-columns: minmax(0, 1fr); } .focus { min-height: 0; } }
 @media (max-width: 560px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .money dl { grid-template-columns: minmax(0, 1fr); } .pipe-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .b-window.mini .b-out { aspect-ratio: 4 / 3; }
+
+/* Community, in order: the marquee, highlights with their result, then roles (as in 0.2.26, restored 2026-11-18) */
+.comm-sub { margin: 2.2rem 0 .9rem; }
+.highlights { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .9rem; }
+@media (max-width: 1000px) { .highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.hl { position: relative; display: grid; gap: .25rem; align-content: end; min-height: 13rem; padding: 1rem; border-radius: 20px; overflow: hidden; isolation: isolate; text-decoration: none; color: #fff; box-shadow: 0 24px 40px -28px rgba(0,0,0,.7); transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.hl:hover { color: #fff; }
+.hl-shot { position: absolute; inset: 0; z-index: -1; }
+.hl-shot img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s cubic-bezier(.22,1,.36,1); }
+.hl:hover .hl-shot img { transform: scale(1.06); }
+.hl-shot::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(2,11,44,.95), rgba(2,11,44,.35) 65%, rgba(2,11,44,.1)); }
+.hl-badge { justify-self: start; padding: .25rem .65rem; border-radius: 99px; font-size: .78rem; font-weight: 800; color: #2a0d00; background: linear-gradient(135deg in oklab, #ffd0b5, #ff8e52); }
+.hl b { font-size: 1.1rem; line-height: 1.2; }
+.hl small { color: rgba(255,255,255,.7); font-size: .8rem; }
+.events .roles { display: flex; flex-wrap: wrap; gap: .6rem; }
+.events .roles li { border-left: 0; border-radius: 99px; padding: .6rem 1rem; box-shadow: inset 0 0 0 1px var(--ak-line); }
+
+/* The closing invitation (the paper plane he saw on 2026-11-18): an idea that takes off and lands, and every way to
+   reach him. Its loops run only while it is on screen. */
+.talk:not(.in-view) *, .talk:not(.in-view) *::before, .talk:not(.in-view) *::after { animation-play-state: paused !important; }
+.talk::before { content: ''; position: absolute; z-index: -1; inset: 0 -30%; pointer-events: none; background: radial-gradient(40% 60% at 75% 45% in oklab, color-mix(in oklab, var(--ak-main) calc(var(--ak-glow) * .45), var(--ak-page)), transparent 70%), radial-gradient(30% 50% at 20% 80% in oklab, color-mix(in oklab, var(--ak-warm) calc(var(--ak-glow) * .6), var(--ak-page)), transparent 70%); }
+.talk-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+.talk-copy .lede { margin: 0; max-width: 36ch; }
+.talk-or, .topics-label { margin: 1.8rem 0 .7rem; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--ak-soft); }
+.talk-socials { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .55rem; }
+.soc-ico { display: inline-flex; align-items: center; gap: .55rem; min-height: 2.9rem; padding: 0 1.05rem 0 .4rem; border-radius: 99px; text-decoration: none; font-weight: 700; color: var(--ak-text); background: var(--ak-card); box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 80%, transparent), inset 0 0 0 1px var(--ak-line), 0 12px 24px -20px rgba(2,11,44,.5); transition: translate .3s cubic-bezier(.2,.9,.3,1.4), box-shadow .3s; }
+.soc-ico:hover { translate: 0 -3px; color: var(--ak-text); box-shadow: inset 0 0 0 1px var(--ak-line), 0 18px 28px -18px rgba(2,11,44,.55); }
+.soc-ico svg { width: 2.1rem; height: 2.1rem; padding: .45rem; border-radius: 50%; color: #fff; background: linear-gradient(160deg in oklab, color-mix(in oklab, var(--ak-main) 75%, #fff), var(--ak-main)); transition: rotate .45s cubic-bezier(.2,.9,.3,1.5); }
+.soc-ico:hover svg { rotate: -10deg; }
+.talk-art { position: relative; text-align: center; }
+.flight { display: block; width: 100%; height: auto; overflow: visible; }
+.flight .trail { fill: none; stroke: color-mix(in oklab, var(--ak-main) 45%, transparent); stroke-width: 2.2; stroke-dasharray: 2 10; stroke-linecap: round; }
+.flight .from circle:first-child { fill: color-mix(in oklab, var(--ak-warm) 18%, var(--ak-card)); stroke: var(--ak-warm); stroke-width: 2; }
+.flight .from path { fill: none; stroke: var(--ak-warm); stroke-width: 2.4; stroke-linecap: round; }
+.flight .from .bulb { fill: var(--ak-warm); }
+.flight .to circle { fill: var(--ak-main); }
+.flight .to .halo { fill: color-mix(in oklab, var(--ak-main) 20%, transparent); transform-box: fill-box; transform-origin: center; animation: st-halo 2.8s ease-in-out infinite; }
+.flight .to path { fill: #fff; }
+.flight .plane path:first-child { fill: var(--ak-main); } .flight .plane path:last-child { fill: color-mix(in oklab, var(--ak-main) 55%, #020b2c); }
+@keyframes st-halo { 50% { scale: 1.25; opacity: .5; } }
+.topics { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
+.topics li { padding: .45rem .95rem; border-radius: 99px; font-size: .9rem; font-weight: 700; background: var(--ak-card); box-shadow: inset 0 0 0 1px var(--ak-line), 0 10px 20px -16px rgba(2,11,44,.5); animation: st-float 4.5s calc(var(--i) * -.75s) ease-in-out infinite alternate; }
+@keyframes st-float { to { translate: 0 -5px; } }
+@media (max-width: 1000px) { .talk-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .topics li, .flight .to .halo { animation: none !important; } }
