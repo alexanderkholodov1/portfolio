@@ -32,7 +32,8 @@
 9. **Access is enforced by Firestore security rules, deny-by-default** — never by hiding routes.
 10. **English is the primary language everywhere** (URLs, UI, defaults); Spanish is secondary.
     **Light and dark mode** on every UI. No broken buttons, dead links or placeholder content shipped.
-11. **Design:** follow `../../CASPIAN/governance/DESIGN-DOCTRINE.md` on every UI. Generic,
+11. **Design:** follow `../../Commons/fawns-plans/DESIGN-DOCTRINE.md` on every UI (its rule R1 is overridden by Webber's
+    `caspian-kb/roles/webber/TASTE.md` section 4), and Webber's persona in `caspian-kb/roles/webber/`. Generic,
     machine-default output is a defect.
 12. **Zero invented content.** Project descriptions, bios, numbers and claims come from the operator
     or from verifiable sources. If content is missing, leave a visible TODO in a PR, never filler.
@@ -56,14 +57,24 @@ The identity was chosen by the operator in Webber's studio on 2026-11-16 and the
   is light and warmth; ink `#020b2c` on page `#f3f4f7`. Light by default, dark as an option. Light runs down the
   page as soft OKLab glows, deep-blue bands and a static grain tile; never one flat colour, never borrowed palettes.
 - **Type.** Plus Jakarta Sans, with an Instrument Serif italic for one word or phrase per heading.
-- **Home order.** His name alone on the first screen (solid letters over a ribbon of light), then his projects
-  (the light stage), how he works (shown in small animations), community, problems solved, open source,
-  collaborations, services, contact. Show, do not tell: short captions over motion, never paragraphs of belief.
+- **Home order (2026-11-18: the home is one story).** His name alone on the first screen (solid letters over a ribbon of
+  light), then seven numbered chapters, with a side rail on wide screens: who he is (four beliefs as small moving drawings
+  beside his portrait with his fields in orbit), what he builds (the showcase), community (a board of draggable stickers: his
+  real roles with their periods, and the events he was at), learning (certifications), impact (cards that turn from a real
+  problem to the project built for it), how he helps (services and the process), and an invitation to talk (LinkedIn, every
+  social channel, the start button). Show, do not tell: short captions over motion, never paragraphs of belief.
 - **Services sells by showing.** Live demos recognisable at a glance, no prices and no forms on the page; one button
   opens account creation and then one question at a time, each with the time it takes.
 - **Motion with a budget.** One live canvas at a time, 1x canvases at 30 fps when idle, nothing animating off
   screen, no full-screen blend modes or backdrop blurs over moving content. Reduced motion shows everything still.
-- **Copy.** Professional, warm and inviting; it describes value for the visitor. No colons in copy.
+- **Copy.** Professional, warm and inviting; it describes value for the visitor. No colons in copy. Human, never
+  contrived, never misreadable, never promising what he does not offer: a complaint about one phrase is about the register
+  of all the copy (2026-11-18).
+- **Never the AI default** (his standing rule, 2026-11-18, `caspian-kb/rules/proposed/2026-11-18-unique-never-the-ai-default.md`).
+  Every piece that stands for him (logo, favicon, card, section, graphic) carries two or three of his characteristic colours
+  in proportion, volume toward the viewer and depth into the screen with quality light, reflections and gradients, and type
+  set with taste. A flat ground with a token shadow, flat type, or one colour is a defect. Inside one unit (a name, a
+  logo, a header) there is one type voice; contrast separates two different things.
 - **Missing content is omitted.** Visitors never see editorial status; it lives in `pnpm run content:todo`.
 - **`/links`** keeps one script only: the inline preference initializer (about 700 bytes, no module).
 

@@ -2,6 +2,16 @@
 
 Written at the end of session 4f72775f at his request ("Handoff y sesión nueva"). The next session starts here.
 
+**Update, session 92ae5ba5 (2026-11-18):**
+- **Shipped.** The home as one story is styled and shipped as 0.2.28, at his word: "para hoy deja la pagina como esta y
+  publiquemosla para produccion porque es mejor que nada (hazlo funcionar, hazlo bueno luego)".
+- **The header mark.** Two rounds of proposals were rejected, the AKLabs AK is out ("no quiero mezclar AKLabs aqui"), and
+  the blue dot stays until he picks. The next round comes after research of design methods, applied one by one with him.
+  His standing rule now applies: never the AI default, two or three characteristic colours in every piece, real depth.
+- **"No tocar" was an overfit of his note.** He meant the copy register: about 60% of the copy reads misreadable,
+  over-promising, contrived or cold, and reads as AI. The copy pass comes with the polish.
+- **Tomorrow, with him.** See "Open after 0.2.28" at the end of this file.
+
 ## Read first, in this order
 
 1. `AGENTS.md`, then `docs/plan/README.md`.
@@ -125,6 +135,21 @@ Once it ships:
   approval.
 - Client services phase 2 waits on his accounts (`10-client-services.md`).
 - LinkedIn post URLs for Experience, if he sends them.
+
+## Open after 0.2.28 (2026-11-18, his order: the sensitive things tomorrow)
+
+- **The header mark and favicon.** Research design criteria for AI agents first (skills, downloadable guides, prompts,
+  references) and apply each method with him, one at a time, never as absolute truth.
+- **The copy pass.** Rewrite about 60% of the copy so it reads human and professional. The lines that speak for him go
+  to him as options: the hero line, "Me mueve la curiosidad", the four beliefs, the chapter leads.
+- **The Projects cards.** He named them as the default look: "el fondo plano, con un toque de sombra y luz mal hechos".
+- **Content to confirm.** His portrait at the centre of the orbit, and whether the AKLabs Store project card stays
+  (AKLabs is deprecated and internal).
+- **Cleanup.** Dead styles (`.comm-cols`, `.comm-col`, `.comm-ico`, `.cm-*`, `.cases`, `.case`, `.bridge`, `.solution`,
+  `.invite`, `.contact-end`, `.chips-big`, `.via`; check other pages first), unused copy keys, and the unused
+  `LiveBanner.astro` and `live-banner.ts`.
+- **Windows-only test failures.** Eight tests fail on Windows only: symbolic links, path separators, and `spawnSync('pnpm')`
+  without a shell. CI runs on Ubuntu.
 
 ## Sources gathered for the home (2026-11-18)
 

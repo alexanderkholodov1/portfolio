@@ -3,6 +3,16 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-11-18 — Several changes:
+  - The home as one story ships as 0.2.28, as is (his order).
+  - `11-home-story.md` records two rejected rounds of the header mark, the AKLabs logo ruled out, and the "no tocar" note
+    reread as the copy register. Its new section "Open after 0.2.28" lists the logo, the copy pass and the Projects cards.
+  - `AGENTS.md` gets the new home order and his standing rule "never the AI default": two or three characteristic colours
+    per piece, real depth, one type voice per unit.
+  - The design doctrine path is fixed: the doctrine lives in `Commons/fawns-plans/`, not `CASPIAN/governance/`.
+  - Why: his words of 2026-11-18 in `caspian-kb/rules/sources/2026-11-18T0222Z-session-92ae5ba5.md`.
+  - Decided by operator; the path fix by agent.
+
 - 2026-11-18 — New `11-home-story.md`: handoff to a new session with the home rebuild as one story (uncommitted work in
   progress, its state and what is missing), the header mark as proposals for him to choose (he rejected the plain dot
   and a monogram made without asking), who decides what, and how he wants the page judged — decided by operator.
