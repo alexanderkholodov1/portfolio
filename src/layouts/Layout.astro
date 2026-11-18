@@ -1,6 +1,6 @@
 ---
 import { copy } from '../data/copy';
-import { href, labels, name, origin, pages, type Language, type Page } from '../data/site';
+import { href, labels, name, navPages, origin, type Language, type Page } from '../data/site';
 import '../styles/site.css';
 interface Props { lang: Language; page?: Page; title: string; description?: string; }
 const { lang, page, title, description } = Astro.props;
@@ -15,22 +15,30 @@ const own = page ? href(page, lang) : undefined;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f1f5f9" />
+    <meta name="theme-color" content="#f3f4f7" />
     {description && <meta name="description" content={description} />}
+    {(page === 'account' || page === 'admin' || page === 'start') && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${title} · ${name}`} />
+    {description && <meta property="og:description" content={description} />}
+    {own && <meta property="og:url" content={origin + own} />}
+    <meta property="og:image" content={`${origin}/og.jpg`} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_EC' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>{title} · {name}</title>
     {own && <link rel="canonical" href={origin + own} />}
     {own && <link rel="alternate" hreflang={lang} href={origin + own} />}
     <link rel="alternate" hreflang={other} href={origin + counterpart} />
     {page === 'home' && <link rel="alternate" hreflang="x-default" href={origin + href('home', 'en')} />}
-    {['spectral-latin-400', 'archivo-narrow-latin-400', 'archivo-narrow-latin-700'].map((font) => (
+    {['plus-jakarta-sans-latin-var', 'instrument-serif-latin-italic'].map((font) => (
       <link rel="preload" as="font" type="font/woff2" href={`/fonts/${font}.woff2`} crossorigin />
     ))}
     <link rel="stylesheet" href="/tokens.css" />
     <script is:inline>
       (()=>{const d=document.documentElement,m=matchMedia('(prefers-color-scheme: dark)'),q=(x)=>document.querySelector(x);let s;try{s=localStorage.getItem('portfolio.theme')}catch{}
-      const a=(k)=>{d.dataset.theme=k?'dark':'light';q('meta[name=theme-color]').content=k?'#071421':'#f1f5f9';const b=q('#theme');b&&b.setAttribute('aria-pressed',k)};
+      const a=(k)=>{d.dataset.theme=k?'dark':'light';q('meta[name=theme-color]').content=k?'#071421':'#f3f4f7';const b=q('#theme');b&&b.setAttribute('aria-pressed',k)};
       a(s=='dark'||s!='light'&&m.matches);d.dataset.js='';
-      addEventListener('DOMContentLoaded',()=>a(d.dataset.theme=='dark'));
+      addEventListener('DOMContentLoaded',()=>{a(d.dataset.theme=='dark');const n=q('body>nav'),c=q('body>nav [aria-current]');if(n&&c&&n.scrollWidth>n.clientWidth)n.scrollLeft=c.offsetLeft-(n.clientWidth-c.offsetWidth)/2});
       addEventListener('click',(e)=>{if(e.target.closest('#theme')){const k=d.dataset.theme!='dark';s=k?'dark':'light';a(k);try{localStorage.setItem('portfolio.theme',s)}catch{}}});
       m.onchange=(e)=>{s||a(e.matches)}})()
     </script>
@@ -39,13 +47,17 @@ const own = page ? href(page, lang) : undefined;
     <a class="skip" href="#main">{t.skip}</a>
     <header class="masthead">
       <a class="signature" href={href('home', lang)}>{name}<span>{t.brand}</span></a>
+      {page === 'admin' && <div class="con-head" data-con-head></div>}
       <div class="preferences">
-        <a class="tap" href={counterpart} lang={other} hreflang={other} aria-label={t.language}>{other === 'es' ? 'Español' : 'English'}</a>
-        <button id="theme" aria-pressed="false">{t.theme}</button>
+        <a class="tap" href={counterpart} lang={other} hreflang={other} aria-label={t.language}><span class="lang-long">{other === 'es' ? 'Español' : 'English'}</span><span class="lang-short" aria-hidden="true">{other.toUpperCase()}</span></a>
+        <button id="theme" aria-pressed="false"><span class="t-label">{t.theme}</span></button>
+        {page !== 'admin' && <a class="tap acct-link" href={href('account', lang)} aria-current={page === 'account' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="t-label">{t.myAccount}</span></a>}
       </div>
     </header>
-    <nav aria-label={t.nav}>
-      {pages.map((item) => <a href={href(item, lang)} aria-current={page === item ? 'page' : undefined}>{labels[lang][item]}</a>)}
+    <nav aria-label={t.nav} class={page === 'admin' ? 'nav-admin' : undefined}>
+      {page === 'admin'
+        ? <a href={href('home', lang)}>{labels[lang].home}</a>
+        : navPages.map((item) => <a href={href(item, lang)} aria-current={page === item || (page === 'galaxy' && item === 'projects') ? 'page' : undefined}>{labels[lang][item]}</a>)}
     </nav>
     <main id="main" tabindex="-1"><slot /></main>
     <footer><span>{name}</span><a class="tap" href={href('links', lang)}>{t.footerLinks} →</a></footer>

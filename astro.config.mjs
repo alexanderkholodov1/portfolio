@@ -10,7 +10,8 @@ const contentFixture = {
   async resolveId(source, importer, options) {
     if (!importer || path.resolve(importer) === fixture || !/\/data\/content(\.ts)?$/.test(source)) return null;
     const resolved = await this.resolve(source, importer, { ...options, skipSelf: true });
-    return resolved?.id.endsWith(path.join('src', 'data', 'content.ts')) ? fixture : null;
+    // Compare with forward slashes so the seam also works on Windows.
+    return resolved?.id.split(path.sep).join('/').endsWith('src/data/content.ts') ? fixture : null;
   },
 };
 

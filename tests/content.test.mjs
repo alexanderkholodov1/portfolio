@@ -11,10 +11,10 @@ test('every pending item is reported with a path and a P3 description', () => {
     assert.match(needed, /^P3: .{20,}/, path);
   }
   const paths = todos.map((todo) => todo.path);
-  for (const expected of ['profile.cv', 'projects', 'projects.items[0].image']) {
+  for (const expected of ['profile.cv', 'projects', 'projects.items[0].role']) {
     assert.ok(paths.includes(expected), expected);
   }
-  for (const filled of ['profile.role', 'profile.bio', 'links', 'socials', 'projects.items[0].role', 'projects.items[0].stack', 'projects.items[0].dates']) {
+  for (const filled of ['profile.role', 'profile.bio', 'links', 'socials', 'projects.items[0].image', 'projects.items[3].image', 'projects.items[1].role', 'projects.items[0].stack', 'projects.items[0].dates']) {
     assert.ok(!paths.includes(filled), `${filled} should be filled`);
   }
 });

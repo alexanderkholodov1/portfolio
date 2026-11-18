@@ -1,0 +1,147 @@
+rules_version = '2';
+
+// Client accounts and project requests for the portfolio. Deny by default.
+// users/{uid}: each person's profile; only its owner writes it (a few fields); the owner and the admin read it.
+// requests/{id}: any number per person, each carrying its owner's uid. The owner creates and edits a request while it
+//   is a draft, sends it, withdraws it while it waits, deletes a draft, and marks the conversation as read. The admin
+//   (custom claim `admin`, granted with scripts/grant-admin.mjs) reads every request and moves it through its statuses;
+//   the client's answers stay exactly as the client wrote them.
+// requests/{id}/messages: the conversation; each side writes only as itself, at the server's time, and nobody edits.
+// requests/{id}/notes: the admin's private notes.
+// config/site and config/replies: the console's settings.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.get('admin', false) == true; }
+    function onlyChanged(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    function sameOr(key, value) { return request.resource.data.get(key, '') == resource.data.get(key, '') || request.resource.data.get(key, '') == value; }
+
+    match /users/{uid} {
+      function validProfile() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['name', 'email', 'contact', 'contactValue', 'lang', 'createdAt', 'updatedAt'])
+          && (!('name' in d) || (d.name is string && d.name.size() <= 120))
+          && (!('email' in d) || (d.email is string && d.email.size() <= 200))
+          && (!('contact' in d) || (d.contact is string && d.contact.size() <= 40))
+          && (!('contactValue' in d) || (d.contactValue is string && d.contactValue.size() <= 200))
+          && (!('lang' in d) || d.lang in ['en', 'es']);
+      }
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create, update: if signedIn() && request.auth.uid == uid && validProfile();
+      allow delete: if false;
+    }
+
+    match /requests/{id} {
+      function mine() { return signedIn() && resource.data.uid == request.auth.uid; }
+      function validDraft() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['uid', 'name', 'email', 'kinds', 'idea', 'deliverables', 'forWhom', 'where', 'when', 'budget', 'payment', 'agreement', 'contact', 'contactValue', 'lang', 'ref', 'status', 'step', 'createdAt', 'updatedAt', 'submittedAt'])
+          && d.uid == request.auth.uid
+          && d.status in ['draft', 'submitted']
+          && (!('idea' in d) || (d.idea is string && d.idea.size() <= 5000))
+          && (!('kinds' in d) || (d.kinds is list && d.kinds.size() <= 15))
+          && (!('deliverables' in d) || (d.deliverables is list && d.deliverables.size() <= 20))
+          && (!('agreement' in d) || (d.agreement is list && d.agreement.size() <= 5))
+          && (!('payment' in d) || (d.payment is string && d.payment.size() <= 160))
+          && (!('ref' in d) || (d.ref is string && d.ref.size() <= 80))
+          && (!('contactValue' in d) || (d.contactValue is string && d.contactValue.size() <= 200));
+      }
+      // The plan the admin writes: what is made, when, for how much, who owns what, corrections and warranty.
+      function validPlan() {
+        let d = request.resource.data;
+        return !('plan' in d) || (d.plan is map
+          && d.plan.keys().hasOnly(['summary', 'includes', 'excludes', 'ownership', 'corrections', 'warrantyDays', 'price', 'currency', 'deposit', 'due', 'milestones', 'payments', 'publishedAt', 'contract'])
+          && (!('milestones' in d.plan) || (d.plan.milestones is list && d.plan.milestones.size() <= 30))
+          && (!('payments' in d.plan) || (d.plan.payments is list && d.plan.payments.size() <= 12)));
+      }
+      // A project the admin opens himself for an existing client (for example a free one he wants to track there).
+      function validAdminCreate() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['uid', 'name', 'email', 'kinds', 'idea', 'lang', 'status', 'statusAt', 'free', 'createdBy', 'plan', 'createdAt', 'updatedAt', 'submittedAt'])
+          && d.uid is string && d.createdBy == 'admin' && d.status in ['reviewing', 'proposal', 'in-progress', 'delivered']
+          && (!('free' in d) || d.free is bool) && validPlan();
+      }
+      function validRating() {
+        let r = request.resource.data.rating;
+        return r is map && r.keys().hasOnly(['stars', 'comment', 'public', 'at'])
+          && r.stars is int && r.stars >= 1 && r.stars <= 5
+          && r.comment is string && r.comment.size() <= 1000 && r.public is bool && r.at == request.time;
+      }
+      allow read: if mine() || isAdmin();
+      allow create: if (signedIn() && validDraft() && request.resource.data.status == 'draft') || (isAdmin() && validAdminCreate());
+      allow update: if
+        // The owner edits a draft and sends it.
+        (mine() && resource.data.status == 'draft' && validDraft())
+        // The owner withdraws a request that is still waiting.
+        || (mine() && resource.data.status in ['submitted', 'reviewing'] && onlyChanged(['status', 'updatedAt']) && request.resource.data.status == 'withdrawn')
+        // The owner reads and writes in the conversation of a sent request.
+        || (mine() && resource.data.status != 'draft' && onlyChanged(['clientReadAt', 'lastAt', 'lastFrom', 'updatedAt']) && sameOr('lastFrom', 'client'))
+        // The owner accepts the plan the admin published, once, at the server's time.
+        || (mine() && onlyChanged(['acceptedAt', 'updatedAt']) && !('acceptedAt' in resource.data)
+            && resource.data.get('plan', {}).get('publishedAt', null) != null && request.resource.data.acceptedAt == request.time)
+        // The owner rates a delivered request, once.
+        || (mine() && resource.data.status in ['delivered', 'closed'] && onlyChanged(['rating', 'updatedAt']) && !('rating' in resource.data) && validRating())
+        // The admin moves a sent request along, sets its priority and answers.
+        || (isAdmin() && resource.data.status != 'draft'
+            && onlyChanged(['status', 'statusAt', 'priority', 'adminReadAt', 'firstResponseAt', 'lastAt', 'lastFrom', 'updatedAt', 'plan', 'featured'])
+            && validPlan()
+            && request.resource.data.status in ['submitted', 'reviewing', 'proposal', 'in-progress', 'delivered', 'closed', 'declined', 'withdrawn']
+            && sameOr('lastFrom', 'admin')
+            && request.resource.data.get('priority', '') in ['', 'high', 'medium', 'low']);
+      allow delete: if mine() && resource.data.status == 'draft';
+
+      match /messages/{message} {
+        function owner() { return get(/databases/$(database)/documents/requests/$(id)).data; }
+        function party() { return isAdmin() || (signedIn() && owner().uid == request.auth.uid); }
+        allow read: if party();
+        allow create: if party()
+          && owner().status != 'draft'
+          && request.resource.data.keys().hasOnly(['from', 'uid', 'text', 'at'])
+          && request.resource.data.uid == request.auth.uid
+          && ((request.resource.data.from == 'admin' && isAdmin()) || (request.resource.data.from == 'client' && owner().uid == request.auth.uid))
+          && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000
+          && request.resource.data.at == request.time;
+        allow update, delete: if false;
+      }
+
+      // Private notes, seen only by the admin.
+      match /notes/{note} {
+        allow read: if isAdmin();
+        allow create: if isAdmin() && request.resource.data.keys().hasOnly(['text', 'at'])
+          && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000
+          && request.resource.data.at == request.time;
+        allow update, delete: if false;
+      }
+    }
+    // The console's settings. The public part (whether new projects are taken, the notice, the usual response time)
+    // is read by the questionnaire; only the admin writes it. Quick replies are the admin's alone.
+    match /config/site {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['accepting', 'responseDays', 'noticeEs', 'noticeEn', 'payInfoEs', 'payInfoEn', 'corrections', 'warrantyDays', 'updatedAt'])
+        && request.resource.data.get('payInfoEs', '') is string && request.resource.data.get('payInfoEs', '').size() <= 1000
+        && request.resource.data.get('payInfoEn', '') is string && request.resource.data.get('payInfoEn', '').size() <= 1000
+        && request.resource.data.get('corrections', 0) is int && request.resource.data.get('warrantyDays', 0) is int
+        && request.resource.data.accepting is bool
+        && request.resource.data.responseDays is int && request.resource.data.responseDays >= 1 && request.resource.data.responseDays <= 60
+        && request.resource.data.noticeEs is string && request.resource.data.noticeEs.size() <= 400
+        && request.resource.data.noticeEn is string && request.resource.data.noticeEn.size() <= 400;
+    }
+    // Clients' opinions the admin chooses to show on the Services page; anyone reads them.
+    match /testimonials/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && request.resource.data.keys().hasOnly(['name', 'text', 'stars', 'kind', 'at'])
+        && request.resource.data.text is string && request.resource.data.text.size() <= 1000
+        && request.resource.data.stars is int && request.resource.data.stars >= 1 && request.resource.data.stars <= 5;
+      allow delete: if isAdmin();
+    }
+    match /config/replies {
+      allow read: if isAdmin();
+      allow write: if isAdmin() && request.resource.data.keys().hasOnly(['items', 'updatedAt'])
+        && request.resource.data.items is list && request.resource.data.items.size() <= 40;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

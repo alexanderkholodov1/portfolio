@@ -1,16 +1,21 @@
 import { links, socials, profile, projects, isPending } from './content';
 
 export type Language = 'en' | 'es';
-export type Page = 'home' | 'projects' | 'about' | 'links' | 'galaxy';
-export const pages: Page[] = ['home', 'projects', 'about', 'links', 'galaxy'];
+export type Page = 'home' | 'projects' | 'services' | 'about' | 'links' | 'galaxy' | 'start' | 'project' | 'account' | 'admin' | 'experience';
+export const pages: Page[] = ['home', 'projects', 'services', 'about', 'links', 'galaxy', 'start', 'account', 'admin', 'experience'];
+// The top navigation holds only what a visitor needs (his note of 2026-11-17): Links and the galaxy's entry stay as
+// pages, reached from the footer and from Projects.
+export const navPages: Page[] = ['home', 'projects', 'experience', 'services', 'about'];
 export const paths: Record<Page, string> = {
-  home: '', projects: 'projects/', about: 'about/', links: 'links/', galaxy: 'projects/galaxy/',
+  home: '', projects: 'projects/', services: 'services/', about: 'about/', links: 'links/', galaxy: 'projects/galaxy/', start: 'start/', project: 'projects/', account: 'account/', admin: 'admin/', experience: 'experience/',
 };
 export const labels = {
-  en: { home: 'Home', projects: 'Projects', about: 'About', links: 'Links', galaxy: 'Galaxy' },
-  es: { home: 'Inicio', projects: 'Proyectos', about: 'Acerca de', links: 'Enlaces', galaxy: 'Galaxia' },
+  en: { home: 'Home', projects: 'Projects', services: 'Services', about: 'About', links: 'Links', galaxy: 'Galaxy', start: 'Start your project', project: 'Project', account: 'My account', admin: 'My account', experience: 'Experience' },
+  es: { home: 'Inicio', projects: 'Proyectos', services: 'Servicios', about: 'Acerca de', links: 'Enlaces', galaxy: 'Galaxia', start: 'Comienza tu proyecto', project: 'Proyecto', account: 'Mi cuenta', admin: 'Mi cuenta', experience: 'Experiencia' },
 };
 export function href(page: Page, lang: Language) { return `${lang === 'es' ? '/es/' : '/'}${paths[page]}`; }
+// Every project has its own page; the galaxy keeps the entry page it already had.
+export function projectHref(id: string, lang: Language) { return id === GALAXY_ID ? href('galaxy', lang) : `${href('projects', lang)}${id}/`; }
 
 export const name = profile.name;
 export const origin = 'https://alexanderkholodov.web.app';

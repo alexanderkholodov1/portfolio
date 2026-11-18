@@ -3,6 +3,46 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-11-18 — `AGENTS.md` rule 1: only the operator merges; an agent never merges, never marks a PR ready to merge it, and never pushes to or rewrites `main`. This replaces "default: the agent merges once CI is green". — An agent merged PR #11 and production shipped a home he had never seen (caspian-kb `improvement/INCIDENTS.md`, 2026-11-18 03:13Z). — decided by operator.
+
+- 2026-11-18 — New `11-home-story.md`: handoff to a new session with the home rebuild as one story (uncommitted work in
+  progress, its state and what is missing), the header mark as proposals for him to choose (he rejected the plain dot
+  and a monogram made without asking), who decides what, and how he wants the page judged — decided by operator.
+
+- 2026-11-18 — New `10-client-services.md`: every portfolio request in his Squire voice notes (2026-11-16 and
+  2026-11-18), phase 1 built in 0.2.26 (questionnaire by delivery and tier, plans with milestones and payments,
+  accepted agreements, ratings and testimonials, free projects, prepared emails) and phase 2 waiting on his accounts
+  (payments, automatic email, AI help, donations, vouchers, referrals, e-signature) — decided by operator.
+
+- 2026-11-17 — Accounts and the admin console (0.2.24–0.2.25): one sign-in page (My account) for everyone; the
+  client's home there (requests with progress, a conversation per request, profile, security); the admin console as
+  its own environment at `/admin/` with its own header (Inicio and admin buttons), loaded only after the `admin` claim
+  is confirmed (anyone else is sent to sign-in): overview with indicators and what needs attention, requests with
+  filters and CSV export, a board by stage, messages, clients, statistics, settings (availability shown to clients,
+  response time, quick replies, browser alerts, data export) and system state. Data: `users/{uid}`, `requests/{id}`
+  with the owner's uid, `messages` and admin `notes` per request, `config/site` and `config/replies`; rules tested on
+  the emulators and released on `alexanderkholodov`. His test request from before the change still lacks the `uid`
+  field (adding it needs his approval) — decided by operator.
+
+- 2026-11-17 — v0.2.0 after 0.2.11: projects as a showcase (spotlight plus grid), one page per project, an Experience
+  page by category (work, IEEE CS USFQ leadership, teaching, competitions, volunteering, recognitions, events), every card
+  with a photo from his posts. Client accounts live in `alexanderkholodov` (his decision): the web app "Portfolio" is
+  registered (`src/data/firebase-web.json`, public config, allowed by the privacy gate), Firestore `(default)` is in
+  `southamerica-east1` with `firestore.rules` released, the request desk is `/admin/` for accounts with the `admin`
+  custom claim (`scripts/grant-admin.mjs`). Pending, his step: Authentication → Get started → Email/password and
+  Google in the console (the API refuses it without billing). Incident of the day: the first database was created by a
+  rules deploy in `nam5`, then deleted and recreated without his approval; see caspian-kb `improvement/INCIDENTS.md` —
+  decided by operator.
+
+- 2026-11-17 — v0.2.0 "the new design": the identity, home, Projects, Services, About and galaxy entry from Webber's studio
+  (steps 0.2.0 to 0.2.11 on branch `v0.2.0-new-design`); the top navigation keeps Home, Projects, Services and About;
+  Services shows live demos with no prices or forms and one button to `/start/`, where a client creates an account and
+  answers one question at a time; requests live in Firestore `requests/{uid}` under deny-by-default rules
+  (`firestore.rules`, checked by `pnpm run test:rules` against the emulators). AGENTS.md's design section now records
+  the approved identity. Pending: which Firebase project holds client accounts (operator), then the production web
+  config and enabling Authentication and Firestore there — decided by operator (his words in
+  `caspian-kb/rules/sources/2026-11-16T2114Z-session-4f72775f.md`).
+
 - 2026-10-25 — Alpha.2 P2 packages proto3's own ES modules instead of React at /little-galaxy/,
   with registry three@0.170.0, B1 log replay, Google keeper ledger, independent booth selection,
   read-only timelapse and printed-QR redirects. Release artifact naming and portfolio assembly

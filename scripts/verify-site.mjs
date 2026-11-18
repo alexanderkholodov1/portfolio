@@ -3,7 +3,7 @@ import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const root = path.resolve('dist');
-const routes = ['/', '/projects/', '/about/', '/links/', '/projects/galaxy/'];
+const routes = ['/', '/start/', '/projects/', '/experience/', '/services/', '/about/', '/links/', '/projects/galaxy/'];
 for (const prefix of ['', '/es']) {
   for (const route of routes) {
     const filename = path.join(root, prefix, route, 'index.html');
@@ -29,7 +29,7 @@ assert.equal(profile.name, 'Alexander Kholodov');
 assert.equal(profile.nav.length, 5);
 assert.equal(profile.socials.length, 4);
 assert.ok(profile.role);
-assert.equal(profile.links.length, 5);
+assert.equal(profile.links.length, 4);
 assert.ok(!JSON.stringify(profile).includes('alexanderkholodov1/portfolio'));
 const metadata = JSON.parse(await readFile(path.join(root, 'little-galaxy/version.json'), 'utf8'));
 const resolved = JSON.parse(await readFile(path.join(root, 'assembly.json'), 'utf8')).games.galaxy;
