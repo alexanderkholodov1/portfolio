@@ -14,9 +14,9 @@ export function startMotion() {
   // Loops run only where the visitor is looking: every section's animations pause while it is off screen, so the
   // page never spends frames on motion nobody sees.
   const inView = new IntersectionObserver((entries) => {
-    for (const e of entries) e.target.classList.toggle('live', e.isIntersecting);
+    for (const e of entries) (e.target as HTMLElement).dataset.zone = e.isIntersecting ? 'on' : 'off';
   }, { rootMargin: '120px 0px' });
-  document.querySelectorAll('main section, main > *, footer').forEach((el) => { el.classList.add('loop'); inView.observe(el); });
+  document.querySelectorAll<HTMLElement>('main section, main > *, footer').forEach((el) => { el.dataset.zone = 'off'; inView.observe(el); });
 
   const fine = matchMedia('(pointer: fine)').matches;
   if (!fine) return;

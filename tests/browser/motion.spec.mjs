@@ -13,6 +13,15 @@ for (const route of routes) {
   test(`${route}: running animations stay on the compositor and near the screen`, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto(route);
+    // Pausing a section must never touch its layout (a pause marker once collided with a card's class and broke
+    // every page): the boxes are identical with every section paused and with every section playing.
+    const boxes = (state) => page.evaluate((s) => {
+      document.querySelectorAll('[data-zone]').forEach((el) => { el.dataset.zone = s; });
+      // offset* is layout alone; transforms (what animations move) are left out.
+      return [...document.querySelectorAll('main *')].filter((el) => el instanceof HTMLElement).slice(0, 400).map((el) => `${el.offsetLeft},${el.offsetTop},${el.offsetWidth},${el.offsetHeight}`).join(' ');
+    }, state);
+    // Pages without loops (Links, the galaxy entry) load no motion script and carry no marker.
+    if (await page.locator('[data-zone]').count()) expect(await boxes('on'), 'layout changes when sections play').toBe(await boxes('off'));
     const height = await page.evaluate(() => document.documentElement.scrollHeight);
     for (const y of [0, height / 2, height]) {
       await page.evaluate((top) => scrollTo({ top, behavior: 'instant' }), y);
