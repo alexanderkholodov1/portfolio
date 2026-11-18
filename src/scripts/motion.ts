@@ -11,6 +11,13 @@ export function startMotion() {
   }, { rootMargin: '0px 0px -8% 0px', threshold: .12 });
   document.querySelectorAll('[data-reveal]').forEach((el) => seen.observe(el));
 
+  // Loops run only where the visitor is looking: every section's animations pause while it is off screen, so the
+  // page never spends frames on motion nobody sees.
+  const inView = new IntersectionObserver((entries) => {
+    for (const e of entries) e.target.classList.toggle('live', e.isIntersecting);
+  }, { rootMargin: '120px 0px' });
+  document.querySelectorAll('main section, main > *, footer').forEach((el) => { el.classList.add('loop'); inView.observe(el); });
+
   const fine = matchMedia('(pointer: fine)').matches;
   if (!fine) return;
   document.querySelectorAll<HTMLElement>('[data-glow]').forEach((el) => {

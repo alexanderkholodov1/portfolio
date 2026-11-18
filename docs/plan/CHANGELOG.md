@@ -3,6 +3,8 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-11-18 — `11-home-story.md` deleted and replaced by `11-v0.3.0.md` (smoothness, hiring, pending content, CI that blocks only on breakage, his Squire requests) — his message of 2026-11-18 ("deberias borrar") — decided by operator.
+
 - 2026-11-18 — `AGENTS.md` rule 1: only the operator merges; an agent never merges, never marks a PR ready to merge it, and never pushes to or rewrites `main`. This replaces "default: the agent merges once CI is green". — An agent merged PR #11 and production shipped a home he had never seen (caspian-kb `improvement/INCIDENTS.md`, 2026-11-18 03:13Z). — decided by operator.
 
 - 2026-11-18 — New `11-home-story.md`: handoff to a new session with the home rebuild as one story (uncommitted work in

@@ -23,8 +23,8 @@ export function startRibbon(hero: HTMLElement) {
   const kick = () => { if (!scheduled && visible && !document.hidden) { scheduled = true; requestAnimationFrame(frame); } };
   const frame = (now: number) => {
     scheduled = false; if (!visible || document.hidden) return;
-    // The ribbon moves slowly: thirty frames a second look the same and cost half.
-    if (now - last < 30 && !reduce) { scheduled = true; requestAnimationFrame(frame); return; }
+    // Drawn on every frame the screen shows: at thirty a second its slow drift read as stutter, and a frame costs
+    // well under a millisecond (measured 2026-11-18).
     const dt = Math.max(0, Math.min((now - last) / 1000, 1 / 20)); last = now; if (!reduce) t += dt;
     // The pointer's pull eases in and out; its position is followed smoothly.
     pointer.on += ((pointer.x >= 0 ? 1 : 0) - pointer.on) * Math.min(1, dt * 3);
