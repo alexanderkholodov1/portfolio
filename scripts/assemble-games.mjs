@@ -3,7 +3,7 @@ import { access, appendFile, cp, lstat, mkdir, mkdtemp, readdir, readFile, renam
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { list, extract } from 'tar';
-import { checkPrivacy } from './privacy-check.mjs';
+import { checkPrivacy, sitePublic } from './privacy-check.mjs';
 import { isReleaseTag, resolveGameRelease } from './resolve-galaxy-release.mjs';
 
 export { isReleaseTag, resolveGameRelease } from './resolve-galaxy-release.mjs';
@@ -166,7 +166,7 @@ export async function assembleGames({ root = process.cwd(), artifactDirectory = 
       const html = await readFile(path.join(output, 'index.html'), 'utf8');
       const outside = rootResourcesOutsideMount(html, mount);
       if (outside.length) throw new Error(`App HTML loads root paths outside its mount /${mount}/: ${outside.slice(0, 3).join(', ')}`);
-      await checkPrivacy({ root, dist: output, allowedPublicKeys: [...allowedPublicKeys, ...(pin.publicKeys ?? selection.publicKeys ?? [])] });
+      await checkPrivacy({ root, dist: output, allowedPublicKeys: [...allowedPublicKeys, ...(pin.publicKeys ?? selection.publicKeys ?? [])], publicIdentifiers: (await sitePublic(root)).identifiers });
       const destination = path.join(dist, mount);
       await rm(destination, { recursive: true, force: true });
       await rename(output, destination);

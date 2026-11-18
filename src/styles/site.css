@@ -44,7 +44,7 @@ em { padding: 0 .06em; font-family: 'Instrument Serif', Georgia, serif; font-sty
 .signature::before { content: ''; width: .62rem; height: .62rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--ak-main) 50%, #fff), var(--ak-main) 60%, color-mix(in oklab, var(--ak-main) 70%, #000)); }
 .signature span { display: none; }
 .preferences { display: flex; align-items: center; gap: .5rem; }
-.preferences .tap, #theme { min-height: 2.5rem; padding: .35rem .9rem; border-radius: 999px; border: 1px solid var(--ak-line); background: color-mix(in oklab, var(--ak-page) 70%, transparent); font-size: .85rem; font-weight: 600; text-decoration: none; }
+.preferences .tap, #theme { min-height: 2.75rem; padding: .35rem .9rem; border-radius: 999px; border: 1px solid var(--ak-line); background: color-mix(in oklab, var(--ak-page) 70%, transparent); font-size: .85rem; font-weight: 600; text-decoration: none; }
 #theme[aria-pressed='true'] { background: var(--ak-text); color: var(--ak-page); }
 nav { display: flex; flex-wrap: wrap; gap: .25rem; position: relative; z-index: 5; }
 nav a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 .9rem; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: .95rem; color: var(--ak-soft); }
@@ -1089,7 +1089,7 @@ canvas, .cover, .sc, .b-out, .demo .art, .seal, .shapes { -webkit-user-select: n
 @media (max-width: 560px) {
   .masthead { padding: .6rem 0 .2rem; gap: .6rem; }
   .signature { font-size: 1rem; }
-  #theme { width: 2.5rem; padding: 0; display: inline-grid; place-items: center; }
+  #theme { width: 2.75rem; padding: 0; display: inline-grid; place-items: center; }
   #theme .t-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   #theme::before { content: ''; width: 1rem; height: 1rem; border-radius: 50%; box-shadow: inset .32rem -.16rem 0 0 currentColor; }
   body > nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: .1rem; margin-inline: -.4rem; padding-right: 3rem; mask-image: linear-gradient(90deg, #000 86%, transparent); }
@@ -1665,3 +1665,175 @@ a.con-row:hover { color: var(--ak-text); transform: translateX(3px); box-shadow:
 @media (max-width: 900px) { .focus-row, .ov-mid { grid-template-columns: minmax(0, 1fr); } .focus { min-height: 0; } }
 @media (max-width: 560px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .money dl { grid-template-columns: minmax(0, 1fr); } .pipe-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .b-window.mini .b-out { aspect-ratio: 4 / 3; }
+
+/* The home as one story (his note of 2026-11-18): who he is, what he builds, community, learning, impact, how he helps,
+   an invitation. Loops run only while their chapter is on screen ([data-chapter].in-view, src/scripts/story.ts). */
+[data-chapter]:not(.in-view) *, [data-chapter]:not(.in-view) *::before, [data-chapter]:not(.in-view) *::after { animation-play-state: paused !important; }
+
+/* The side rail: one dot per chapter, the current one stretched into a short line of light; the name on hover. */
+.story-rail { position: fixed; z-index: 20; left: clamp(.5rem, 1.2vw, 1.2rem); top: 50%; translate: 0 -50%; display: none; gap: .1rem; padding: .45rem .35rem; border-radius: 99px; background: color-mix(in oklab, var(--ak-page) 82%, transparent); box-shadow: 0 0 0 1px var(--ak-line), 0 12px 24px -18px rgba(2,11,44,.5); opacity: 0; pointer-events: none; transition: opacity .5s; }
+@media (min-width: 1240px) { .story-rail { display: grid; } }
+.story-rail.on { opacity: 1; pointer-events: auto; }
+.story-rail a { position: relative; display: grid; place-items: center; width: 1.6rem; height: 1.7rem; text-decoration: none; }
+.story-rail i { width: .42rem; height: .42rem; border-radius: 99px; background: color-mix(in oklab, var(--ak-text) 30%, transparent); transition: height .4s cubic-bezier(.2,.9,.3,1.2), background .3s; }
+.story-rail a:hover i { background: var(--ak-text); }
+.story-rail a[aria-current] i { height: 1.15rem; background: linear-gradient(180deg in oklab, var(--ak-main), var(--ak-warm)); }
+.story-rail span { position: absolute; left: calc(100% + .6rem); white-space: nowrap; padding: .3rem .7rem; border-radius: 99px; font-size: .8rem; font-weight: 700; color: var(--ak-text); background: var(--ak-card); box-shadow: 0 0 0 1px var(--ak-line), 0 10px 20px -14px rgba(2,11,44,.5); opacity: 0; translate: -6px 0; transition: opacity .25s, translate .25s; pointer-events: none; }
+.story-rail a:hover span, .story-rail a:focus-visible span { opacity: 1; translate: 0 0; }
+
+/* 01 Who I am: four beliefs, each a small drawing that moves, beside his portrait with his fields in orbit. */
+.identity::before { content: ''; position: absolute; z-index: -1; inset: 0 -30%; pointer-events: none; background: radial-gradient(35% 55% at 78% 50% in oklab, color-mix(in oklab, var(--ak-warm) calc(var(--ak-glow) * .55), var(--ak-page)), transparent 70%), radial-gradient(30% 50% at 22% 40% in oklab, color-mix(in oklab, var(--ak-main) calc(var(--ak-glow) * .35), var(--ak-page)), transparent 70%); }
+.who-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+.who-copy .lede { margin: 0; max-width: 34ch; }
+.beliefs { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.belief { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 1rem; row-gap: .15rem; align-items: center; padding: 1rem 1.15rem; border-radius: 22px; background: var(--ak-card); box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 80%, transparent), inset 0 0 0 1px var(--ak-line), 0 20px 36px -30px rgba(2,11,44,.5); }
+.belief .b-ico { grid-row: 1 / 3; width: 3.6rem; height: 3.6rem; display: grid; place-items: center; border-radius: 18px; background: radial-gradient(80% 80% at 30% 25% in oklab, color-mix(in oklab, var(--ak-main) 14%, var(--ak-card)), color-mix(in oklab, var(--ak-warm) 12%, var(--ak-card))); box-shadow: inset 0 0 0 1px var(--ak-line); }
+.belief b { align-self: end; font-size: 1.06rem; letter-spacing: -.01em; }
+.belief > span:last-child { align-self: start; color: var(--ak-soft); font-size: .94rem; line-height: 1.4; }
+.b-ico svg { width: 2.7rem; height: 2.7rem; overflow: visible; fill: none; stroke: var(--ak-main); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.b-ico svg * { transform-box: fill-box; transform-origin: center; }
+/* Fields that connect */
+.b0 .ln path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: st-draw 5s ease-in-out infinite; }
+.b0 .n { fill: var(--ak-card); stroke-width: 2.6; animation: st-node 5s ease-in-out infinite; }
+.b0 .n1 { animation-delay: .25s; } .b0 .n2 { animation-delay: .5s; } .b0 .n3 { animation-delay: .75s; } .b0 .n4 { animation-delay: 1s; }
+@keyframes st-draw { 0% { stroke-dashoffset: 1; } 35%, 80% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -1; } }
+@keyframes st-node { 0%, 8% { scale: .5; fill: var(--ak-card); } 22%, 78% { scale: 1; fill: var(--ak-warm); stroke: var(--ak-warm); } 100% { scale: .5; } }
+/* A tangle that becomes one clear line */
+.b1 .tangle { stroke: color-mix(in oklab, var(--ak-text) 40%, transparent); stroke-width: 2.2; stroke-dasharray: 1; stroke-dashoffset: 1; animation: st-tangle 5.5s ease-in-out infinite; }
+.b1 .line { stroke-width: 3.4; stroke-dasharray: 1; stroke-dashoffset: 1; animation: st-line 5.5s ease-in-out infinite; }
+.b1 .tip { stroke: var(--ak-warm); stroke-width: 3.4; stroke-dasharray: 1; stroke-dashoffset: 1; animation: st-tip 5.5s ease-in-out infinite; }
+@keyframes st-tangle { 0% { stroke-dashoffset: 1; opacity: 1; } 32%, 46% { stroke-dashoffset: 0; opacity: 1; } 58%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes st-line { 0%, 48% { stroke-dashoffset: 1; opacity: 1; } 66%, 90% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes st-tip { 0%, 62% { stroke-dashoffset: 1; opacity: 1; } 72%, 90% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+/* People of every size, each greeted in turn */
+.b2 .p { stroke: none; fill: var(--ak-main); transform-origin: 50% 100%; animation: st-hello 3s ease-in-out infinite; }
+.b2 .p0 { fill: var(--ak-warm); } .b2 .p1 { animation-delay: .25s; } .b2 .p2 { fill: var(--ak-second); animation-delay: .5s; }
+@keyframes st-hello { 0%, 45%, 100% { translate: 0 0; } 20% { translate: 0 -6px; } }
+/* A mark that spreads */
+.b3 .rp { stroke-width: 2; opacity: 0; animation: st-ripple 3.6s ease-out infinite; }
+.b3 .rp1 { animation-delay: 1.2s; } .b3 .rp2 { animation-delay: 2.4s; }
+.b3 .star { fill: var(--ak-warm); stroke: var(--ak-warm); stroke-width: 1.6; animation: st-twinkle 3.6s ease-in-out infinite; }
+@keyframes st-ripple { 0% { scale: .3; opacity: .9; } 100% { scale: 1; opacity: 0; } }
+@keyframes st-twinkle { 0%, 100% { scale: 1; rotate: 0deg; } 50% { scale: 1.14; rotate: 14deg; } }
+
+/* His portrait at the centre, his fields on two rings that turn together (so their labels never cross) and stay upright. */
+.orbits { --r1: 37cqw; --r2: 47cqw; position: relative; width: min(100%, 31rem); aspect-ratio: 1; margin-inline: auto; container-type: inline-size; }
+.orbits .ring { position: absolute; border-radius: 50%; pointer-events: none; }
+.orbits .r1 { inset: 13%; border: 1.5px dashed color-mix(in oklab, var(--ak-main) 32%, transparent); }
+.orbits .r2 { inset: 3%; border: 1px solid color-mix(in oklab, var(--ak-text) 9%, transparent); }
+.orbits .r3 { inset: 22%; background: radial-gradient(closest-side in oklab, color-mix(in oklab, var(--ak-warm) 30%, transparent), transparent); }
+.orbits .core { position: absolute; inset: 26%; border-radius: 50%; overflow: hidden; background: color-mix(in oklab, var(--ak-main) 12%, var(--ak-card)); box-shadow: 0 0 0 6px var(--ak-card), 0 0 0 7px var(--ak-line), 0 34px 60px -30px rgba(2,11,44,.6); }
+.orbits .core img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
+.orb { position: absolute; inset: 0; animation: st-spin 80s linear infinite; }
+.orb.o2 { animation-duration: 80s; }
+.orb .sat { position: absolute; left: 50%; top: 50%; transform: rotate(var(--a)) translateX(var(--r1)) rotate(calc(-1 * var(--a))); }
+.orb.o2 .sat { transform: rotate(var(--a)) translateX(var(--r2)) rotate(calc(-1 * var(--a))); }
+.orb .sat i { display: inline-flex; align-items: center; gap: .45rem; translate: -50% -50%; padding: .42rem .85rem .42rem .6rem; border-radius: 99px; font-style: normal; font-size: .86rem; font-weight: 700; white-space: nowrap; background: var(--ak-card); box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 80%, transparent), 0 0 0 1px var(--ak-line), 0 14px 26px -18px rgba(2,11,44,.55); animation: st-spin 80s linear infinite reverse; }
+
+.orb .sat i::before { content: ''; width: .55rem; height: .55rem; border-radius: 50%; background: var(--ak-main); }
+.orb .sat:nth-child(3n+2) i::before { background: var(--ak-warm); } .orb .sat:nth-child(3n) i::before { background: var(--ak-second); }
+@keyframes st-spin { to { rotate: 360deg; } }
+
+/* 03 Community: a board of stickers, his roles as holographic ones with their periods, the events around them. */
+.comm-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 1rem 2rem; }
+.comm-head h2 { margin-bottom: .6rem; }
+.comm-head .lede { margin: 0; }
+.drag-hint { display: inline-flex; align-items: center; gap: .5rem; margin: 0; padding: .55rem 1rem; border-radius: 99px; font-size: .9rem; font-weight: 700; color: var(--ak-soft); box-shadow: inset 0 0 0 1px var(--ak-line); }
+.drag-hint svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.board { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: center; gap: 1.1rem 1.2rem; min-height: 24rem; margin-top: 2.2rem; padding: clamp(1.6rem, 4vw, 3rem); border-radius: 34px;
+  background: radial-gradient(rgba(255,255,255,.1) 1px, transparent 1.6px) 0 0 / 22px 22px, radial-gradient(50% 60% at 20% 20% in oklab, rgba(5,106,214,.35), transparent 70%), radial-gradient(45% 55% at 85% 85% in oklab, rgba(255,142,82,.22), transparent 70%), rgba(255,255,255,.035);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.09), inset 0 30px 60px -40px rgba(0,0,0,.6); }
+.stk { --tx: 0px; --ty: 0px; --dr: 0deg; position: relative; display: inline-grid; justify-items: start; align-content: center; gap: .1rem; padding: .7rem 1.05rem; border-radius: 16px; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; transform: translate(var(--tx), calc(var(--ty) + var(--oy))) rotate(calc(var(--r) + var(--dr))); transition: transform .4s cubic-bezier(.2,.9,.3,1.3), box-shadow .3s; box-shadow: 0 0 0 3px #fff, 0 12px 22px -12px rgba(0,0,0,.65); }
+.stk:hover { box-shadow: 0 0 0 3px #fff, 0 20px 30px -14px rgba(0,0,0,.7); }
+.stk.drag { cursor: grabbing; transition: box-shadow .3s; scale: 1.07; box-shadow: 0 0 0 3px #fff, 0 30px 44px -18px rgba(0,0,0,.75); }
+.stk b { font-size: .98rem; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; white-space: nowrap; }
+[data-js] .board:not(.in) .stk { opacity: 0; }
+.board.in .stk { animation: st-slap .6s calc(var(--i) * 45ms) cubic-bezier(.2,.9,.3,1.3) both; }
+.board.in .stk.pop { animation: st-pop .5s cubic-bezier(.2,.9,.3,1.4); }
+@keyframes st-slap { from { opacity: 0; scale: 1.7; } 60% { opacity: 1; } to { opacity: 1; scale: 1; } }
+@keyframes st-pop { 35% { scale: 1.16; rotate: 5deg; } 70% { scale: .96; rotate: -3deg; } 100% { scale: 1; rotate: 0deg; } }
+.stk.st-role { min-width: 10.5rem; padding: .8rem 1.15rem .75rem; color: #071433; overflow: hidden; isolation: isolate;
+  background: linear-gradient(115deg in oklab, #dceaff 0%, #ffe2d1 28%, #ffd9dc 46%, #d6ecff 66%, #fff0e2 100%) 0 0 / 240% 100%; transition: transform .4s cubic-bezier(.2,.9,.3,1.3), box-shadow .3s, background-position 1.2s ease; }
+.stk.st-role:hover, .stk.st-role.drag { background-position: 100% 0; }
+.stk.st-role::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.85) 50%, transparent 65%) -150% 0 / 60% 100% no-repeat; transition: background-position 1s ease; }
+.stk.st-role:hover::after, .stk.st-role.drag::after { background-position: 250% 0; }
+.stk.st-role small { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #056ad6; }
+.stk.st-role b { font-size: 1.06rem; color: #020b2c; }
+.stk.st-role em { padding: 0; font-family: inherit; font-style: normal; font-size: .82rem; font-weight: 600; letter-spacing: 0; color: rgba(2,11,44,.62); }
+.stk.st-ev { border-radius: 14px; }
+.stk.st-ev.v0 { background: #fff; color: #020b2c; }
+.stk.st-ev.v1 { border-radius: 99px; background: linear-gradient(135deg in oklab, #3d8ff0, #056ad6); color: #fff; }
+.stk.st-ev.v2 { background: linear-gradient(135deg in oklab, #ffc2a0, #ff8e52); color: #2a0d00; }
+.stk.st-ev.v3 { border-radius: 99px; background: #fff; color: #020b2c; }
+.stk.st-ev.v4 { background: linear-gradient(135deg in oklab, #3d8ff0, #056ad6); color: #fff; }
+
+/* 05 Impact: each card shows a real problem, then turns to the project that answered it. */
+.flips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.1rem; margin-top: 2rem; perspective: 1400px; }
+.flip { display: block; aspect-ratio: 4 / 3.3; text-decoration: none; color: var(--ak-text); border-radius: 26px; }
+.flip:hover { color: var(--ak-text); }
+.flip-in { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.2,.8,.2,1); }
+.flip.on .flip-in, .flip:hover .flip-in, .flip:focus-visible .flip-in { transform: rotateY(180deg); }
+.flip .face { position: absolute; inset: 0; display: grid; align-content: space-between; padding: 1.4rem 1.5rem; border: 0; border-radius: 26px; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip .face.front { background: radial-gradient(70% 60% at 100% 100% in oklab, color-mix(in oklab, var(--ak-warm) 22%, var(--ak-card)), transparent 70%), var(--ak-card); box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 80%, transparent), inset 0 0 0 1px var(--ak-line), 0 24px 40px -30px rgba(2,11,44,.55); }
+.flip .front small, .flip .back small { font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.flip .front small { color: var(--ak-second); }
+.flip .front b { position: relative; z-index: 1; max-width: 17ch; font-size: clamp(1.25rem, 1.9vw, 1.6rem); line-height: 1.22; letter-spacing: -.02em; }
+.flip .qmark { position: absolute; right: .4rem; bottom: -3.2rem; font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 12rem; line-height: 1; color: color-mix(in oklab, var(--ak-warm) 45%, transparent); pointer-events: none; }
+.flip .face.back { transform: rotateY(180deg); background: #020b2c; color: #fff; box-shadow: 0 24px 40px -30px rgba(2,11,44,.7); }
+.flip .back img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.flip .back::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(2,11,44,.88)); }
+.back-text { position: relative; z-index: 1; grid-row: 2; display: grid; gap: .2rem; }
+.flip .back small { color: #ffd0b5; }
+.back-text b { font-size: clamp(1.4rem, 2.2vw, 1.9rem); letter-spacing: -.02em; }
+
+/* 06 How I help: the process line now sits beside the list instead of inside it. */
+.steps-wrap { position: relative; }
+.steps-wrap .track { position: absolute; display: block; width: auto; left: 1.4rem; right: calc(25% - 1.4rem); top: calc(1.1rem + 1.35rem); height: 2px; border-radius: 2px; animation: none; background: linear-gradient(90deg, rgba(255,255,255,.3), rgba(255,142,82,.45)); }
+.steps-wrap .track i { position: absolute; top: 50%; left: 0; width: 3.5rem; height: 6px; translate: 0 -50%; border-radius: 6px; background: linear-gradient(90deg, transparent, var(--ak-warm), #fff); animation: travel 6s cubic-bezier(.65,0,.35,1) infinite; }
+@media (max-width: 900px) { .steps-wrap .track { display: none; } }
+
+/* 07 Let's talk: an idea that takes off and lands as a shared result, and every way to reach him. */
+.talk::before { content: ''; position: absolute; z-index: -1; inset: 0 -30%; pointer-events: none; background: radial-gradient(40% 60% at 75% 45% in oklab, color-mix(in oklab, var(--ak-main) calc(var(--ak-glow) * .45), var(--ak-page)), transparent 70%), radial-gradient(30% 50% at 20% 80% in oklab, color-mix(in oklab, var(--ak-warm) calc(var(--ak-glow) * .6), var(--ak-page)), transparent 70%); }
+.talk-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+.talk-copy .lede { margin: 0; max-width: 36ch; }
+.talk-or, .topics-label { margin: 1.8rem 0 .7rem; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--ak-soft); }
+.talk-socials { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .55rem; }
+.soc-ico { display: inline-flex; align-items: center; gap: .55rem; min-height: 2.9rem; padding: 0 1.05rem 0 .4rem; border-radius: 99px; text-decoration: none; font-weight: 700; color: var(--ak-text); background: var(--ak-card); box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 80%, transparent), inset 0 0 0 1px var(--ak-line), 0 12px 24px -20px rgba(2,11,44,.5); transition: translate .3s cubic-bezier(.2,.9,.3,1.4), box-shadow .3s; }
+.soc-ico:hover { translate: 0 -3px; color: var(--ak-text); box-shadow: inset 0 0 0 1px var(--ak-line), 0 18px 28px -18px rgba(2,11,44,.55); }
+.soc-ico svg { width: 2.1rem; height: 2.1rem; padding: .45rem; border-radius: 50%; color: #fff; background: linear-gradient(160deg in oklab, color-mix(in oklab, var(--ak-main) 75%, #fff), var(--ak-main)); transition: rotate .45s cubic-bezier(.2,.9,.3,1.5); }
+.soc-ico:hover svg { rotate: -10deg; }
+.talk-art { position: relative; text-align: center; }
+.flight { display: block; width: 100%; height: auto; overflow: visible; }
+.flight .trail { fill: none; stroke: color-mix(in oklab, var(--ak-main) 45%, transparent); stroke-width: 2.2; stroke-dasharray: 2 10; stroke-linecap: round; }
+.flight .from circle:first-child { fill: color-mix(in oklab, var(--ak-warm) 18%, var(--ak-card)); stroke: var(--ak-warm); stroke-width: 2; }
+.flight .from path { fill: none; stroke: var(--ak-warm); stroke-width: 2.4; stroke-linecap: round; }
+.flight .from .bulb { fill: var(--ak-warm); }
+.flight .to circle { fill: var(--ak-main); }
+.flight .to .halo { fill: color-mix(in oklab, var(--ak-main) 20%, transparent); transform-box: fill-box; transform-origin: center; animation: st-halo 2.8s ease-in-out infinite; }
+.flight .to path { fill: #fff; }
+.flight .plane path:first-child { fill: var(--ak-main); } .flight .plane path:last-child { fill: color-mix(in oklab, var(--ak-main) 55%, #020b2c); }
+@keyframes st-halo { 50% { scale: 1.25; opacity: .5; } }
+.topics { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
+.topics li { padding: .45rem .95rem; border-radius: 99px; font-size: .9rem; font-weight: 700; background: var(--ak-card); box-shadow: inset 0 0 0 1px var(--ak-line), 0 10px 20px -16px rgba(2,11,44,.5); animation: st-float 4.5s calc(var(--i) * -.75s) ease-in-out infinite alternate; }
+@keyframes st-float { to { translate: 0 -5px; } }
+
+@media (max-width: 1000px) {
+  .who-grid, .talk-grid { grid-template-columns: minmax(0, 1fr); }
+  .orbits { width: min(100%, 26rem); }
+  .flips { grid-template-columns: minmax(0, 1fr); }
+  .flip { aspect-ratio: auto; min-height: 15rem; }
+}
+@media (max-width: 620px) {
+  .beliefs { grid-template-columns: minmax(0, 1fr); }
+  .orbits { --r1: 31cqw; --r2: 42cqw; }
+  .orb .sat i { font-size: .78rem; padding: .34rem .7rem .34rem .5rem; }
+  .board { min-height: 0; gap: .8rem .7rem; padding: 1.3rem .9rem; border-radius: 26px; }
+  .board { row-gap: 1rem; } .stk { padding: .5rem .75rem; transform: translate(var(--tx), var(--ty)) rotate(calc(var(--r) * .35 + var(--dr))); } .stk b { font-size: .84rem; } .stk.st-role { min-width: 0; } .stk.st-role b { font-size: .92rem; } .stk.extra { display: none; }
+}
+@media (pointer: coarse) { .stk { touch-action: pan-y; } }
+@media (prefers-reduced-motion: reduce) {
+  .b-ico *, .orb, .orb .sat i, .topics li, .flight .to .halo, .steps-wrap .track i { animation: none !important; }
+  .b0 .ln path, .b1 .line, .b1 .tip { stroke-dashoffset: 0; } .b1 .tangle { display: none; } .b0 .n { fill: var(--ak-warm); stroke: var(--ak-warm); } .b3 .rp1 { opacity: .35; scale: .8; }
+  .board.in .stk, .board.in .stk.pop { animation: none; } [data-js] .board:not(.in) .stk { opacity: 1; }
+  .flip-in, .stk { transition: none; }
+}

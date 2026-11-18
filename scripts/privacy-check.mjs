@@ -64,17 +64,22 @@ export async function checkPrivacy({ root = process.cwd(), dist = path.join(root
   return output.length;
 }
 
+// The site's own public web config (src/data/firebase-web.json, client accounts): its key and the identifiers the
+// pages link to (project id, auth domain, bucket). Shared by this gate and by game assembly, so a mounted app that links
+// back to the site is never mistaken for a leak.
+export async function sitePublic(root = process.cwd()) {
+  try {
+    const web = JSON.parse(await readFile(path.join(root, 'src/data/firebase-web.json'), 'utf8'));
+    return { keys: [web.apiKey].filter(Boolean), identifiers: [web.projectId, web.authDomain, web.storageBucket].filter((x) => typeof x === 'string') };
+  } catch { return { keys: [], identifiers: [] }; /* no web app registered */ }
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     // Public web keys: the site's own (environment) plus the ones mounted apps declare in games.json.
     const games = JSON.parse(await readFile(path.join(process.cwd(), 'games.json'), 'utf8')).games ?? {};
     const declared = Object.values(games).flatMap((pin) => (Array.isArray(pin?.publicKeys) ? pin.publicKeys : []));
-    // The site's own web app (client accounts) ships its public web config from src/data/firebase-web.json.
-    const identifiers = [];
-    try {
-      const web = JSON.parse(await readFile(path.join(process.cwd(), 'src/data/firebase-web.json'), 'utf8'));
-      declared.push(web.apiKey); identifiers.push(web.projectId, web.authDomain, web.storageBucket);
-    } catch { /* no web app registered */ }
-    console.log(`Privacy gate passed: ${await checkPrivacy({ allowedPublicKeys: [process.env.VITE_FIREBASE_API_KEY, ...declared].filter(Boolean), publicIdentifiers: identifiers.filter((x) => typeof x === 'string') })} files`);
+    const site = await sitePublic();
+    console.log(`Privacy gate passed: ${await checkPrivacy({ allowedPublicKeys: [process.env.VITE_FIREBASE_API_KEY, ...declared, ...site.keys].filter(Boolean), publicIdentifiers: site.identifiers })} files`);
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
