@@ -13,7 +13,8 @@ test.beforeEach(async ({ context }) => {
 
 test('bilingual route counterparts and complete navigation at phone width', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  for (const route of ['/', '/start/', '/projects/', '/experience/', '/services/', '/about/', '/links/', '/projects/galaxy/']) {
+  // /start/ sends a visitor without an account to sign in first (My account), so it is checked on its own below.
+  for (const route of ['/', '/projects/', '/experience/', '/services/', '/about/', '/links/', '/projects/galaxy/']) {
     await page.goto(route);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     const spanish = page.getByRole('link', { name: 'Read this page in Spanish' });
@@ -23,6 +24,11 @@ test('bilingual route counterparts and complete navigation at phone width', asyn
     await expect(page.locator('h1')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await expect(page.getByRole('link', { name: 'Leer esta página en inglés' })).toHaveAttribute('href', route);
+  }
+  for (const [route, lang] of [['/start/', 'en'], ['/es/start/', 'es']]) {
+    await page.goto(route);
+    await expect(page).toHaveURL(new RegExp(`${lang === 'es' ? '/es' : ''}/account/`));
+    await expect(page.locator('html')).toHaveAttribute('lang', lang);
   }
 });
 
