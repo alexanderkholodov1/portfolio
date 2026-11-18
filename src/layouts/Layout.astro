@@ -47,8 +47,9 @@ const own = page ? href(page, lang) : undefined;
     <header class="masthead">
       <a class="signature" href={href('home', lang)}>{name}<span>{t.brand}</span></a>
       <div class="preferences">
-        <a class="tap" href={counterpart} lang={other} hreflang={other} aria-label={t.language}>{other === 'es' ? 'Español' : 'English'}</a>
+        <a class="tap" href={counterpart} lang={other} hreflang={other} aria-label={t.language}><span class="lang-long">{other === 'es' ? 'Español' : 'English'}</span><span class="lang-short" aria-hidden="true">{other.toUpperCase()}</span></a>
         <button id="theme" aria-pressed="false"><span class="t-label">{t.theme}</span></button>
+        <a class="tap acct-link" href={href('account', lang)} aria-current={page === 'account' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="t-label">{t.myAccount}</span></a>
       </div>
     </header>
     <nav aria-label={t.nav}>

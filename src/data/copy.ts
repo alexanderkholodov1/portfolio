@@ -3,7 +3,7 @@ import type { Language } from './site';
 
 export const copy = {
   en: {
-    skip: 'Skip to content', nav: 'Main navigation', theme: 'Dark theme', brand: 'Portfolio', language: 'Read this page in Spanish',
+    skip: 'Skip to content', nav: 'Main navigation', theme: 'Dark theme', myAccount: 'My account', brand: 'Portfolio', language: 'Read this page in Spanish',
     home: {
       title: 'Portfolio', description: 'Alexander Kholodov builds games, scientific platforms, AI tools and websites in Quito. Projects you can try now, his experience and services.',
       eyebrow: 'Portfolio', featured: 'Featured', index: 'Index',
@@ -49,6 +49,20 @@ export const copy = {
         'dragon-ocean-analyzer': 'Analyse the underwater soundscape of Galápagos with machine learning.',
         'aklabs-store': 'The AKLabs merch shop, from product to checkout.',
       },
+    },
+    account: {
+      description: 'Your account: your requests, our conversation and your details.', loading: 'Loading your account…',
+      gate: { eyebrow: 'Your account', title: ['Your space ', 'to work with me'], lead: 'Sign in to follow your requests, talk with me and pick up your drafts.', perks: ['Follow the status of every request', 'Talk with me in one place', 'Pick up your drafts whenever you like'], startLead: 'To start your project, sign in or create your account first. It takes about a minute.' },
+      signin: { titleIn: 'Sign in', titleUp: 'Create your account', titleReset: 'Reset your password', google: 'Continue with Google', or: 'or with your email', name: 'Your name', email: 'Email', password: 'Password', passwordNew: 'Password (at least 6 characters)', show: 'Show', hide: 'Hide', in: 'Sign in', up: 'Create my account', toUp: 'No account yet? Create one', toIn: 'Already have an account? Sign in', forgot: 'Forgot your password?', resetLead: 'I will send you a link to choose a new one.', resetSend: 'Send the link', resetSent: 'Done. If an account uses that email, a link will arrive in a few minutes.', back: 'Back' },
+      errors: { generic: 'Something went wrong. Please try again.', email: 'That email address is not valid.', inUse: 'This email already has an account. Sign in instead.', weak: 'The password needs at least 6 characters.', wrong: 'The email or the password is not correct.', popup: 'The Google window closed before finishing.', tooMany: 'Too many attempts. Please wait a moment.', required: 'Please fill in every field.' },
+      nav: { overview: 'Overview', requests: 'My requests', profile: 'Profile', security: 'Security', out: 'Sign out', new: 'New request' },
+      overview: { hello: 'Hello, ', lead: 'Here you follow your projects with me: their status, our conversation and your details.', newTitle: ['Tell me your ', 'next idea'], newLead: 'A few short questions, about 5 minutes. Your progress saves itself.', latest: 'Your latest request', draft: 'A draft you have not sent', continue: 'Continue', unread: 'New message from Alexander', open: 'Open', empty: 'You have no requests yet. When you send your first one, you will see it here with its status.', explore: 'Meanwhile', services: 'See what I can make', projects: 'See my projects' },
+      requests: { title: ['My ', 'requests'], lead: 'Every idea you send me, with its status and our conversation.', all: 'All', active: 'Active', drafts: 'Drafts', closed: 'Closed', empty: 'No requests here.', updated: 'Updated', sent: 'Sent', created: 'Started', untitled: 'Request', discard: 'Discard', sure: 'Discard this draft?', yes: 'Yes, discard', no: 'No', newMsg: 'New message' },
+      detail: { back: 'My requests', progress: 'Progress', steps: ['Received', 'In review', 'Proposal', 'In progress', 'Delivered'], chat: 'Conversation', chatLead: 'Write me any detail or question here. I will answer in this same place.', placeholder: 'Write a message…', send: 'Send', you: 'You', him: 'Alexander', noMsgs: 'No messages yet.', answers: 'Your answers', withdraw: 'Withdraw this request', withdrawSure: 'Sure? I will stop working on it.', withdrawYes: 'Yes, withdraw', ended: { closed: 'This request is closed.', declined: 'This time I cannot take this project.', withdrawn: 'You withdrew this request.' } },
+      profile: { title: ['Your ', 'profile'], lead: 'I use these details to get back to you. Only you and I see them.', name: 'Name', email: 'Email', contact: 'Reach me by', contacts: ['Email', 'WhatsApp', 'Phone call'], number: 'Your number, with country code', lang: 'Write to me in', langs: { es: 'Español', en: 'English' }, save: 'Save changes', saved: 'Saved' },
+      security: { title: ['', 'Security'], lead: 'How you get into your account.', method: 'Sign-in method', google: 'Google', password: 'Email and password', created: 'Account created', last: 'Last sign-in', change: 'Change your password', changeLead: 'I will send a link to your email to choose a new password.', sent: 'The link is on its way. Check your email.', googleNote: 'Google manages the password of this account.', out: 'Sign out' },
+      statuses: { draft: 'Draft', submitted: 'Received', reviewing: 'In review', proposal: 'Proposal sent', 'in-progress': 'In progress', delivered: 'Delivered', closed: 'Closed', declined: 'Declined', withdrawn: 'Withdrawn' },
+      fields: { kinds: 'What', idea: 'Idea', forWhom: 'For', where: 'Where', when: 'When', budget: 'Budget', contact: 'Contact' },
     },
     achieve: { kicker: 'Highlights', roles: 'Roles' },
     tryNow: { kicker: 'Try it now', title: ['Projects you can ', 'use today'], lead: 'Live, free and one click away.', live: 'Live', verbs: { 'farpoint-horizon': 'Play', galaxy: 'Enter', 'munhub-lab': 'See live data', 'pancho-bus': 'Try the demo', nivela: 'Try the demo', 'sublime-airlift': 'Play' } },
@@ -104,12 +118,10 @@ export const copy = {
       endTitle: ['Ready ', 'to begin?'], endLead: 'Create your account, answer a few short questions and receive a proposal for your project.',
     },
     start: {
-      eyebrow: 'Your project', title: ['Let’s start ', 'your project'], description: 'Create your account and tell Alexander Kholodov about your project.',
+      eyebrow: 'Your project', title: ['Let’s start ', 'your project'], description: 'Tell Alexander Kholodov about your project, one question at a time.',
       total: 'About 5 minutes in total. Your progress is saved as you go.',
       steps: ['Account', 'Your idea', 'Details', 'Contact', 'Review'],
-      account: { title: 'Create your account', lead: 'With your account you can follow your project, see its progress and keep our conversation in one place.', time: 'About 1 minute',
-        google: 'Continue with Google', or: 'or with your email', name: 'Your name', email: 'Email', password: 'Password (at least 6 characters)', create: 'Create my account', have: 'I already have an account', signin: 'Sign in', need: 'Create a new account instead' },
-      question: 'Question', of: 'of', next: 'Continue', back: 'Back', optional: 'Optional', saved: 'Saved',
+      question: 'Question', of: 'of', next: 'Continue', back: 'Back', optional: 'Optional', saved: 'Saved', loading: 'Loading your request…',
       q: [
         { key: 'kinds', title: 'What would you like to create?', hint: 'Choose one or more.', time: 'About 20 seconds', type: 'multi', options: ['Website', 'App', 'Video game', 'Automation or bot', 'AI agent', 'Design', 'Video', '3D model', 'Something else'] },
         { key: 'idea', title: 'Tell me about your idea', hint: 'What should it do, who will use it, and any reference you like. A few lines are enough.', time: 'About 2 minutes', type: 'text', placeholder: 'For example, a website for my café where people can see the menu and book a table.' },
@@ -120,10 +132,9 @@ export const copy = {
         { key: 'contact', title: 'How would you like me to reach you?', time: 'About 20 seconds', type: 'contact', options: ['Email', 'WhatsApp', 'Phone call'], placeholder: 'Your number, with country code' },
       ],
       review: { title: 'Review your request', lead: 'You can go back to any answer before sending.', edit: 'Edit', send: 'Send my request' },
-      done: { statuses: { submitted: 'Received', reviewing: 'In review', proposal: 'Proposal sent', 'in-progress': 'In progress', delivered: 'Delivered', closed: 'Closed', declined: 'Declined' }, from: 'Message from Alexander', title: ['Request ', 'received'], lead: 'Thank you. I will review your idea and write to you with a proposal. You can come back to this page at any time to see its status.', status: 'Status', received: 'Received', out: 'Sign out' },
+      done: { statuses: { submitted: 'Received', reviewing: 'In review', proposal: 'Proposal sent', 'in-progress': 'In progress', delivered: 'Delivered', closed: 'Closed', declined: 'Declined' }, title: ['Request ', 'received'], lead: 'Thank you. I will review your idea and write to you with a proposal. Follow its status and talk with me from your account.', status: 'Status', received: 'Received', view: 'See my requests', another: 'Send another idea' },
       errors: { generic: 'Something went wrong. Please try again.', email: 'That email address is not valid.', inUse: 'This email already has an account. Sign in instead.', weak: 'The password needs at least 6 characters.', wrong: 'The email or the password is not correct.', required: 'Please answer to continue.' },
     },
-    admin: { description: 'Requests', title: 'Requests', signin: 'Sign in', email: 'Email', password: 'Password', google: 'Continue with Google', denied: 'This account cannot open the request desk.', out: 'Sign out', all: 'All', empty: 'No requests here yet.', save: 'Save', saved: 'Saved', message: 'Message to the client', status: 'Status', note: 'Private note', addNote: 'Add note', notes: 'Private notes', priority: 'Priority', statuses: { submitted: 'Received', reviewing: 'In review', proposal: 'Proposal sent', 'in-progress': 'In progress', delivered: 'Delivered', closed: 'Closed', declined: 'Declined' }, fields: { email: 'Email', kinds: 'What', idea: 'Idea', forWhom: 'For', where: 'Where', when: 'When', budget: 'Budget', contact: 'Contact by', contactValue: 'Contact', lang: 'Language' } },
     experiencePage: {
       eyebrow: 'Experience', description: 'Work, IEEE Computer Society USFQ, competitions, teaching, volunteering and events of Alexander Kholodov.',
       title: ['My ', 'experience'], lead: 'Work, leadership, competitions, teaching and community, apart from the projects I build.',
@@ -140,7 +151,7 @@ export const copy = {
     footerLinks: 'Links',
   },
   es: {
-    skip: 'Saltar al contenido', nav: 'Navegación principal', theme: 'Tema oscuro', brand: 'Portafolio', language: 'Leer esta página en inglés',
+    skip: 'Saltar al contenido', nav: 'Navegación principal', theme: 'Tema oscuro', myAccount: 'Mi cuenta', brand: 'Portafolio', language: 'Leer esta página en inglés',
     home: {
       title: 'Portafolio', description: 'Alexander Kholodov crea videojuegos, plataformas científicas, herramientas de IA y sitios web en Quito. Proyectos para probar ahora, su experiencia y servicios.',
       eyebrow: 'Portafolio', featured: 'Destacado', index: 'Índice',
@@ -186,6 +197,20 @@ export const copy = {
         'dragon-ocean-analyzer': 'Analiza el paisaje sonoro submarino de Galápagos con aprendizaje automático.',
         'aklabs-store': 'La tienda del merch de AKLabs, del producto al pago.',
       },
+    },
+    account: {
+      description: 'Tu cuenta: tus solicitudes, nuestra conversación y tus datos.', loading: 'Cargando tu cuenta…',
+      gate: { eyebrow: 'Tu cuenta', title: ['Tu espacio ', 'para trabajar conmigo'], lead: 'Inicia sesión para seguir tus solicitudes, conversar conmigo y retomar tus borradores.', perks: ['Sigue el estado de cada solicitud', 'Conversa conmigo en un solo lugar', 'Retoma tus borradores cuando quieras'], startLead: 'Para comenzar tu proyecto, primero inicia sesión o crea tu cuenta. Toma alrededor de un minuto.' },
+      signin: { titleIn: 'Inicia sesión', titleUp: 'Crea tu cuenta', titleReset: 'Recupera tu contraseña', google: 'Continuar con Google', or: 'o con tu correo', name: 'Tu nombre', email: 'Correo electrónico', password: 'Contraseña', passwordNew: 'Contraseña (mínimo 6 caracteres)', show: 'Mostrar', hide: 'Ocultar', in: 'Iniciar sesión', up: 'Crear mi cuenta', toUp: '¿No tienes cuenta? Crea una', toIn: '¿Ya tienes cuenta? Inicia sesión', forgot: '¿Olvidaste tu contraseña?', resetLead: 'Te enviaré un enlace para crear una nueva.', resetSend: 'Enviar el enlace', resetSent: 'Listo. Si hay una cuenta con ese correo, te llegará un enlace en unos minutos.', back: 'Volver' },
+      errors: { generic: 'Algo salió mal. Por favor, inténtalo de nuevo.', email: 'Ese correo no es válido.', inUse: 'Este correo ya tiene una cuenta. Inicia sesión.', weak: 'La contraseña necesita al menos 6 caracteres.', wrong: 'El correo o la contraseña no son correctos.', popup: 'La ventana de Google se cerró antes de terminar.', tooMany: 'Demasiados intentos. Espera un momento.', required: 'Completa todos los campos.' },
+      nav: { overview: 'Resumen', requests: 'Mis solicitudes', profile: 'Perfil', security: 'Seguridad', out: 'Cerrar sesión', new: 'Nueva solicitud' },
+      overview: { hello: 'Hola, ', lead: 'Aquí sigues tus proyectos conmigo: su estado, nuestra conversación y tus datos.', newTitle: ['Cuéntame tu ', 'próxima idea'], newLead: 'Unas preguntas breves, unos 5 minutos. Tu avance se guarda solo.', latest: 'Tu última solicitud', draft: 'Un borrador sin enviar', continue: 'Continuar', unread: 'Mensaje nuevo de Alexander', open: 'Abrir', empty: 'Aún no tienes solicitudes. Cuando envíes la primera, la verás aquí con su estado.', explore: 'Mientras tanto', services: 'Ver lo que puedo hacer', projects: 'Ver mis proyectos' },
+      requests: { title: ['Mis ', 'solicitudes'], lead: 'Cada idea que me envías, con su estado y nuestra conversación.', all: 'Todas', active: 'Activas', drafts: 'Borradores', closed: 'Cerradas', empty: 'No hay solicitudes aquí.', updated: 'Actualizada', sent: 'Enviada', created: 'Empezada', untitled: 'Solicitud', discard: 'Descartar', sure: '¿Descartar este borrador?', yes: 'Sí, descartar', no: 'No', newMsg: 'Mensaje nuevo' },
+      detail: { back: 'Mis solicitudes', progress: 'Avance', steps: ['Recibida', 'En revisión', 'Propuesta', 'En desarrollo', 'Entregada'], chat: 'Conversación', chatLead: 'Escríbeme aquí cualquier detalle o pregunta. Te responderé en este mismo lugar.', placeholder: 'Escribe un mensaje…', send: 'Enviar', you: 'Tú', him: 'Alexander', noMsgs: 'Aún no hay mensajes.', answers: 'Tus respuestas', withdraw: 'Retirar esta solicitud', withdrawSure: '¿Seguro? Dejaré de trabajar en ella.', withdrawYes: 'Sí, retirar', ended: { closed: 'Esta solicitud está cerrada.', declined: 'Esta vez no podré tomar este proyecto.', withdrawn: 'Retiraste esta solicitud.' } },
+      profile: { title: ['Tu ', 'perfil'], lead: 'Uso estos datos para responderte. Solo tú y yo los vemos.', name: 'Nombre', email: 'Correo', contact: 'Prefiero que me contactes por', contacts: ['Correo', 'WhatsApp', 'Llamada'], number: 'Tu número, con código de país', lang: 'Escríbeme en', langs: { es: 'Español', en: 'English' }, save: 'Guardar cambios', saved: 'Guardado' },
+      security: { title: ['', 'Seguridad'], lead: 'Cómo entras a tu cuenta.', method: 'Método de acceso', google: 'Google', password: 'Correo y contraseña', created: 'Cuenta creada', last: 'Último inicio de sesión', change: 'Cambiar tu contraseña', changeLead: 'Te enviaré un enlace a tu correo para crear una contraseña nueva.', sent: 'El enlace va en camino. Revisa tu correo.', googleNote: 'La contraseña de esta cuenta la gestiona Google.', out: 'Cerrar sesión' },
+      statuses: { draft: 'Borrador', submitted: 'Recibida', reviewing: 'En revisión', proposal: 'Propuesta enviada', 'in-progress': 'En desarrollo', delivered: 'Entregada', closed: 'Cerrada', declined: 'No aceptada', withdrawn: 'Retirada' },
+      fields: { kinds: 'Qué', idea: 'Idea', forWhom: 'Para', where: 'Dónde', when: 'Cuándo', budget: 'Presupuesto', contact: 'Contacto' },
     },
     achieve: { kicker: 'Destacados', roles: 'Cargos' },
     tryNow: { kicker: 'Pruébalo ahora', title: ['Proyectos que puedes ', 'usar hoy'], lead: 'En línea, gratis y a un clic.', live: 'En línea', verbs: { 'farpoint-horizon': 'Jugar', galaxy: 'Entrar', 'munhub-lab': 'Ver datos en vivo', 'pancho-bus': 'Probar la demo', nivela: 'Probar la demo', 'sublime-airlift': 'Jugar' } },
@@ -241,12 +266,10 @@ export const copy = {
       endTitle: ['¿Listo para ', 'empezar?'], endLead: 'Crea tu cuenta, responde unas preguntas breves y recibe una propuesta para tu proyecto.',
     },
     start: {
-      eyebrow: 'Tu proyecto', title: ['Comencemos ', 'tu proyecto'], description: 'Crea tu cuenta y cuéntale a Alexander Kholodov sobre tu proyecto.',
+      eyebrow: 'Tu proyecto', title: ['Comencemos ', 'tu proyecto'], description: 'Cuéntale a Alexander Kholodov sobre tu proyecto, una pregunta a la vez.',
       total: 'Unos 5 minutos en total. Tu avance se guarda automáticamente.',
       steps: ['Cuenta', 'Tu idea', 'Detalles', 'Contacto', 'Revisión'],
-      account: { title: 'Crea tu cuenta', lead: 'Con tu cuenta podrás seguir tu proyecto, ver sus avances y mantener nuestra conversación en un solo lugar.', time: 'Alrededor de 1 minuto',
-        google: 'Continuar con Google', or: 'o con tu correo', name: 'Tu nombre', email: 'Correo electrónico', password: 'Contraseña (mínimo 6 caracteres)', create: 'Crear mi cuenta', have: 'Ya tengo una cuenta', signin: 'Iniciar sesión', need: 'Prefiero crear una cuenta nueva' },
-      question: 'Pregunta', of: 'de', next: 'Continuar', back: 'Atrás', optional: 'Opcional', saved: 'Guardado',
+      question: 'Pregunta', of: 'de', next: 'Continuar', back: 'Atrás', optional: 'Opcional', saved: 'Guardado', loading: 'Cargando tu solicitud…',
       q: [
         { key: 'kinds', title: '¿Qué te gustaría crear?', hint: 'Puedes elegir una o varias opciones.', time: 'Unos 20 segundos', type: 'multi', options: ['Página web', 'Aplicación', 'Videojuego', 'Automatización o bot', 'Agente de IA', 'Diseño', 'Video', 'Modelo 3D', 'Otra cosa'] },
         { key: 'idea', title: 'Cuéntame tu idea', hint: 'Qué debería hacer, quién lo usará y cualquier referencia que te guste. Bastan unas pocas líneas.', time: 'Unos 2 minutos', type: 'text', placeholder: 'Por ejemplo, una página para mi cafetería donde se pueda ver el menú y reservar una mesa.' },
@@ -257,10 +280,9 @@ export const copy = {
         { key: 'contact', title: '¿Cómo prefieres que te contacte?', time: 'Unos 20 segundos', type: 'contact', options: ['Correo', 'WhatsApp', 'Llamada'], placeholder: 'Tu número, con código de país' },
       ],
       review: { title: 'Revisa tu solicitud', lead: 'Puedes volver a cualquier respuesta antes de enviarla.', edit: 'Editar', send: 'Enviar mi solicitud' },
-      done: { statuses: { submitted: 'Recibida', reviewing: 'En revisión', proposal: 'Propuesta enviada', 'in-progress': 'En desarrollo', delivered: 'Entregada', closed: 'Cerrada', declined: 'No aceptada' }, from: 'Mensaje de Alexander', title: ['Solicitud ', 'recibida'], lead: 'Gracias. Revisaré tu idea y te escribiré con una propuesta. Puedes volver a esta página cuando quieras para ver su estado.', status: 'Estado', received: 'Recibida', out: 'Cerrar sesión' },
+      done: { statuses: { submitted: 'Recibida', reviewing: 'En revisión', proposal: 'Propuesta enviada', 'in-progress': 'En desarrollo', delivered: 'Entregada', closed: 'Cerrada', declined: 'No aceptada' }, title: ['Solicitud ', 'recibida'], lead: 'Gracias. Revisaré tu idea y te escribiré con una propuesta. Sigue su estado y conversa conmigo desde tu cuenta.', status: 'Estado', received: 'Recibida', view: 'Ver mis solicitudes', another: 'Enviar otra idea' },
       errors: { generic: 'Algo salió mal. Por favor, inténtalo de nuevo.', email: 'Ese correo no es válido.', inUse: 'Este correo ya tiene una cuenta. Inicia sesión.', weak: 'La contraseña necesita al menos 6 caracteres.', wrong: 'El correo o la contraseña no son correctos.', required: 'Responde para continuar.' },
     },
-    admin: { description: 'Solicitudes', title: 'Solicitudes', signin: 'Iniciar sesión', email: 'Correo', password: 'Contraseña', google: 'Continuar con Google', denied: 'Esta cuenta no puede abrir el panel de solicitudes.', out: 'Cerrar sesión', all: 'Todas', empty: 'Aún no hay solicitudes aquí.', save: 'Guardar', saved: 'Guardado', message: 'Mensaje para el cliente', status: 'Estado', note: 'Nota privada', addNote: 'Agregar nota', notes: 'Notas privadas', priority: 'Prioridad', statuses: { submitted: 'Recibida', reviewing: 'En revisión', proposal: 'Propuesta enviada', 'in-progress': 'En desarrollo', delivered: 'Entregada', closed: 'Cerrada', declined: 'No aceptada' }, fields: { email: 'Correo', kinds: 'Qué', idea: 'Idea', forWhom: 'Para', where: 'Dónde', when: 'Cuándo', budget: 'Presupuesto', contact: 'Contacto por', contactValue: 'Contacto', lang: 'Idioma' } },
     experiencePage: {
       eyebrow: 'Experiencia', description: 'Trabajo, IEEE Computer Society USFQ, competencias, docencia, voluntariado y eventos de Alexander Kholodov.',
       title: ['Mi ', 'experiencia'], lead: 'Trabajo, liderazgo, competencias, docencia y comunidad, aparte de los proyectos que construyo.',

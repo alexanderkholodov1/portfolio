@@ -1,43 +1,83 @@
 rules_version = '2';
 
-// Client project requests for the portfolio. Deny by default.
-// A signed-in person reads and writes only their own request, only the fields the questionnaire collects, and
-// cannot change it after sending it. The operator (custom claim admin, granted with scripts/grant-admin.mjs) reads
-// every request, moves it through its statuses, writes a message the client sees, and keeps private notes.
+// Client accounts and project requests for the portfolio. Deny by default.
+// users/{uid}: each person's profile; only its owner writes it (a few fields); the owner and the admin read it.
+// requests/{id}: any number per person, each carrying its owner's uid. The owner creates and edits a request while it
+//   is a draft, sends it, withdraws it while it waits, deletes a draft, and marks the conversation as read. The admin
+//   (custom claim `admin`, granted with scripts/grant-admin.mjs) reads every request and moves it through its statuses;
+//   the client's answers stay exactly as the client wrote them.
+// requests/{id}/messages: the conversation; each side writes only as itself, at the server's time, and nobody edits.
+// requests/{id}/notes: the admin's private notes.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function isAdmin() { return signedIn() && request.auth.token.get('admin', false) == true; }
+    function onlyChanged(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    function sameOr(key, value) { return request.resource.data.get(key, '') == resource.data.get(key, '') || request.resource.data.get(key, '') == value; }
 
-    match /requests/{uid} {
-      function own() { return signedIn() && request.auth.uid == uid; }
-      function clientFields() {
-        return request.resource.data.keys().hasOnly(['name', 'email', 'kinds', 'idea', 'forWhom', 'where', 'when', 'budget', 'contact', 'contactValue', 'lang', 'status', 'step', 'createdAt', 'updatedAt', 'submittedAt']);
-      }
-      function validClient() {
+    match /users/{uid} {
+      function validProfile() {
         let d = request.resource.data;
-        return clientFields()
+        return d.keys().hasOnly(['name', 'email', 'contact', 'contactValue', 'lang', 'createdAt', 'updatedAt'])
+          && (!('name' in d) || (d.name is string && d.name.size() <= 120))
+          && (!('email' in d) || (d.email is string && d.email.size() <= 200))
+          && (!('contact' in d) || (d.contact is string && d.contact.size() <= 40))
+          && (!('contactValue' in d) || (d.contactValue is string && d.contactValue.size() <= 200))
+          && (!('lang' in d) || d.lang in ['en', 'es']);
+      }
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create, update: if signedIn() && request.auth.uid == uid && validProfile();
+      allow delete: if false;
+    }
+
+    match /requests/{id} {
+      function mine() { return signedIn() && resource.data.uid == request.auth.uid; }
+      function validDraft() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['uid', 'name', 'email', 'kinds', 'idea', 'forWhom', 'where', 'when', 'budget', 'contact', 'contactValue', 'lang', 'status', 'step', 'createdAt', 'updatedAt', 'submittedAt'])
+          && d.uid == request.auth.uid
           && d.status in ['draft', 'submitted']
           && (!('idea' in d) || (d.idea is string && d.idea.size() <= 5000))
           && (!('kinds' in d) || (d.kinds is list && d.kinds.size() <= 12))
           && (!('contactValue' in d) || (d.contactValue is string && d.contactValue.size() <= 200));
       }
-      // The admin changes only the workflow fields; the client's answers stay as the client wrote them.
-      function validAdmin() {
-        let changed = request.resource.data.diff(resource.data).affectedKeys();
-        return changed.hasOnly(['status', 'message', 'priority', 'updatedAt'])
-          && request.resource.data.status in ['submitted', 'reviewing', 'proposal', 'in-progress', 'delivered', 'closed', 'declined']
-          && (!('message' in request.resource.data) || (request.resource.data.message is string && request.resource.data.message.size() <= 4000));
+      allow read: if mine() || isAdmin();
+      allow create: if signedIn() && validDraft() && request.resource.data.status == 'draft';
+      allow update: if
+        // The owner edits a draft and sends it.
+        (mine() && resource.data.status == 'draft' && validDraft())
+        // The owner withdraws a request that is still waiting.
+        || (mine() && resource.data.status in ['submitted', 'reviewing'] && onlyChanged(['status', 'updatedAt']) && request.resource.data.status == 'withdrawn')
+        // The owner reads and writes in the conversation of a sent request.
+        || (mine() && resource.data.status != 'draft' && onlyChanged(['clientReadAt', 'lastAt', 'lastFrom', 'updatedAt']) && sameOr('lastFrom', 'client'))
+        // The admin moves a sent request along, sets its priority and answers.
+        || (isAdmin() && resource.data.status != 'draft'
+            && onlyChanged(['status', 'statusAt', 'priority', 'adminReadAt', 'lastAt', 'lastFrom', 'updatedAt'])
+            && request.resource.data.status in ['submitted', 'reviewing', 'proposal', 'in-progress', 'delivered', 'closed', 'declined', 'withdrawn']
+            && sameOr('lastFrom', 'admin')
+            && request.resource.data.get('priority', '') in ['', 'high', 'medium', 'low']);
+      allow delete: if mine() && resource.data.status == 'draft';
+
+      match /messages/{message} {
+        function owner() { return get(/databases/$(database)/documents/requests/$(id)).data; }
+        function party() { return isAdmin() || (signedIn() && owner().uid == request.auth.uid); }
+        allow read: if party();
+        allow create: if party()
+          && owner().status != 'draft'
+          && request.resource.data.keys().hasOnly(['from', 'uid', 'text', 'at'])
+          && request.resource.data.uid == request.auth.uid
+          && ((request.resource.data.from == 'admin' && isAdmin()) || (request.resource.data.from == 'client' && owner().uid == request.auth.uid))
+          && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000
+          && request.resource.data.at == request.time;
+        allow update, delete: if false;
       }
-      allow read: if own() || isAdmin();
-      allow create: if own() && validClient();
-      allow update: if (own() && validClient() && resource.data.status == 'draft') || (isAdmin() && validAdmin());
-      allow delete: if false;
 
       // Private notes, seen only by the admin.
       match /notes/{note} {
         allow read: if isAdmin();
-        allow create: if isAdmin() && request.resource.data.keys().hasOnly(['text', 'at']) && request.resource.data.text is string && request.resource.data.text.size() <= 4000;
+        allow create: if isAdmin() && request.resource.data.keys().hasOnly(['text', 'at'])
+          && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000
+          && request.resource.data.at == request.time;
         allow update, delete: if false;
       }
     }

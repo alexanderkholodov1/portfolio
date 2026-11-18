@@ -1,6 +1,6 @@
 // Grants (or removes) the admin role on the site's client accounts: `node scripts/grant-admin.mjs <email> [--remove]`.
 // The person must have signed up first. Uses the admin key by path (GOOGLE_APPLICATION_CREDENTIALS) and prints
-// nothing secret. After it runs, the person signs out and in again so the new role reaches their session.
+// nothing secret. My account refreshes the session's token on load, so the role shows without signing out.
 import { GoogleAuth } from 'google-auth-library';
 
 const [email, flag] = process.argv.slice(2);
@@ -13,4 +13,4 @@ const user = found.data.users?.[0];
 if (!user) { console.error('No account with that email yet. Sign up on /start/ first.'); process.exit(1); }
 const claims = flag === '--remove' ? {} : { admin: true };
 await client.request({ method: 'POST', url: `${base}/accounts:update`, data: { localId: user.localId, customAttributes: JSON.stringify(claims) } });
-console.log(flag === '--remove' ? 'Admin role removed.' : 'Admin role granted. Sign out and in again to use /admin/.');
+console.log(flag === '--remove' ? 'Admin role removed.' : 'Admin role granted. It shows in /account/ the next time that page loads.');

@@ -505,7 +505,7 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
   </>}
 
   {page === 'start' && <>
-    <section class="start" data-start data-lang={lang} data-copy={JSON.stringify(t.start)}>
+    <section class="start" data-start data-lang={lang} data-copy={JSON.stringify(t.start)} data-account={href('account', lang)}>
       <div class="start-head">
         <p class="kicker">{t.start.eyebrow}</p>
         <h1>{t.start.title[0]}<em>{t.start.title[1]}</em></h1>
@@ -567,15 +567,15 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
     </script>
   </>}
 
-  {page === 'admin' && <>
-    <section class="admin" data-admin data-copy={JSON.stringify(t.admin)}>
-      <h1 class="admin-title">{t.admin.title}</h1>
-      <div data-view aria-live="polite"></div>
+  {page === 'account' && <>
+    <section class="acct-page" data-account data-lang={lang} data-copy={JSON.stringify(t.account)}
+      data-links={JSON.stringify({ start: startHref, services: href('services', lang), projects: href('projects', lang) })}>
+      <div data-view aria-live="polite"><h1 class="acct-loading">{labels[lang].account}</h1></div>
     </section>
     <script>
-      import { startAdmin } from '../scripts/admin';
-      const root = document.querySelector<HTMLElement>('[data-admin]');
-      if (root) startAdmin(root);
+      import { startAccount } from '../scripts/account';
+      const root = document.querySelector<HTMLElement>('[data-account]');
+      if (root) startAccount(root);
     </script>
   </>}
 
