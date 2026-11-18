@@ -19,8 +19,6 @@ export default defineConfig({
   site: 'https://alexanderkholodov.web.app',
   output: 'static',
   trailingSlash: 'always',
-  // The old request desk address leads to the one sign-in page; the desk lives inside My account for the admin only.
-  redirects: { '/admin': '/account/', '/es/admin': '/es/account/' },
   build: { assets: 'assets', inlineStylesheets: 'always' },
   server: { host: '127.0.0.1' },
   devToolbar: { enabled: false },

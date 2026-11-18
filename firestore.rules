@@ -8,6 +8,7 @@ rules_version = '2';
 //   the client's answers stay exactly as the client wrote them.
 // requests/{id}/messages: the conversation; each side writes only as itself, at the server's time, and nobody edits.
 // requests/{id}/notes: the admin's private notes.
+// config/site and config/replies: the console's settings.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
@@ -52,7 +53,7 @@ service cloud.firestore {
         || (mine() && resource.data.status != 'draft' && onlyChanged(['clientReadAt', 'lastAt', 'lastFrom', 'updatedAt']) && sameOr('lastFrom', 'client'))
         // The admin moves a sent request along, sets its priority and answers.
         || (isAdmin() && resource.data.status != 'draft'
-            && onlyChanged(['status', 'statusAt', 'priority', 'adminReadAt', 'lastAt', 'lastFrom', 'updatedAt'])
+            && onlyChanged(['status', 'statusAt', 'priority', 'adminReadAt', 'firstResponseAt', 'lastAt', 'lastFrom', 'updatedAt'])
             && request.resource.data.status in ['submitted', 'reviewing', 'proposal', 'in-progress', 'delivered', 'closed', 'declined', 'withdrawn']
             && sameOr('lastFrom', 'admin')
             && request.resource.data.get('priority', '') in ['', 'high', 'medium', 'low']);
@@ -80,6 +81,22 @@ service cloud.firestore {
           && request.resource.data.at == request.time;
         allow update, delete: if false;
       }
+    }
+    // The console's settings. The public part (whether new projects are taken, the notice, the usual response time)
+    // is read by the questionnaire; only the admin writes it. Quick replies are the admin's alone.
+    match /config/site {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['accepting', 'responseDays', 'noticeEs', 'noticeEn', 'updatedAt'])
+        && request.resource.data.accepting is bool
+        && request.resource.data.responseDays is int && request.resource.data.responseDays >= 1 && request.resource.data.responseDays <= 60
+        && request.resource.data.noticeEs is string && request.resource.data.noticeEs.size() <= 400
+        && request.resource.data.noticeEn is string && request.resource.data.noticeEn.size() <= 400;
+    }
+    match /config/replies {
+      allow read: if isAdmin();
+      allow write: if isAdmin() && request.resource.data.keys().hasOnly(['items', 'updatedAt'])
+        && request.resource.data.items is list && request.resource.data.items.size() <= 40;
     }
     match /{document=**} {
       allow read, write: if false;

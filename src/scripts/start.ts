@@ -2,12 +2,12 @@
 // leave and resume. Signing in happens on the one sign-in page (My account) and brings the person back here. A person
 // can have any number of requests: `?id=` resumes a draft, `?new=1` starts another, and otherwise the latest draft
 // is resumed or a new request begins.
-import { getRequest, loadProfile, myRequests, saveRequest, watchUser, type Answers, type Request } from '../lib/accounts';
+import { ensureProfile, getRequest, loadProfile, loadSite, myRequests, saveRequest, watchUser, type Answers, type Request, type Site } from '../lib/accounts';
 import { el } from '../lib/dom';
 
 type Q = { key: string; title: string; hint?: string; time: string; type: 'multi' | 'one' | 'text' | 'contact'; options?: string[]; placeholder?: string; optional?: boolean };
 type Copy = {
-  steps: string[]; question: string; of: string; next: string; back: string; optional: string; loading: string;
+  steps: string[]; question: string; of: string; next: string; back: string; optional: string; loading: string; paused: string; days: string;
   q: Q[]; review: Record<string, string>; done: { title: string[]; lead: string; status: string; received: string; view: string; another: string; statuses: Record<string, string> };
   errors: Record<string, string>;
 };
@@ -22,7 +22,7 @@ export function startFlow(root: HTMLElement) {
   const view = root.querySelector<HTMLElement>('[data-view]')!;
   const stepsBar = [...root.querySelectorAll<HTMLElement>('[data-step]')];
   const params = new URLSearchParams(location.search);
-  let uid = '', rid: string | null = null, data: Answers & { status: string; step?: number } = { status: 'draft' };
+  let uid = '', rid: string | null = null, data: Answers & { status: string; step?: number } = { status: 'draft' }, site: Site | null = null;
 
   const markStep = (n: number) => stepsBar.forEach((s, k) => { s.dataset.state = k < n ? 'done' : k === n ? 'now' : ''; });
   const show = (node: HTMLElement) => { view.replaceChildren(node); node.classList.add('enter'); view.querySelector<HTMLElement>('input, textarea, button')?.focus({ preventScroll: true }); };
@@ -103,6 +103,7 @@ export function startFlow(root: HTMLElement) {
     const h = el('h2', {}, c.done.title[0], el('em', {}, c.done.title[1]));
     return el('div', { class: 'card done' }, el('span', { class: 'burst', 'aria-hidden': 'true' }, ...Array.from({ length: 10 }, () => el('i'))), h, el('p', { class: 'lede' }, c.done.lead),
       el('p', { class: 'status' }, el('span', {}, c.done.status), el('b', {}, c.done.statuses[data.status] || c.done.received)),
+      site?.responseDays ? el('p', { class: 'soft' }, c.days.replace('{n}', String(site.responseDays))) : null,
       el('p', { class: 'calls center' },
         el('a', { class: 'btn-a big', href: `${accountHref}#request/${rid}` }, c.done.view, el('span', { class: 'arrow', 'aria-hidden': 'true' }, '→')),
         el('a', { class: 'btn-b', href: `${location.pathname}?new=1` }, c.done.another)));
@@ -120,7 +121,11 @@ export function startFlow(root: HTMLElement) {
   watchUser(async (user) => {
     if (!user) { location.replace(`${accountHref}?next=start`); return; }
     uid = user.uid; markStep(1);
-    const profile = await loadProfile(user);
+    ensureProfile(user);
+    const [profile, settings] = await Promise.all([loadProfile(user), loadSite()]);
+    site = settings;
+    // While he is not taking new projects, the questionnaire says so first (his availability in the console).
+    if (site && !site.accepting && !root.querySelector('.notice')) view.before(el('p', { class: 'notice', role: 'status' }, (lang === 'es' ? site.noticeEs : site.noticeEn) || c.paused));
     const id = params.get('id');
     if (id) { begin(await getRequest(id).catch(() => null), profile.name || '', profile.email || ''); return; }
     if (params.get('new')) { begin(null, profile.name || '', profile.email || '', profile.contact, profile.contactValue); return; }

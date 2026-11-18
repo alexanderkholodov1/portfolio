@@ -72,6 +72,13 @@ export async function ensureProfile(user: User) {
   if (snap && !snap.exists()) await saveProfile(user, { name: user.displayName || '' }, true).catch(() => undefined);
 }
 
+// The console's public settings: whether new projects are taken, the notice, the usual response time.
+export type Site = { accepting: boolean; responseDays: number; noticeEs: string; noticeEn: string };
+export async function loadSite(): Promise<Site | null> {
+  const snap = await getDoc(doc(accounts().db, 'config', 'site')).catch(() => null);
+  return snap?.exists() ? (snap.data() as Site) : null;
+}
+
 // Requests.
 const asRequest = (id: string, data: unknown) => ({ id, ...(data as Omit<Request, 'id'>) }) as Request;
 const millis = (t?: Timestamp | null) => (t && typeof t.toMillis === 'function' ? t.toMillis() : 0);

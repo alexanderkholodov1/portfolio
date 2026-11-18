@@ -3,6 +3,16 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-11-17 — Accounts and the admin console (0.2.24–0.2.25): one sign-in page (My account) for everyone; the
+  client's home there (requests with progress, a conversation per request, profile, security); the admin console as
+  its own environment at `/admin/` with its own header (Inicio and admin buttons), loaded only after the `admin` claim
+  is confirmed (anyone else is sent to sign-in): overview with indicators and what needs attention, requests with
+  filters and CSV export, a board by stage, messages, clients, statistics, settings (availability shown to clients,
+  response time, quick replies, browser alerts, data export) and system state. Data: `users/{uid}`, `requests/{id}`
+  with the owner's uid, `messages` and admin `notes` per request, `config/site` and `config/replies`; rules tested on
+  the emulators and released on `alexanderkholodov`. His test request from before the change still lacks the `uid`
+  field (adding it needs his approval) — decided by operator.
+
 - 2026-11-17 — v0.2.0 after 0.2.11: projects as a showcase (spotlight plus grid), one page per project, an Experience
   page by category (work, IEEE CS USFQ leadership, teaching, competitions, volunteering, recognitions, events), every card
   with a photo from his posts. Client accounts live in `alexanderkholodov` (his decision): the web app "Portfolio" is

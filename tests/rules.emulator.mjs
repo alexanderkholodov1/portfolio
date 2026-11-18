@@ -89,5 +89,19 @@ await setDoc(r3, { status: 'submitted' }, { merge: true });
 await updateDoc(r3, { status: 'withdrawn', updatedAt: serverTimestamp() });
 assert.equal((await getDoc(r3)).data().status, 'withdrawn');
 await denied(setDoc(doc(db, 'other', 'x'), { any: 1 }));
+
+// The console's settings: anyone reads the public part, only the admin writes it; quick replies are the admin's alone.
+await denied(setDoc(doc(db, 'config', 'site'), { accepting: false, responseDays: 3, noticeEs: '', noticeEn: '' }));
+await denied(getDoc(doc(db, 'config', 'replies')));
+await denied(updateDoc(r1, { firstResponseAt: serverTimestamp() }));
+await as(ADMIN); await auth.currentUser.getIdToken(true);
+await setDoc(doc(db, 'config', 'site'), { accepting: false, responseDays: 3, noticeEs: 'Vuelvo pronto', noticeEn: 'Back soon', updatedAt: serverTimestamp() });
+await denied(setDoc(doc(db, 'config', 'site'), { accepting: true, responseDays: 0, noticeEs: '', noticeEn: '' }));
+await denied(setDoc(doc(db, 'config', 'site'), { accepting: true, responseDays: 2, noticeEs: '', noticeEn: '', extra: 1 }));
+await setDoc(doc(db, 'config', 'replies'), { items: [{ title: 'Hola', text: 'Gracias por escribir.' }], updatedAt: serverTimestamp() });
+assert.equal((await getDoc(doc(db, 'config', 'replies'))).data().items.length, 1);
+await updateDoc(r1, { firstResponseAt: serverTimestamp() });
+await signOut(auth);
+assert.equal((await getDoc(doc(db, 'config', 'site'))).data().accepting, false);
 console.log('rules: all checks passed');
 process.exit(0);

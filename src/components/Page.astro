@@ -23,7 +23,7 @@ const image = isPending(galaxy.image) ? null : galaxy.image;
 const title = page === 'home' ? t.home.title : page === 'galaxy' ? galaxy.title[lang] : current ? current.title[lang] : labels[lang][page];
 // Every project has its own page on this site (his note of 2026-11-17: the overview first, depth one click away).
 const entryHref = (project: (typeof projects.items)[number]) => projectHref(project.id, lang);
-const description = page === 'home' ? t.home.description : current ? current.pitch[lang] : page === 'experience' ? t.experiencePage.description : t[page === 'galaxy' ? 'galaxy' : page === 'project' ? 'projects' : page].description;
+const description = page === 'home' ? t.home.description : current ? current.pitch[lang] : page === 'experience' ? t.experiencePage.description : page === 'admin' ? t.account.description : t[page === 'galaxy' ? 'galaxy' : page === 'project' ? 'projects' : page].description;
 // Home: projects grouped by field (his note of 2026-10-26: not one list) and real results.
 const byId = (id: string) => projects.items.find((p) => p.id === id);
 const fields = [
@@ -504,6 +504,18 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
     </script>
   </>}
 
+  {page === 'admin' && <>
+    <section class="con-page" data-console data-lang={lang} data-account={href('account', lang)} data-home={href('home', lang)} data-build={new Date().toISOString()}
+      data-shared={JSON.stringify({ statuses: t.account.statuses, fields: t.account.fields, steps: t.account.detail.steps, generic: t.account.errors.generic })}>
+      <div data-view aria-live="polite"><h1 class="acct-loading">{t.account.loading}</h1></div>
+    </section>
+    <script>
+      import { startConsole } from '../scripts/console-gate';
+      const root = document.querySelector<HTMLElement>('[data-console]');
+      if (root) startConsole(root);
+    </script>
+  </>}
+
   {page === 'start' && <>
     <section class="start" data-start data-lang={lang} data-copy={JSON.stringify(t.start)} data-account={href('account', lang)}>
       <div class="start-head">
@@ -569,7 +581,7 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
 
   {page === 'account' && <>
     <section class="acct-page" data-account data-lang={lang} data-copy={JSON.stringify(t.account)}
-      data-links={JSON.stringify({ start: startHref, services: href('services', lang), projects: href('projects', lang) })}>
+      data-links={JSON.stringify({ start: startHref, services: href('services', lang), projects: href('projects', lang), admin: href('admin', lang) })}>
       <div data-view aria-live="polite"><h1 class="acct-loading">{labels[lang].account}</h1></div>
     </section>
     <script>

@@ -121,7 +121,7 @@ export const copy = {
       eyebrow: 'Your project', title: ['Let’s start ', 'your project'], description: 'Tell Alexander Kholodov about your project, one question at a time.',
       total: 'About 5 minutes in total. Your progress is saved as you go.',
       steps: ['Account', 'Your idea', 'Details', 'Contact', 'Review'],
-      question: 'Question', of: 'of', next: 'Continue', back: 'Back', optional: 'Optional', saved: 'Saved', loading: 'Loading your request…',
+      question: 'Question', of: 'of', next: 'Continue', back: 'Back', optional: 'Optional', saved: 'Saved', loading: 'Loading your request…', paused: 'For now I am not taking new projects. You can still leave your idea and I will answer as soon as I can.', days: 'I usually answer within about {n} days.',
       q: [
         { key: 'kinds', title: 'What would you like to create?', hint: 'Choose one or more.', time: 'About 20 seconds', type: 'multi', options: ['Website', 'App', 'Video game', 'Automation or bot', 'AI agent', 'Design', 'Video', '3D model', 'Something else'] },
         { key: 'idea', title: 'Tell me about your idea', hint: 'What should it do, who will use it, and any reference you like. A few lines are enough.', time: 'About 2 minutes', type: 'text', placeholder: 'For example, a website for my café where people can see the menu and book a table.' },
@@ -269,7 +269,7 @@ export const copy = {
       eyebrow: 'Tu proyecto', title: ['Comencemos ', 'tu proyecto'], description: 'Cuéntale a Alexander Kholodov sobre tu proyecto, una pregunta a la vez.',
       total: 'Unos 5 minutos en total. Tu avance se guarda automáticamente.',
       steps: ['Cuenta', 'Tu idea', 'Detalles', 'Contacto', 'Revisión'],
-      question: 'Pregunta', of: 'de', next: 'Continuar', back: 'Atrás', optional: 'Opcional', saved: 'Guardado', loading: 'Cargando tu solicitud…',
+      question: 'Pregunta', of: 'de', next: 'Continuar', back: 'Atrás', optional: 'Opcional', saved: 'Guardado', loading: 'Cargando tu solicitud…', paused: 'Por ahora no estoy tomando proyectos nuevos. Puedes dejarme tu idea igualmente y te responderé en cuanto pueda.', days: 'Normalmente respondo en unos {n} días.',
       q: [
         { key: 'kinds', title: '¿Qué te gustaría crear?', hint: 'Puedes elegir una o varias opciones.', time: 'Unos 20 segundos', type: 'multi', options: ['Página web', 'Aplicación', 'Videojuego', 'Automatización o bot', 'Agente de IA', 'Diseño', 'Video', 'Modelo 3D', 'Otra cosa'] },
         { key: 'idea', title: 'Cuéntame tu idea', hint: 'Qué debería hacer, quién lo usará y cualquier referencia que te guste. Bastan unas pocas líneas.', time: 'Unos 2 minutos', type: 'text', placeholder: 'Por ejemplo, una página para mi cafetería donde se pueda ver el menú y reservar una mesa.' },

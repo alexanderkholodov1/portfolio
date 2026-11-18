@@ -1,7 +1,7 @@
 // "My account": the one page for accounts. Signed out, it is the sign-in page. Signed in, it is the client's home:
 // an overview, every request with its progress and its conversation with Alexander, the profile, and security.
-// Accounts with the admin role also get the request desk, whose code and words load only after the role is confirmed
-// (his note of 2026-11-17: nobody else sees it, its name or a refusal).
+// It is for clients only: an account with the admin role goes to the admin console, a separate environment (his
+// note of 2026-11-17: "son dos entornos completamente distintos").
 import type { User } from 'firebase/auth';
 import {
   discard, ensureProfile, isAdmin, leave, loadProfile, markRead, myRequests, saveProfile, sendMessage, unreadFor, usesPassword,
@@ -40,7 +40,6 @@ export function startAccount(root: HTMLElement) {
   const view = root.querySelector<HTMLElement>('[data-view]')!;
   const next = new URLSearchParams(location.search).get('next');
   let stopThread: (() => void) | null = null;
-  let deskRoute: ((hash: string, panel: HTMLElement) => boolean) | null = null;
 
   const heading = (parts: string[], tag: 'h1' | 'h2' = 'h1') => el(tag, {}, parts[0], parts[1] ? el('em', {}, parts[1]) : null, parts[2] ?? null);
   const pill = (status: string) => el('span', { class: `pill s-${status}` }, c.statuses[status] || status);
@@ -262,7 +261,6 @@ export function startAccount(root: HTMLElement) {
     const panel = shell.panel;
     panel.classList.remove('enter'); void panel.offsetWidth; panel.classList.add('enter');
     shell.nav.querySelectorAll('a').forEach((a) => a.toggleAttribute('aria-current', hash === a.dataset.route || hash.startsWith(a.dataset.route + '/') || (a.dataset.route === 'requests' && hash.startsWith('request/'))));
-    if (deskRoute && deskRoute(hash, panel)) return;
     if (hash === 'requests') requestsPanel(panel);
     else if (hash.startsWith('request/')) detail(panel, hash.slice(8));
     else if (hash === 'profile') profilePanel(panel);
@@ -273,18 +271,15 @@ export function startAccount(root: HTMLElement) {
   addEventListener('hashchange', () => { route(); shell?.panel.querySelector<HTMLElement>('h1')?.focus({ preventScroll: false }); });
 
   watchUser(async (u) => {
-    user = u; deskRoute = null; stopThread?.(); stopThread = null;
+    user = u; stopThread?.(); stopThread = null;
     if (!u) { shell = null; gate(); return; }
     if (next === 'start') { location.replace(links.start); return; }
     view.replaceChildren(el('p', { class: 'acct-loading' }, c.loading));
     ensureProfile(u);
     const [p, list, admin] = await Promise.all([loadProfile(u), myRequests(u.uid).catch(() => []), isAdmin(u).catch(() => false)]);
     profile = p; mine = list;
-    layout(admin);
-    if (admin) {
-      const desk = await import('./desk');
-      deskRoute = desk.mountDesk(shell!);
-    }
+    if (admin) { location.replace(links.admin); return; }
+    layout(false);
     route();
   });
 }
