@@ -20,6 +20,7 @@
 | [07-operator-checklist.md](07-operator-checklist.md) | Things only Alexander can do (console switches, secrets, content) — blockers |
 | [08-decisions.md](08-decisions.md) | Decision log: decided, and pending-with-default |
 | [09-sources.md](09-sources.md) | Verified external facts (quotas, Hosting behaviour) with links and date checked |
+| [10-client-services.md](10-client-services.md) | Client services from his voice notes: every request, its source, what is built (phase 1) and what needs him (phase 2) |
 | [CHANGELOG.md](CHANGELOG.md) | Log of every change to this plan after 2026-10-05 |
 | [90-idea-backlog.md](90-idea-backlog.md) | Ideas discussed but **not approved** — do not build without asking |
 | [templates/galaxy/](templates/galaxy/) | `AGENTS.md` / `CLAUDE.md` to copy into the new `galaxy` repo |

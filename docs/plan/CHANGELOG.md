@@ -3,6 +3,11 @@
 Every change to `docs/plan/` after it was written. Newest first.
 Format: `YYYY-MM-DD — <what changed> — <why> — decided by <operator | agent>`.
 
+- 2026-11-18 — New `10-client-services.md`: every portfolio request in his Squire voice notes (2026-11-16 and
+  2026-11-18), phase 1 built in 0.2.26 (questionnaire by delivery and tier, plans with milestones and payments,
+  accepted agreements, ratings and testimonials, free projects, prepared emails) and phase 2 waiting on his accounts
+  (payments, automatic email, AI help, donations, vouchers, referrals, e-signature) — decided by operator.
+
 - 2026-11-17 — Accounts and the admin console (0.2.24–0.2.25): one sign-in page (My account) for everyone; the
   client's home there (requests with progress, a conversation per request, profile, security); the admin console as
   its own environment at `/admin/` with its own header (Inicio and admin buttons), loaded only after the `admin` claim

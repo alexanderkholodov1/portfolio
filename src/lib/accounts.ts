@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 import {
   addDoc, collection, connectFirestoreEmulator, deleteDoc, doc, getDoc, getDocs, getFirestore, onSnapshot, orderBy, query,
-  serverTimestamp, setDoc, updateDoc, where, type Firestore, type Timestamp,
+  deleteField, serverTimestamp, setDoc, updateDoc, where, type Firestore, type Timestamp,
 } from 'firebase/firestore';
 
 import web from '../data/firebase-web.json';
@@ -31,11 +31,21 @@ export function accounts() {
 export type Answers = {
   name?: string; email?: string; kinds?: string[]; idea?: string; forWhom?: string; where?: string; when?: string;
   budget?: string; contact?: string; contactValue?: string; lang?: string;
+  deliverables?: string[]; payment?: string; agreement?: string[]; ref?: string;
 };
+// The plan the admin writes and publishes; the client accepts it once.
+export type Milestone = { title: string; due?: string; link?: string; done?: boolean };
+export type Payment = { label: string; amount: number; paid?: boolean };
+export type Plan = {
+  summary?: string; includes?: string; excludes?: string; ownership?: string; corrections?: number; warrantyDays?: number;
+  price?: number; currency?: string; deposit?: number; due?: string; milestones?: Milestone[]; payments?: Payment[]; publishedAt?: Timestamp; contract?: boolean;
+};
+export type Rating = { stars: number; comment: string; public: boolean; at?: Timestamp };
 export type Request = Answers & {
   id: string; uid: string; status: string; step?: number; priority?: string; message?: string;
   createdAt?: Timestamp; updatedAt?: Timestamp; submittedAt?: Timestamp; statusAt?: Record<string, Timestamp>;
   clientReadAt?: Timestamp; adminReadAt?: Timestamp; lastAt?: Timestamp; lastFrom?: 'client' | 'admin';
+  plan?: Plan; acceptedAt?: Timestamp; rating?: Rating; free?: boolean; createdBy?: string; firstResponseAt?: Timestamp; featured?: boolean;
 };
 export type Profile = { name?: string; email?: string; contact?: string; contactValue?: string; lang?: string };
 export type Message = { id: string; from: 'client' | 'admin'; uid: string; text: string; at?: Timestamp | null };
@@ -73,7 +83,7 @@ export async function ensureProfile(user: User) {
 }
 
 // The console's public settings: whether new projects are taken, the notice, the usual response time.
-export type Site = { accepting: boolean; responseDays: number; noticeEs: string; noticeEn: string };
+export type Site = { accepting: boolean; responseDays: number; noticeEs: string; noticeEn: string; payInfoEs?: string; payInfoEn?: string; corrections?: number; warrantyDays?: number };
 export async function loadSite(): Promise<Site | null> {
   const snap = await getDoc(doc(accounts().db, 'config', 'site')).catch(() => null);
   return snap?.exists() ? (snap.data() as Site) : null;
@@ -91,13 +101,18 @@ export async function getRequest(id: string) {
   const snap = await getDoc(doc(accounts().db, 'requests', id));
   return snap.exists() ? asRequest(snap.id, snap.data()) : null;
 }
-// Saves the questionnaire as it goes; the first save creates the request and returns its id.
-export async function saveRequest(id: string | null, uid: string, data: Answers & { status: string; step?: number }) {
+// Saves the questionnaire as it goes; the first save creates the request and returns its id. Answers to questions
+// that no longer apply are removed.
+export async function saveRequest(id: string | null, uid: string, data: Answers & { status: string; step?: number }, drop: string[] = []) {
   const stamp = serverTimestamp();
   const ref = id ? doc(accounts().db, 'requests', id) : doc(collection(accounts().db, 'requests'));
-  await setDoc(ref, { ...data, uid, updatedAt: stamp, ...(id ? {} : { createdAt: stamp }), ...(data.status === 'submitted' ? { submittedAt: stamp } : {}) }, { merge: true });
+  const gone = id ? Object.fromEntries(drop.map((k) => [k, deleteField()])) : {};
+  await setDoc(ref, { ...data, ...gone, uid, updatedAt: stamp, ...(id ? {} : { createdAt: stamp }), ...(data.status === 'submitted' ? { submittedAt: stamp } : {}) }, { merge: true });
   return ref.id;
 }
+export const acceptPlan = (id: string) => updateDoc(doc(accounts().db, 'requests', id), { acceptedAt: serverTimestamp(), updatedAt: serverTimestamp() });
+export const rate = (id: string, stars: number, comment: string, isPublic: boolean) =>
+  updateDoc(doc(accounts().db, 'requests', id), { rating: { stars, comment, public: isPublic, at: serverTimestamp() }, updatedAt: serverTimestamp() });
 export const withdraw = (id: string) => updateDoc(doc(accounts().db, 'requests', id), { status: 'withdrawn', updatedAt: serverTimestamp() });
 export const discard = (id: string) => deleteDoc(doc(accounts().db, 'requests', id));
 export const unreadFor = (r: Request, side: 'client' | 'admin') =>

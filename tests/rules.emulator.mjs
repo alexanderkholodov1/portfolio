@@ -103,5 +103,32 @@ assert.equal((await getDoc(doc(db, 'config', 'replies'))).data().items.length, 1
 await updateDoc(r1, { firstResponseAt: serverTimestamp() });
 await signOut(auth);
 assert.equal((await getDoc(doc(db, 'config', 'site'))).data().accepting, false);
+
+// Plans: the admin writes and publishes one; the client accepts it once and never edits it.
+await as(ADMIN); await auth.currentUser.getIdToken(true);
+await updateDoc(r1, { plan: { summary: 'Una página', price: 300, currency: 'USD', deposit: 50, milestones: [{ title: 'Diseño', due: '2026-12-01', link: '', done: false }], payments: [{ label: 'Abono', amount: 150, paid: false }], publishedAt: serverTimestamp() } });
+await denied(updateDoc(r1, { plan: { price: 1, secret: 'x' } }));
+// A free project he opens himself for the client; testimonials are his to publish.
+const free = await addDoc(collection(db, 'requests'), { uid: a.uid, name: 'Ana', kinds: ['Energía'], idea: 'Prototype', status: 'in-progress', free: true, createdBy: 'admin', createdAt: serverTimestamp(), updatedAt: serverTimestamp(), submittedAt: serverTimestamp() });
+await setDoc(doc(db, 'testimonials', 't1'), { name: 'Ana P.', text: 'Excelente', stars: 5, kind: 'Web', at: serverTimestamp() });
+await as(A);
+await denied(updateDoc(r1, { plan: { price: 1 } }));
+await updateDoc(r1, { acceptedAt: serverTimestamp(), updatedAt: serverTimestamp() });
+await denied(updateDoc(r1, { acceptedAt: serverTimestamp() }));
+await denied(updateDoc(r1, { rating: { stars: 5, comment: 'Too early', public: true, at: serverTimestamp() } }));
+assert.equal((await getDoc(free)).data().free, true);
+await denied(addDoc(collection(db, 'requests'), { uid: a.uid, status: 'in-progress', createdBy: 'admin' }));
+await denied(setDoc(doc(db, 'testimonials', 't2'), { name: 'Me', text: 'Self praise', stars: 5, kind: 'x', at: serverTimestamp() }));
+// Delivered: the client rates once.
+await as(ADMIN); await auth.currentUser.getIdToken(true);
+await updateDoc(r1, { status: 'delivered', 'statusAt.delivered': serverTimestamp(), updatedAt: serverTimestamp() });
+await as(A);
+await updateDoc(r1, { rating: { stars: 5, comment: 'Muy bien', public: true, at: serverTimestamp() }, updatedAt: serverTimestamp() });
+await denied(updateDoc(r1, { rating: { stars: 1, comment: 'Changed', public: false, at: serverTimestamp() } }));
+// The questionnaire's new answers are accepted on a draft.
+const r4 = doc(collection(db, 'requests'));
+await setDoc(r4, { uid: a.uid, status: 'draft', kinds: ['Script'], deliverables: ['Un archivo listo para usar'], payment: 'Recomiéndame', agreement: ['Nada de esto por ahora'], ref: 'farpoint-horizon' });
+await signOut(auth);
+assert.equal((await getDocs(collection(db, 'testimonials'))).size, 1);
 console.log('rules: all checks passed');
 process.exit(0);

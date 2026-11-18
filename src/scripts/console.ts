@@ -5,17 +5,17 @@
 // with quick replies, private notes, the client's other requests), messages, clients, statistics, settings
 // (availability, response time, quick replies, browser alerts, data export) and the system's state.
 import type { User } from 'firebase/auth';
-import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, type Timestamp } from 'firebase/firestore';
-import { accounts, leave, markRead, newest, sendMessage, unreadFor, watchMessages, when, type Request } from '../lib/accounts';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, type Timestamp } from 'firebase/firestore';
+import { accounts, leave, markRead, newest, sendMessage, unreadFor, watchMessages, when, type Milestone, type Payment, type Plan, type Request } from '../lib/accounts';
 import { el, icon } from '../lib/dom';
 import { consoleCopy } from '../data/console-copy';
 import web from '../data/firebase-web.json';
 
-type Shared = { statuses: Record<string, string>; fields: Record<string, string>; steps: string[]; generic: string };
+type Shared = { statuses: Record<string, string>; fields: Record<string, string>; steps: string[]; generic: string; kinds: string[][]; kindGroups: string[]; origin: string };
 type Ctx = { lang: string; home: string; build: string; shared: Shared };
 type Row = Request & { firstResponseAt?: Timestamp };
 type Client = { id: string; name?: string; email?: string; contact?: string; contactValue?: string; lang?: string; createdAt?: Timestamp; profile: boolean };
-type Site = { accepting: boolean; responseDays: number; noticeEs: string; noticeEn: string };
+type Site = { accepting: boolean; responseDays: number; noticeEs: string; noticeEn: string; payInfoEs?: string; payInfoEn?: string; corrections?: number; warrantyDays?: number };
 type Reply = { title: string; text: string };
 
 const FLOW = ['submitted', 'reviewing', 'proposal', 'in-progress', 'delivered'];
@@ -37,7 +37,7 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
   let rows: Row[] = [], users: Client[] = [], site: Site = { accepting: true, responseDays: 2, noticeEs: '', noticeEn: '' }, replies: Reply[] = [];
   const log: string[] = [];
   const note = (msg: string) => { log.unshift(`${new Date().toLocaleTimeString(locale)} · ${msg}`); log.length = Math.min(log.length, 60); };
-  let stopThread: (() => void) | null = null, current = '';
+  let stopThread: (() => void) | null = null, current = '', refresh = '';
 
   const heading = (parts: string[]) => el('h1', {}, parts[0], parts[1] ? el('em', {}, parts[1]) : null);
   const pill = (s: string) => el('span', { class: `pill s-${s}` }, S.statuses[s] || s);
@@ -107,6 +107,7 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
     }
     for (const r of rows) { lastSeen.set(r.id, ms(r.lastAt)); if (r.status !== 'draft') lastSeen.set(r.id + ':sent', 1); }
     first = false; counters();
+    if (refresh && current === 'request/' + refresh) { refresh = ''; route(false); return; }
     if (['overview', 'requests', 'board', 'inbox', 'clients', 'stats'].includes(current.split('/')[0]) && !(panel.contains(document.activeElement) && document.activeElement?.matches('input[type=search], input[type=text], input[type=number], textarea'))) route(false);
   }, () => note(S.generic));
   onSnapshot(collection(db, 'users'), (snap) => {
@@ -187,6 +188,7 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
     const changes: Record<string, unknown> = { status, updatedAt: serverTimestamp(), ...firstResponse(r) };
     if (status !== r.status) changes[`statusAt.${status}`] = serverTimestamp();
     if (priority !== undefined) changes.priority = priority;
+    refresh = r.id;
     await updateDoc(doc(db, 'requests', r.id), changes);
     note(`${nameOf(r)} → ${S.statuses[status]}`);
   };
@@ -275,7 +277,7 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
         select(filters.priority, [['', t.requests.anyPriority], ...Object.entries(t.priorities).filter(([k]) => k)] as [string, string][], t.detail.priority, (v) => { filters.priority = v; requestsPanel(); }),
         select(filters.kind, [['', t.requests.anyKind], ...kinds.map((k) => [k, k])] as [string, string][], t.requests.cols.what, (v) => { filters.kind = v; requestsPanel(); }),
         select(filters.sort, Object.entries(t.requests.sorts) as [string, string][], t.requests.sorts.recent, (v) => { filters.sort = v; requestsPanel(); }),
-        drafts, exportBtn),
+        drafts, exportBtn, el('a', { class: 'btn-a small', href: '#new' }, icon('plus'), el('span', {}, t.newProject.button))),
       chips, el('p', { class: 'soft small' }, fill(t.requests.shown, shown.length).replace('{t}', String(base.length))), table);
   };
 
@@ -348,7 +350,11 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
     for (const [k, l] of Object.entries(t.priorities)) priority.append(el('option', { value: k, selected: (r.priority || '') === k }, l));
     const ok = el('span', { class: 'ok', role: 'status' });
     const save = el('button', { type: 'button', class: 'btn-a' }, t.detail.save);
-    save.addEventListener('click', async () => { save.disabled = true; ok.textContent = ''; try { await setStatus(r, status.value, priority.value); ok.textContent = t.detail.saved; } catch { ok.textContent = S.generic; } save.disabled = false; });
+    save.addEventListener('click', async () => {
+      save.disabled = true; ok.textContent = ''; const changed = status.value !== r.status;
+      try { await setStatus(r, status.value, priority.value); ok.replaceChildren(t.detail.saved, changed && r.email ? el('a', { class: 'link small', href: mail(r, 'status', S.statuses[status.value]) }, ' · ', t.plan.email) : ''); } catch { ok.textContent = S.generic; }
+      save.disabled = false;
+    });
     if (r.status === 'draft') { status.disabled = true; priority.disabled = true; save.disabled = true; }
     const digits = (r.contactValue || '').replace(/[^\d+]/g, '');
     const copy = el('button', { type: 'button', class: 'chip-link' }, icon('copy'), el('span', {}, t.detail.copy));
@@ -378,11 +384,14 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
       el('div', { class: 'detail-head' }, el('h1', {}, nameOf(r)), pill(r.status), r.priority ? el('span', { class: 'prio p-' + r.priority }, t.priorities[r.priority as 'high']) : null),
       el('p', { class: 'soft' }, [r.email, titleOf(r)].filter(Boolean).join(' · '), ' · ', el('a', { href: '#client/' + owner(r) }, t.detail.profile)),
       facts, ...(ENDED.includes(r.status) ? [] : [line]),
+      ...(r.status === 'draft' ? [] : [planEditor(r)]),
       el('div', { class: 'con-split' },
         el('div', { class: 'stack' },
-          el('section', { class: 'con-card con-actions' }, el('div', { class: 'two' }, el('label', { class: 'field' }, el('span', {}, t.detail.status), status), el('label', { class: 'field' }, el('span', {}, t.detail.priority), priority)), el('p', { class: 'calls' }, save, ok)),
+          el('section', { class: 'con-card con-actions' }, el('div', { class: 'two' }, el('label', { class: 'field' }, el('span', {}, t.detail.status), status), el('label', { class: 'field' }, el('span', {}, t.detail.priority), priority)),
+            el('p', { class: 'calls' }, save, ok, r.email && r.status !== 'draft' ? el('a', { class: 'link small', href: mail(r, 'status', S.statuses[r.status]) }, icon('inbox'), ' ', t.plan.email) : null)),
           card(t.detail.chat, t.detail.chatLead, r.status === 'draft' ? null : thread(r))),
         el('div', { class: 'stack' },
+          ['delivered', 'closed'].includes(r.status) ? ratingBox(r) : null,
           card(t.detail.answers, null, answers, el('h3', {}, t.detail.reach), reach),
           card(t.detail.notes, t.detail.notesLead, noteText, el('p', { class: 'calls' }, addNote), notesBox),
           card(t.detail.other, null, others.length ? el('ul', { class: 'con-list' }, ...others.map((o) => el('li', {}, el('a', { href: '#request/' + o.id }, pill(o.status), el('span', { class: 'who' }, el('b', {}, titleOf(o)), el('small', {}, when(o.submittedAt, ctx.lang))))))) : el('p', { class: 'soft' }, t.detail.none)))));
@@ -429,18 +438,20 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
   };
 
   const stats = () => {
-    const resp = responseHours(), del = deliveryHours();
+    const resp = responseHours(), del = deliveryHours(); const rated = rows.filter((r) => r.rating);
     const byStatus: [string, number][] = STATUSES.map((s) => [S.statuses[s], sent().filter((r) => r.status === s).length] as [string, number]).filter((e) => e[1]);
     panel.replaceChildren(heading(t.stats.title), el('p', { class: 'lede' }, t.stats.lead),
       el('div', { class: 'kpis small' },
         el('div', { class: 'kpi' }, el('span', { class: 'kpi-label' }, t.stats.avgResponse), el('b', {}, resp === null ? '—' : duration(resp))),
-        el('div', { class: 'kpi' }, el('span', { class: 'kpi-label' }, t.stats.avgDelivery), el('b', {}, del === null ? '—' : duration(del)))),
+        el('div', { class: 'kpi' }, el('span', { class: 'kpi-label' }, t.stats.avgDelivery), el('b', {}, del === null ? '—' : duration(del))),
+        el('div', { class: 'kpi' }, el('span', { class: 'kpi-label' }, t.extra.rating), el('b', {}, rated.length ? `${(rated.reduce((a, r) => a + (r.rating?.stars || 0), 0) / rated.length).toFixed(1)} ★` : '—'), el('small', {}, fill(t.extra.ratings, rated.length)))),
       el('div', { class: 'con-grid' },
         card(t.stats.monthly, t.stats.monthlyLead, columns(months(12), t.stats.monthly)),
         card(t.stats.status, null, bars(byStatus, t.stats.status)),
         card(t.stats.kinds, null, bars(tally('kinds'), t.stats.kinds)), card(t.stats.budget, null, bars(tally('budget'), t.stats.budget)),
         card(t.stats.forWhom, null, bars(tally('forWhom'), t.stats.forWhom)), card(t.stats.where, null, bars(tally('where'), t.stats.where)),
-        card(t.stats.when, null, bars(tally('when'), t.stats.when)), card(t.stats.lang, null, bars(tally('lang').map(([k, v]) => [k.toUpperCase(), v]), t.stats.lang))));
+        card(t.stats.when, null, bars(tally('when'), t.stats.when)), card(t.stats.lang, null, bars(tally('lang').map(([k, v]) => [k.toUpperCase(), v]), t.stats.lang)),
+        card(t.extra.deliverables, null, bars(tally('deliverables'), t.extra.deliverables)), card(t.extra.payment, null, bars(tally('payment'), t.extra.payment))));
   };
 
   const settings = () => {
@@ -449,11 +460,21 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
     const days = el('input', { type: 'number', class: 'con-input', min: 1, max: 60, value: String(site.responseDays) }) as HTMLInputElement;
     const nEs = el('textarea', { rows: 2, class: 'con-input', maxLength: 400, value: site.noticeEs }) as HTMLTextAreaElement;
     const nEn = el('textarea', { rows: 2, class: 'con-input', maxLength: 400, value: site.noticeEn }) as HTMLTextAreaElement;
+    const pEs = el('textarea', { rows: 3, class: 'con-input', maxLength: 1000, value: site.payInfoEs || '' }) as HTMLTextAreaElement;
+    const pEn = el('textarea', { rows: 3, class: 'con-input', maxLength: 1000, value: site.payInfoEn || '' }) as HTMLTextAreaElement;
+    const corr = el('input', { type: 'number', class: 'con-input', min: 0, max: 20, value: String(site.corrections ?? 2) }) as HTMLInputElement;
+    const warr = el('input', { type: 'number', class: 'con-input', min: 0, max: 365, value: String(site.warrantyDays ?? 30) }) as HTMLInputElement;
+    const ok3 = el('span', { class: 'ok', role: 'status' }); const save3 = el('button', { type: 'button', class: 'btn-a' }, t.settings.save);
+    const writeSite = async (patch: Partial<Site>, okEl: HTMLElement, label: string) => {
+      const next: Site = { ...site, ...patch };
+      try { await setDoc(doc(db, 'config', 'site'), { accepting: next.accepting, responseDays: next.responseDays, noticeEs: next.noticeEs, noticeEn: next.noticeEn, payInfoEs: next.payInfoEs || '', payInfoEn: next.payInfoEn || '', corrections: next.corrections ?? 2, warrantyDays: next.warrantyDays ?? 30, updatedAt: serverTimestamp() }); site = next; okEl.textContent = t.settings.saved; note(label); }
+      catch { okEl.textContent = S.generic; }
+    };
+    save3.addEventListener('click', async () => { save3.disabled = true; ok3.textContent = ''; await writeSite({ payInfoEs: pEs.value.trim(), payInfoEn: pEn.value.trim(), corrections: Math.max(0, Math.min(20, Math.round(Number(corr.value) || 0))), warrantyDays: Math.max(0, Math.min(365, Math.round(Number(warr.value) || 0))) }, ok3, t.extra.pay); save3.disabled = false; });
     const save1 = el('button', { type: 'button', class: 'btn-a' }, t.settings.save);
     save1.addEventListener('click', async () => {
       save1.disabled = true; ok1.textContent = '';
-      const next = { accepting: accepting.checked, responseDays: Math.min(60, Math.max(1, Math.round(Number(days.value) || 2))), noticeEs: nEs.value.trim(), noticeEn: nEn.value.trim() };
-      try { await setDoc(doc(db, 'config', 'site'), { ...next, updatedAt: serverTimestamp() }); site = next; ok1.textContent = t.settings.saved; note(t.settings.availability); } catch { ok1.textContent = S.generic; }
+      await writeSite({ accepting: accepting.checked, responseDays: Math.min(60, Math.max(1, Math.round(Number(days.value) || 2))), noticeEs: nEs.value.trim(), noticeEn: nEn.value.trim() }, ok1, t.settings.availability);
       save1.disabled = false;
     });
     const ok2 = el('span', { class: 'ok', role: 'status' });
@@ -493,6 +514,9 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
           el('label', { class: 'field' }, el('span', {}, t.settings.responseDays), days), el('small', { class: 'soft' }, t.settings.responseHint),
           el('label', { class: 'field' }, el('span', {}, t.settings.noticeEs), nEs), el('label', { class: 'field' }, el('span', {}, t.settings.noticeEn), nEn), el('small', { class: 'soft' }, t.settings.noticeHint),
           el('p', { class: 'calls' }, save1, ok1)),
+        card(t.extra.pay, t.extra.payHint, el('label', { class: 'field' }, el('span', {}, t.extra.payEs), pEs), el('label', { class: 'field' }, el('span', {}, t.extra.payEn), pEn),
+          el('p', { class: 'kicker' }, t.extra.defaults), el('div', { class: 'two' }, el('label', { class: 'field' }, el('span', {}, t.extra.corrections), corr), el('label', { class: 'field' }, el('span', {}, t.extra.warranty), warr)),
+          el('p', { class: 'calls' }, save3, ok3)),
         card(t.settings.replies, t.settings.repliesLead, list, el('p', { class: 'calls' }, add, save2, ok2)),
         card(t.settings.alerts, null, toggle(notify, t.settings.notify), toggle(sound, t.settings.sound), warn),
         card(t.settings.data, t.settings.dataLead, el('p', { class: 'calls' }, csvBtn, jsonBtn))));
@@ -521,6 +545,149 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
           el('p', { class: 'kicker' }, t.system.links), el('p', { class: 'reach' }, ...links.map(([l, p]) => el('a', { class: 'chip-link', href: `https://console.firebase.google.com/project/${web.projectId}/${p}`, target: '_blank', rel: 'noopener' }, l, icon('external'))))),
         card(t.system.log, null, log.length ? el('ul', { class: 'con-log' }, ...log.map((l) => el('li', {}, l))) : el('p', { class: 'soft' }, t.system.logEmpty))));
     check();
+  };
+
+  // A prepared email to the client (opens his mail app): the plan, or a change of stage.
+  const mail = (r: Row, kind: 'plan' | 'status', status = '') => {
+    const lang = r.lang === 'en' ? 'en' : 'es'; const m = consoleCopy[lang].mail[kind];
+    const url = `${S.origin}${lang === 'es' ? '/es' : ''}/account/#request/${r.id}`;
+    const vars: Record<string, string> = { t: titleOf(r), n: (r.name || '').split(' ')[0] || '', url, s: status };
+    const f = (x: string) => Object.entries(vars).reduce((a, [k, v]) => a.replaceAll(`{${k}}`, v), x);
+    return `mailto:${encodeURIComponent(r.email || '')}?subject=${encodeURIComponent(f(m[0]))}&body=${encodeURIComponent(f(m[1]))}`;
+  };
+  const groupsOf = (r: Row) => [...new Set((r.kinds || []).map((k) => { for (const list of S.kinds) { const i = list.indexOf(k); if (i >= 0) return S.kindGroups[i]; } return ''; }).filter(Boolean))];
+
+  // The plan editor: defaults from the request (stages by kind, deposit if asked, agreement if asked) and from Settings.
+  const planEditor = (r: Row) => {
+    const p: Plan = r.plan || {};
+    const g = groupsOf(r)[0] || 'other';
+    const milestones: Milestone[] = (p.milestones?.length ? p.milestones : t.plan.templates[g as keyof typeof t.plan.templates].map((title) => ({ title, due: '', link: '', done: false }))).map((m) => ({ ...m }));
+    let payments: Payment[] = (p.payments || []).map((x) => ({ ...x }));
+    const wantsDeposit = /abono|deposit/i.test(r.payment || '');
+    const input = (type: string, value: string | number, attrs: Record<string, unknown> = {}) => el('input', { type, class: 'con-input', value: String(value ?? ''), ...attrs }) as HTMLInputElement;
+    const area = (value: string, rows = 2) => el('textarea', { rows, class: 'con-input', maxLength: 3000, value: value || '' }) as HTMLTextAreaElement;
+    const summary = area(p.summary || '', 3), includes = area(p.includes || ''), excludes = area(p.excludes || ''), ownership = area(p.ownership || t.plan.ownershipDefault, 3);
+    const corrections = input('number', p.corrections ?? site.corrections ?? 2, { min: 0, max: 20 }), warranty = input('number', p.warrantyDays ?? site.warrantyDays ?? 30, { min: 0, max: 365 });
+    const price = input('number', p.price ?? '', { min: 0, step: '0.01' }), currency = el('select', { class: 'con-input' }) as HTMLSelectElement;
+    for (const cur of ['USD', 'EUR']) currency.append(el('option', { value: cur, selected: (p.currency || 'USD') === cur }, cur));
+    const deposit = input('number', p.deposit ?? (wantsDeposit ? 50 : 0), { min: 0, max: 100 }), due = input('date', p.due || '');
+    const contract = el('input', { type: 'checkbox', checked: p.contract ?? (r.agreement || []).some((a) => /acuerdo|agreement/i.test(a)) }) as HTMLInputElement;
+    const mBox = el('div', { class: 'plan-rows' }); const payBox = el('div', { class: 'plan-rows' });
+    const drawM = () => mBox.replaceChildren(...milestones.map((m, k) => {
+      const ti = input('text', m.title, { 'aria-label': t.plan.mTitle, placeholder: t.plan.mTitle, maxLength: 120 }); ti.addEventListener('input', () => { m.title = ti.value; });
+      const du = input('date', m.due || '', { 'aria-label': t.plan.mDue }); du.addEventListener('input', () => { m.due = du.value; });
+      const li = input('url', m.link || '', { 'aria-label': t.plan.mLink, placeholder: t.plan.mLink, maxLength: 500 }); li.addEventListener('input', () => { m.link = li.value.trim(); });
+      const dn = el('input', { type: 'checkbox', checked: Boolean(m.done), 'aria-label': t.plan.mDone }) as HTMLInputElement; dn.addEventListener('change', () => { m.done = dn.checked; });
+      const rm = el('button', { type: 'button', class: 'link danger small' }, t.plan.remove); rm.addEventListener('click', () => { milestones.splice(k, 1); drawM(); });
+      return el('div', { class: 'plan-row m' }, ti, du, li, el('label', { class: 'toggle' }, dn, el('span', {}, t.plan.mDone)), rm);
+    }));
+    const drawP = () => payBox.replaceChildren(...payments.map((x, k) => {
+      const lb = input('text', x.label, { 'aria-label': t.plan.payments, maxLength: 80 }); lb.addEventListener('input', () => { x.label = lb.value; });
+      const am = input('number', x.amount, { min: 0, step: '0.01', 'aria-label': t.plan.price }); am.addEventListener('input', () => { x.amount = Number(am.value) || 0; });
+      const pd = el('input', { type: 'checkbox', checked: Boolean(x.paid), 'aria-label': t.plan.paid }) as HTMLInputElement; pd.addEventListener('change', () => { x.paid = pd.checked; });
+      const rm = el('button', { type: 'button', class: 'link danger small' }, t.plan.remove); rm.addEventListener('click', () => { payments.splice(k, 1); drawP(); });
+      return el('div', { class: 'plan-row p' }, lb, am, el('label', { class: 'toggle' }, pd, el('span', {}, t.plan.paid)), rm);
+    }));
+    const regen = () => {
+      const total = Number(price.value) || 0, dep = Math.max(0, Math.min(100, Number(deposit.value) || 0));
+      payments = dep > 0 && dep < 100 ? [{ label: t.plan.deposit1, amount: Math.round(total * dep) / 100, paid: false }, { label: t.plan.balance, amount: Math.round(total * (100 - dep)) / 100, paid: false }] : [{ label: t.plan.single, amount: total, paid: false }];
+      drawP();
+    };
+    drawM(); drawP();
+    const addM = el('button', { type: 'button', class: 'btn-b small' }, icon('plus'), el('span', {}, t.plan.addMilestone)); addM.addEventListener('click', () => { milestones.push({ title: '', due: '', link: '', done: false }); drawM(); });
+    const regenBtn = el('button', { type: 'button', class: 'btn-b small' }, t.plan.regen); regenBtn.addEventListener('click', regen);
+    const ok = el('span', { class: 'ok', role: 'status' });
+    const collect = (): Plan => ({
+      summary: summary.value.trim(), includes: includes.value.trim(), excludes: excludes.value.trim(), ownership: ownership.value.trim(),
+      corrections: Math.round(Number(corrections.value) || 0), warrantyDays: Math.round(Number(warranty.value) || 0), currency: currency.value,
+      deposit: Math.round(Number(deposit.value) || 0), due: due.value, contract: contract.checked,
+      milestones: milestones.filter((m) => m.title.trim()).map((m) => ({ title: m.title.trim(), due: m.due || '', link: m.link || '', done: Boolean(m.done) })),
+      payments: payments.filter((x) => x.label.trim()).map((x) => ({ label: x.label.trim(), amount: Number(x.amount) || 0, paid: Boolean(x.paid) })),
+      ...(price.value !== '' ? { price: Number(price.value) } : {}),
+    });
+    const write = async (publish: boolean) => {
+      const plan: Record<string, unknown> = { ...collect() };
+      if (p.publishedAt) plan.publishedAt = p.publishedAt;
+      const changes: Record<string, unknown> = { plan, updatedAt: serverTimestamp() };
+      if (publish) {
+        plan.publishedAt = serverTimestamp();
+        Object.assign(changes, firstResponse(r));
+        if (['submitted', 'reviewing'].includes(r.status)) { changes.status = 'proposal'; changes['statusAt.proposal'] = serverTimestamp(); }
+      }
+      refresh = r.id;
+      await updateDoc(doc(db, 'requests', r.id), changes);
+      note(`${nameOf(r)} · ${publish ? t.plan.publish : t.plan.save}`);
+    };
+    const saveBtn = el('button', { type: 'button', class: 'btn-b' }, t.plan.save);
+    const pubBtn = el('button', { type: 'button', class: 'btn-a' }, p.publishedAt ? t.plan.republish : t.plan.publish);
+    saveBtn.addEventListener('click', async () => { saveBtn.disabled = true; ok.textContent = ''; try { await write(false); ok.textContent = t.detail.saved; } catch { ok.textContent = S.generic; } saveBtn.disabled = false; });
+    pubBtn.addEventListener('click', async () => {
+      pubBtn.disabled = true; ok.textContent = '';
+      try { await write(true); ok.replaceChildren(t.detail.saved, r.email ? el('a', { class: 'link small', href: mail(r, 'plan') }, ' · ', t.plan.email) : ''); } catch { ok.textContent = S.generic; }
+      pubBtn.disabled = false;
+    });
+    if (!p.payments?.length && price.value) regen();
+    const field = (label: string, node: HTMLElement) => el('label', { class: 'field' }, el('span', {}, label), node);
+    const state = p.publishedAt ? el('p', { class: 'soft small' }, `${t.plan.published} ${when(p.publishedAt, ctx.lang, true)} · ${r.acceptedAt ? `${t.plan.accepted} ${when(r.acceptedAt, ctx.lang, true)}` : t.plan.notAccepted}`,
+      r.email ? el('a', { class: 'link small', href: mail(r, 'plan') }, ' · ', t.plan.email) : null) : null;
+    return el('section', { class: 'con-card plan-editor', 'aria-label': t.plan.title },
+      el('div', { class: 'plan-head' }, el('h2', {}, t.plan.title), r.free ? el('span', { class: 'pill s-delivered' }, t.extra.free) : null), el('p', { class: 'soft' }, t.plan.lead), state,
+      field(t.plan.summary, summary), el('div', { class: 'two' }, field(t.plan.includes, includes), field(t.plan.excludes, excludes)), field(t.plan.ownership, ownership),
+      el('div', { class: 'three' }, field(t.plan.due, due), field(t.plan.corrections, corrections), field(t.plan.warranty, warranty)),
+      r.free ? null : el('div', { class: 'three' }, field(t.plan.price, price), field(t.plan.currency, currency), field(t.plan.deposit, deposit)),
+      el('label', { class: 'toggle' }, contract, el('span', {}, t.plan.contract)),
+      el('p', { class: 'kicker' }, t.plan.milestones), mBox, el('p', { class: 'calls' }, addM),
+      r.free ? null : el('p', { class: 'kicker' }, t.plan.payments), r.free ? null : payBox, r.free ? null : el('p', { class: 'calls' }, regenBtn),
+      el('p', { class: 'calls' }, saveBtn, pubBtn, ok));
+  };
+
+  // The client's rating, and whether it shows on the Services page.
+  const ratingBox = (r: Row) => {
+    const R = t.rating;
+    if (!r.rating) return card(R.title, null, el('p', { class: 'soft' }, R.none));
+    const ok = el('span', { class: 'ok', role: 'status' });
+    const name = (() => { const parts = (r.name || '').trim().split(/\s+/); return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1].charAt(0)}.` : parts[0] || ''; })();
+    const toggle = el('button', { type: 'button', class: r.featured ? 'btn-b' : 'btn-a' }, r.featured ? R.hide : R.show);
+    toggle.addEventListener('click', async () => {
+      toggle.disabled = true;
+      try {
+        if (r.featured) { await deleteDoc(doc(db, 'testimonials', r.id)); await updateDoc(doc(db, 'requests', r.id), { featured: false }); r.featured = false; }
+        else { await setDoc(doc(db, 'testimonials', r.id), { name, text: r.rating!.comment, stars: r.rating!.stars, kind: titleOf(r), at: serverTimestamp() }); await updateDoc(doc(db, 'requests', r.id), { featured: true }); r.featured = true; }
+        toggle.textContent = r.featured ? R.hide : R.show; toggle.className = r.featured ? 'btn-b' : 'btn-a'; ok.textContent = r.featured ? R.shown : '';
+      } catch { ok.textContent = S.generic; }
+      toggle.disabled = false;
+    });
+    return card(R.title, null, el('p', { class: 'stars-view' }, '★'.repeat(r.rating.stars) + '☆'.repeat(5 - r.rating.stars)), r.rating.comment ? el('p', { class: 'pre' }, `“${r.rating.comment}”`) : null,
+      r.rating.public ? el('p', { class: 'calls' }, toggle, ok) : el('p', { class: 'soft small' }, R.private));
+  };
+
+  // A project he opens himself for a client with an account (for example a free one to track here).
+  const newProject = () => {
+    const N = t.newProject;
+    const people = clients();
+    const who = el('select', { class: 'con-input', 'aria-label': N.client }) as HTMLSelectElement;
+    who.append(el('option', { value: '' }, N.pick)); for (const c of people) who.append(el('option', { value: c.id }, `${c.name || '—'} · ${c.email || ''}`));
+    const what = el('input', { type: 'text', class: 'con-input', maxLength: 120 }) as HTMLInputElement;
+    const idea = el('textarea', { rows: 4, class: 'con-input', maxLength: 5000 }) as HTMLTextAreaElement;
+    const free = el('input', { type: 'checkbox', checked: true }) as HTMLInputElement;
+    const stage = el('select', { class: 'con-input' }) as HTMLSelectElement;
+    for (const s of ['in-progress', 'reviewing', 'proposal']) stage.append(el('option', { value: s }, S.statuses[s]));
+    const err = el('p', { class: 'err', role: 'alert' });
+    const create = el('button', { type: 'button', class: 'btn-a' }, N.create);
+    create.addEventListener('click', async () => {
+      const c = people.find((x) => x.id === who.value); if (!c || !what.value.trim()) { err.textContent = S.generic; return; }
+      create.disabled = true;
+      try {
+        const stamp = serverTimestamp();
+        const ref = await addDoc(collection(db, 'requests'), { uid: c.id, name: c.name || '', email: c.email || '', kinds: [what.value.trim()], idea: idea.value.trim(), lang: c.lang || ctx.lang, status: stage.value,
+          statusAt: { [stage.value]: stamp }, free: free.checked, createdBy: 'admin', createdAt: stamp, updatedAt: stamp, submittedAt: stamp });
+        note(`${N.button} · ${c.name || c.email}`); location.hash = 'request/' + ref.id;
+      } catch { err.textContent = S.generic; create.disabled = false; }
+    });
+    panel.replaceChildren(el('a', { class: 'back', href: '#requests' }, icon('back'), t.detail.back), heading(N.title), el('p', { class: 'lede' }, N.lead),
+      people.length ? el('section', { class: 'con-card new-project' }, el('label', { class: 'field' }, el('span', {}, N.client), who), el('label', { class: 'field' }, el('span', {}, N.what), what),
+        el('label', { class: 'field' }, el('span', {}, N.idea), idea), el('label', { class: 'field' }, el('span', {}, N.status), stage), el('label', { class: 'toggle big' }, free, el('span', {}, N.free)), err, el('p', { class: 'calls' }, create))
+        : el('p', { class: 'soft empty' }, N.none));
   };
 
   // CSV and downloads.
@@ -552,6 +719,7 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
     else if (top === 'client') clientDetail(hash.slice(7));
     else if (top === 'stats') stats();
     else if (top === 'settings') settings();
+    else if (top === 'new') newProject();
     else if (top === 'system') system();
     else overview();
     panel.querySelector<HTMLElement>('h1')?.setAttribute('tabindex', '-1');

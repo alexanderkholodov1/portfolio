@@ -4,8 +4,8 @@
 // note of 2026-11-17: "son dos entornos completamente distintos").
 import type { User } from 'firebase/auth';
 import {
-  discard, ensureProfile, isAdmin, leave, loadProfile, markRead, myRequests, saveProfile, sendMessage, unreadFor, usesPassword,
-  watchMessages, watchUser, when, withdraw, resetPassword, type Message, type Profile, type Request,
+  acceptPlan, discard, ensureProfile, isAdmin, leave, loadProfile, loadSite, markRead, myRequests, rate, saveProfile, sendMessage, unreadFor, usesPassword,
+  watchMessages, watchUser, when, withdraw, resetPassword, type Message, type Profile, type Request, type Site,
 } from '../lib/accounts';
 import { el, icon } from '../lib/dom';
 import { signinCard, type ErrorCopy, type SigninCopy } from './signin';
@@ -21,6 +21,7 @@ type Copy = {
   profile: Record<'lead' | 'name' | 'email' | 'contact' | 'number' | 'lang' | 'save' | 'saved', string> & { title: string[]; contacts: string[]; langs: Record<string, string> };
   security: Record<'lead' | 'method' | 'google' | 'password' | 'created' | 'last' | 'change' | 'changeLead' | 'sent' | 'googleNote' | 'out', string> & { title: string[] };
   statuses: Record<string, string>; fields: Record<string, string>;
+  plan: Record<string, string>; agreementDoc: Record<string, string>; rating: Record<string, string>;
 };
 export type Shell = {
   copy: Copy; lang: string; user: User; links: Record<string, string>;
@@ -96,7 +97,80 @@ export function startAccount(root: HTMLElement) {
     return el('div', { class: 'chat' }, box, ENDED.includes(r.status) && side === 'client' ? null : form, err);
   };
 
-  let user: User | null = null, profile: Profile = {}, mine: Request[] = [];
+  let user: User | null = null, profile: Profile = {}, mine: Request[] = [], site: Site | null = null;
+  const money = (n?: number, cur = 'USD') => (typeof n === 'number' ? n.toLocaleString(lang === 'es' ? 'es-EC' : 'en-US', { style: 'currency', currency: cur || 'USD' }) : '—');
+  const day = (iso?: string) => (iso ? new Date(iso + 'T12:00:00').toLocaleDateString(lang === 'es' ? 'es-EC' : 'en-US', { dateStyle: 'medium' }) : '');
+  const fill = (s: string, map: Record<string, string | number>) => Object.entries(map).reduce((a, [k, v]) => a.replaceAll(`{${k}}`, String(v)), s);
+
+  // The plan the admin published: stages with a link to try each, payments and what is due now, scope, ownership,
+  // corrections and warranty, how to pay; accepted once, and turned into a printable service agreement.
+  const planCard = (r: Request, panel: HTMLElement) => {
+    const p = r.plan!; const P = c.plan;
+    const owed = (p.payments || []).find((x) => !x.paid);
+    const accept = el('button', { type: 'button', class: 'btn-a' }, P.accept);
+    accept.addEventListener('click', async () => { accept.disabled = true; try { await acceptPlan(r.id); r.acceptedAt = { toDate: () => new Date(), toMillis: () => Date.now() } as never; detail(panel, r.id); } catch { accept.disabled = false; } });
+    const doc = el('button', { type: 'button', class: 'btn-b' }, P.agreement); doc.addEventListener('click', () => agreement(r));
+    const change = el('a', { class: 'link', href: '#' }, P.change);
+    change.addEventListener('click', (e) => { e.preventDefault(); panel.querySelector<HTMLTextAreaElement>('.composer textarea')?.focus(); });
+    const howTo = (lang === 'es' ? site?.payInfoEs : site?.payInfoEn) || '';
+    return el('section', { class: 'acct-card plan', 'aria-label': P.title },
+      el('div', { class: 'plan-head' }, el('h2', {}, P.title), r.free ? el('span', { class: 'pill s-delivered' }, P.free) : null),
+      el('p', { class: 'soft' }, p.summary || P.lead),
+      (p.milestones || []).length ? el('div', {}, el('p', { class: 'kicker' }, P.milestones), el('ol', { class: 'stages' }, ...(p.milestones || []).map((m) => el('li', { class: m.done ? 'done' : '' },
+        el('span', { class: 'tick', 'aria-hidden': 'true' }), el('span', { class: 'who' }, el('b', {}, m.title), m.due ? el('small', {}, day(m.due)) : null),
+        m.link ? el('a', { class: 'chip-link', href: m.link, target: '_blank', rel: 'noopener' }, P.try) : m.done ? el('small', { class: 'soft' }, P.done) : null)))) : null,
+      el('dl', { class: 'facts col' },
+        p.due ? el('div', {}, el('dt', {}, P.due), el('dd', {}, day(p.due))) : null,
+        !r.free && typeof p.price === 'number' ? el('div', {}, el('dt', {}, P.price), el('dd', {}, money(p.price, p.currency))) : null,
+        ...(r.free ? [] : (p.payments || []).map((x) => el('div', {}, el('dt', {}, x.label), el('dd', {}, `${money(x.amount, p.currency)} · ${x.paid ? P.paid : P.pending}`)))),
+        owed && !r.free ? el('div', { class: 'owed' }, el('dt', {}, P.now), el('dd', {}, money(owed.amount, p.currency))) : null),
+      p.includes ? el('div', {}, el('p', { class: 'kicker' }, P.includes), el('p', { class: 'pre' }, p.includes)) : null,
+      p.excludes ? el('div', {}, el('p', { class: 'kicker' }, P.excludes), el('p', { class: 'pre' }, p.excludes)) : null,
+      p.ownership ? el('div', {}, el('p', { class: 'kicker' }, P.ownership), el('p', { class: 'pre' }, p.ownership)) : null,
+      el('p', { class: 'soft small' }, [typeof p.corrections === 'number' ? fill(P.corrections, { n: p.corrections }) : '', typeof p.warrantyDays === 'number' && p.warrantyDays ? fill(P.warranty, { n: p.warrantyDays }) : ''].filter(Boolean).join(' · ')),
+      howTo && !r.free ? el('div', {}, el('p', { class: 'kicker' }, P.howToPay), el('p', { class: 'pre' }, howTo)) : null,
+      el('p', { class: 'calls' }, r.acceptedAt ? el('span', { class: 'ok' }, `${P.accepted} ${when(r.acceptedAt, lang)}`) : accept, doc, change));
+  };
+
+  const agreement = (r: Request) => {
+    const p = r.plan || {}; const A = c.agreementDoc;
+    const close = el('button', { type: 'button', class: 'btn-b' }, c.plan.close);
+    const print = el('button', { type: 'button', class: 'btn-a' }, c.plan.print);
+    const sheet = el('div', { class: 'agreement-sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': A.title },
+      el('article', { class: 'agreement' },
+        el('h1', {}, A.title),
+        el('p', {}, fill(A.between, { provider: 'Alexander Kholodov', client: r.name || r.email || '—' })),
+        el('h2', {}, A.request), el('p', {}, `${titleOf(r)} — ${r.idea || ''}`),
+        el('h2', {}, A.scope), el('p', { class: 'pre' }, [p.summary, p.includes && `${c.plan.includes}: ${p.includes}`, p.excludes && `${c.plan.excludes}: ${p.excludes}`].filter(Boolean).join('\n\n') || '—'),
+        el('h2', {}, A.schedule), el('ol', {}, ...(p.milestones || []).map((m) => el('li', {}, `${m.title}${m.due ? ' — ' + day(m.due) : ''}`))),
+        r.free ? null : el('h2', {}, A.price),
+        r.free ? null : el('p', {}, [typeof p.price === 'number' ? money(p.price, p.currency) : '', ...(p.payments || []).map((x) => `${x.label}: ${money(x.amount, p.currency)}`)].filter(Boolean).join(' · ')),
+        el('h2', {}, A.ownership), el('p', { class: 'pre' }, p.ownership || '—'),
+        el('h2', {}, A.warranty), el('p', {}, [typeof p.corrections === 'number' ? fill(c.plan.corrections, { n: p.corrections }) : '', p.warrantyDays ? fill(c.plan.warranty, { n: p.warrantyDays }) : ''].filter(Boolean).join(' · ') || '—'),
+        el('h2', {}, A.acceptance), el('p', {}, r.acceptedAt ? fill(A.acceptedOn, { date: when(r.acceptedAt, lang, true) }) : A.notYet),
+        el('p', { class: 'soft small' }, A.note)),
+      el('p', { class: 'calls no-print' }, print, close));
+    const done = () => { sheet.remove(); document.body.classList.remove('printing'); removeEventListener('keydown', esc); };
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') done(); };
+    close.addEventListener('click', done); print.addEventListener('click', () => window.print());
+    addEventListener('keydown', esc);
+    document.body.append(sheet); document.body.classList.add('printing'); print.focus();
+  };
+
+  // After delivery: stars, a few words, and consent to show them on the Services page.
+  const ratingCard = (r: Request, panel: HTMLElement) => {
+    const R = c.rating;
+    if (r.rating) return el('section', { class: 'acct-card' }, el('h2', {}, R.yours), el('p', { class: 'stars-view', 'aria-label': `${r.rating.stars}/5` }, '★'.repeat(r.rating.stars) + '☆'.repeat(5 - r.rating.stars)), r.rating.comment ? el('p', { class: 'pre' }, r.rating.comment) : null, el('p', { class: 'ok' }, R.thanks));
+    let stars = 0;
+    const row = el('div', { class: 'stars', role: 'radiogroup', 'aria-label': R.stars });
+    const paint = () => row.querySelectorAll('button').forEach((b, k) => { b.setAttribute('aria-checked', String(k + 1 === stars)); b.classList.toggle('on', k < stars); });
+    for (let k = 1; k <= 5; k++) { const b = el('button', { type: 'button', role: 'radio', 'aria-label': String(k), 'aria-checked': 'false' }, '★'); b.addEventListener('click', () => { stars = k; paint(); }); row.append(b); }
+    const text = el('textarea', { rows: 3, maxLength: 1000, placeholder: R.comment, 'aria-label': R.comment }) as HTMLTextAreaElement;
+    const consent = el('input', { type: 'checkbox', checked: true }) as HTMLInputElement;
+    const send = el('button', { type: 'button', class: 'btn-a' }, R.send);
+    send.addEventListener('click', async () => { if (!stars) { row.querySelector('button')?.focus(); return; } send.disabled = true; try { await rate(r.id, stars, text.value.trim(), consent.checked); r.rating = { stars, comment: text.value.trim(), public: consent.checked }; detail(panel, r.id); } catch { send.disabled = false; } });
+    return el('section', { class: 'acct-card rate' }, el('h2', {}, R.title), el('p', { class: 'soft' }, R.lead), row, text, el('label', { class: 'toggle' }, consent, el('span', {}, R.consent)), el('p', { class: 'calls' }, send));
+  };
   let shell: Shell | null = null;
 
   const navButton = (hash: string, label: string, name: string, badge = 0) => {
@@ -154,7 +228,8 @@ export function startAccount(root: HTMLElement) {
       const isDraft = r.status === 'draft';
       const card = el('div', { class: 'req' },
         el('a', { class: 'req-main', href: isDraft ? links.start + '?id=' + r.id : '#request/' + r.id },
-          el('span', { class: 'req-top' }, pill(r.status), unreadFor(r, 'client') ? el('span', { class: 'new' }, el('span', { class: 'dot-new', 'aria-hidden': 'true' }), c.requests.newMsg) : null),
+          el('span', { class: 'req-top' }, pill(r.status), unreadFor(r, 'client') ? el('span', { class: 'new' }, el('span', { class: 'dot-new', 'aria-hidden': 'true' }), c.requests.newMsg) : null,
+            r.plan?.publishedAt && !r.acceptedAt ? el('span', { class: 'new calm' }, c.plan.title) : null),
           el('b', {}, titleOf(r)), r.idea ? el('p', { class: 'clamp' }, r.idea) : null,
           el('small', {}, `${isDraft ? c.requests.created : c.requests.updated} ${when(r.updatedAt || r.createdAt, lang)}`)));
       if (isDraft) {
@@ -189,13 +264,18 @@ export function startAccount(root: HTMLElement) {
       });
       action = w;
     }
+    const rated = ['delivered', 'closed'].includes(r.status) && (r.status === 'delivered' || r.statusAt?.delivered);
     panel.replaceChildren(back,
       el('div', { class: 'detail-head' }, el('h1', {}, titleOf(r)), pill(r.status)),
       el('p', { class: 'soft' }, `${c.requests.sent} ${when(r.submittedAt || r.createdAt, lang)}`),
       ended || timeline(r),
       el('div', { class: 'acct-split' },
-        el('section', { class: 'acct-card', 'aria-label': c.detail.chat }, el('h2', {}, c.detail.chat), el('p', { class: 'soft' }, c.detail.chatLead), thread(r, 'client', { me: c.detail.you, other: c.detail.him })),
-        el('section', { class: 'acct-card', 'aria-label': c.detail.answers }, el('h2', {}, c.detail.answers), answers(r), action)));
+        el('div', { class: 'stack' },
+          r.plan?.publishedAt ? planCard(r, panel) : null,
+          el('section', { class: 'acct-card', 'aria-label': c.detail.chat }, el('h2', {}, c.detail.chat), el('p', { class: 'soft' }, c.detail.chatLead), thread(r, 'client', { me: c.detail.you, other: c.detail.him }))),
+        el('div', { class: 'stack' },
+          rated ? ratingCard(r, panel) : null,
+          el('section', { class: 'acct-card', 'aria-label': c.detail.answers }, el('h2', {}, c.detail.answers), answers(r), action))));
   };
 
   const profilePanel = (panel: HTMLElement) => {
@@ -273,11 +353,11 @@ export function startAccount(root: HTMLElement) {
   watchUser(async (u) => {
     user = u; stopThread?.(); stopThread = null;
     if (!u) { shell = null; gate(); return; }
-    if (next === 'start') { location.replace(links.start); return; }
+    if (next === 'start') { const ref = new URLSearchParams(location.search).get('ref'); location.replace(links.start + (ref ? '?ref=' + encodeURIComponent(ref) : '')); return; }
     view.replaceChildren(el('p', { class: 'acct-loading' }, c.loading));
     ensureProfile(u);
-    const [p, list, admin] = await Promise.all([loadProfile(u), myRequests(u.uid).catch(() => []), isAdmin(u).catch(() => false)]);
-    profile = p; mine = list;
+    const [p, list, admin, settings] = await Promise.all([loadProfile(u), myRequests(u.uid).catch(() => []), isAdmin(u).catch(() => false), loadSite()]);
+    profile = p; mine = list; site = settings;
     if (admin) { location.replace(links.admin); return; }
     layout(false);
     route();

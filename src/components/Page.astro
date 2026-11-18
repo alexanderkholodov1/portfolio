@@ -5,7 +5,7 @@ import Mark from './Mark.astro';
 import { copy } from '../data/copy';
 import { activities, kinds, linkedinActivity } from '../data/activities';
 import { achievements, certifications, experience, isPending, links, profile, projects, services, socials } from '../data/content';
-import { galaxy, galaxyHref, href, labels, projectHref, resolveHref, type Language, type Page } from '../data/site';
+import { galaxy, galaxyHref, href, labels, origin, projectHref, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; projectId?: string; }
 const { lang, page, projectId } = Astro.props;
 const current = projectId ? [...projects.items, ...achievements].find((p) => p.id === projectId) : undefined;
@@ -357,6 +357,12 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
       </div>
     </section>
 
+    <section class="band testimonials" aria-labelledby="quotes-title" data-testimonials hidden>
+      <p class="kicker">{t.testimonials.kicker}</p>
+      <h2 id="quotes-title">{t.testimonials.title[0]}<em>{t.testimonials.title[1]}</em></h2>
+      <ul class="quotes" data-quotes></ul>
+    </section>
+
     <section class="band svc-end bleed ink deep" aria-labelledby="end-title">
       <h2 id="end-title" data-reveal>{s2.endTitle[0]}<em>{s2.endTitle[1]}</em></h2>
       <p class="lede" data-reveal>{s2.endLead}</p>
@@ -366,7 +372,10 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
       import { startMotion } from '../scripts/motion';
       import { startDemos } from '../scripts/demos';
       import { startRibbon } from '../scripts/ribbon';
+      import { showTestimonials } from '../scripts/testimonials';
       startMotion(); startDemos();
+      const quotes = document.querySelector<HTMLElement>('[data-testimonials]');
+      if (quotes) showTestimonials(quotes);
       const builder = document.querySelector<HTMLElement>('[data-builder]');
       if (builder) startRibbon(builder);
     </script>
@@ -506,7 +515,7 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
 
   {page === 'admin' && <>
     <section class="con-page" data-console data-lang={lang} data-account={href('account', lang)} data-home={href('home', lang)} data-build={new Date().toISOString()}
-      data-shared={JSON.stringify({ statuses: t.account.statuses, fields: t.account.fields, steps: t.account.detail.steps, generic: t.account.errors.generic })}>
+      data-shared={JSON.stringify({ statuses: t.account.statuses, fields: t.account.fields, steps: t.account.detail.steps, generic: t.account.errors.generic, kinds: [copy.en.start.q[0].options, copy.es.start.q[0].options], kindGroups: t.start.kindGroups, origin })}>
       <div data-view aria-live="polite"><h1 class="acct-loading">{t.account.loading}</h1></div>
     </section>
     <script>
@@ -517,7 +526,8 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
   </>}
 
   {page === 'start' && <>
-    <section class="start" data-start data-lang={lang} data-copy={JSON.stringify(t.start)} data-account={href('account', lang)}>
+    <section class="start" data-start data-lang={lang} data-copy={JSON.stringify(t.start)} data-account={href('account', lang)}
+      data-projects={JSON.stringify(Object.fromEntries([...projects.items, ...achievements].map((p) => [p.id, p.title[lang]])))}>
       <div class="start-head">
         <p class="kicker">{t.start.eyebrow}</p>
         <h1>{t.start.title[0]}<em>{t.start.title[1]}</em></h1>
@@ -571,7 +581,7 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
     <section class="band svc-end bleed ink deep" aria-labelledby="like-title">
       <h2 id="like-title">{t.project.like[0]}<em>{t.project.like[1]}</em></h2>
       <p class="lede">{t.project.likeLead}</p>
-      <p class="calls"><a class="btn-a big" href={startHref}>{t.project.start}<span class="arrow" aria-hidden="true">→</span></a></p>
+      <p class="calls"><a class="btn-a big" href={`${startHref}?ref=${current.id}`}>{t.project.start}<span class="arrow" aria-hidden="true">→</span></a></p>
     </section>
     <script>
       import { startMotion } from '../scripts/motion';
