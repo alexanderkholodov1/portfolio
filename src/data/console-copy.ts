@@ -14,6 +14,8 @@ const es = {
     recent: 'Actividad reciente', recentEmpty: 'Aún no hay actividad.', week: 'Semana del',
     events: { submitted: 'envió una solicitud', client: 'escribió un mensaje', admin: 'Respondiste a', status: 'pasó a' },
   },
+  overview2: { today: 'Hoy es {n}', accepting: 'Aceptando proyectos', paused: 'En pausa', review: 'Por revisar', reviewEmpty: 'Nada nuevo por revisar.', reply: 'Esperan tu respuesta', replyEmpty: 'Nadie espera tu respuesta.', due: 'Próximas entregas', dueEmpty: 'Sin entregas con fecha.', pipeline: 'Trabajo por etapa', money: 'Dinero', paid: 'Cobrado', pending: 'Por cobrar', proposed: 'En propuestas', stale: 'Sin movimiento 7+ días', all: 'Ver todo' },
+  quick: { new: 'Nuevo proyecto', review: 'Por revisar', reply: 'Sin responder', board: 'Tablero', site: 'Ver Servicios', export: 'Exportar CSV' },
   table: 'Ver tabla', chart: 'Ver gráfico', count: 'Cantidad',
   requests: {
     title: ['Solicitudes', ''], lead: 'Todas, con búsqueda, filtros y exportación.', search: 'Buscar por nombre, correo o idea',
@@ -94,6 +96,8 @@ const en: ConsoleCopy = {
     recent: 'Recent activity', recentEmpty: 'No activity yet.', week: 'Week of',
     events: { submitted: 'sent a request', client: 'wrote a message', admin: 'You answered', status: 'moved to' },
   },
+  overview2: { today: 'Today is {n}', accepting: 'Taking projects', paused: 'Paused', review: 'To review', reviewEmpty: 'Nothing new to review.', reply: 'Waiting for your reply', replyEmpty: 'Nobody is waiting for you.', due: 'Next deliveries', dueEmpty: 'No dated deliveries.', pipeline: 'Work by stage', money: 'Money', paid: 'Collected', pending: 'To collect', proposed: 'In proposals', stale: 'No movement 7+ days', all: 'See all' },
+  quick: { new: 'New project', review: 'To review', reply: 'Unanswered', board: 'Board', site: 'View Services', export: 'Export CSV' },
   table: 'Show table', chart: 'Show chart', count: 'Count',
   requests: {
     title: ['Requests', ''], lead: 'All of them, with search, filters and export.', search: 'Search by name, email or idea',

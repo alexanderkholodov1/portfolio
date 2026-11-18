@@ -67,6 +67,17 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
     const b = el('b', { class: 'badge', hidden: true }); badges[key] = b;
     return el('a', { href: '#' + key, data: { route: key } }, icon(ic), el('span', {}, t.nav[key as keyof typeof t.nav]), b);
   }));
+  const quick = document.querySelector<HTMLElement>('body > nav');
+  const qReview = el('b', { class: 'badge', hidden: true }), qReply = el('b', { class: 'badge', hidden: true });
+  const qExport = el('button', { type: 'button', class: 'qa' }, icon('download'), el('span', {}, t.quick.export));
+  qExport.addEventListener('click', () => download(`requests-${new Date().toISOString().slice(0, 10)}.csv`, csv(rows), 'text/csv'));
+  quick?.append(el('span', { class: 'qa-sep', 'aria-hidden': 'true' }),
+    el('a', { class: 'qa strong', href: '#new' }, icon('plus'), el('span', {}, t.quick.new)),
+    el('a', { class: 'qa', href: '#requests' }, el('span', {}, t.quick.review), qReview),
+    el('a', { class: 'qa', href: '#inbox' }, el('span', {}, t.quick.reply), qReply),
+    el('a', { class: 'qa', href: '#board' }, el('span', {}, t.quick.board)),
+    el('a', { class: 'qa', href: ctx.home.replace(/\/?$/, '/') + 'services/', target: '_blank', rel: 'noopener' }, el('span', {}, t.quick.site), icon('external')),
+    qExport);
   const panel = el('div', { class: 'con-main' });
   view.replaceChildren(el('div', { class: 'con' }, el('aside', { class: 'con-side' }, nav), panel));
   document.title = `${t.title} · Alexander Kholodov`;
@@ -76,6 +87,7 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
     const unread = rows.filter((r) => unreadFor(r, 'admin')).length;
     const set = (b: HTMLElement, n: number) => { b.hidden = !n; b.textContent = String(n); };
     set(badges.requests, pending); set(badges.inbox, unread); set(bell.querySelector('.badge')!, pending + unread);
+    set(qReview, pending); set(qReply, unread);
     document.title = `${pending + unread ? `(${pending + unread}) ` : ''}${t.title} · Alexander Kholodov`;
   };
 
@@ -193,47 +205,68 @@ export function mountConsole(root: HTMLElement, user: User, ctx: Ctx) {
     note(`${nameOf(r)} → ${S.statuses[status]}`);
   };
 
-  // Panels.
+  // The overview, by priority (his note of 2026-11-18: at first sight, what matters must stand out): first what needs
+  // action now, big; then money and the work by stage; then the other numbers, quieter; then the trend and activity.
   const overview = () => {
+    const O = t.overview, N = t.overview2;
     const all = sent(); const cs = clients();
     const name = (user.displayName || 'Alexander').split(' ')[0];
-    const resp = responseHours();
-    const accepted = all.filter((r) => reached(r, 'in-progress')).length;
+    const toReview = rows.filter((r) => r.status === 'submitted' && !r.adminReadAt);
+    const toReply = rows.filter((r) => unreadFor(r, 'admin'));
+    const due = all.filter((r) => !ENDED.includes(r.status)).flatMap((r) => (r.plan?.milestones || []).filter((m) => !m.done && m.due).map((m) => ({ r, m })))
+      .sort((a, b) => (a.m.due || '').localeCompare(b.m.due || ''));
+    const stale = all.filter((r) => ['reviewing', 'proposal', 'in-progress'].includes(r.status) && Date.now() - ms(r.updatedAt) > 7 * DAY);
     const drafts = rows.filter((r) => r.status === 'draft' && Date.now() - ms(r.updatedAt) > 2 * DAY);
-    const kpi = (key: keyof typeof t.overview.kpi, value: string | number, hash: string | null, tone = '') =>
-      el(hash ? 'a' : 'div', { class: 'kpi' + (tone ? ' ' + tone : ''), ...(hash ? { href: '#' + hash } : {}) }, el('span', { class: 'kpi-label' }, t.overview.kpi[key]), el('b', {}, String(value)), el('small', {}, t.overview.hint[key]));
-    const pending = rows.filter((r) => r.status === 'submitted' && !r.adminReadAt).length;
-    const unread = rows.filter((r) => unreadFor(r, 'admin')).length;
-    const attention: [Row, string][] = [];
+    const resp = responseHours(); const rated = rows.filter((r) => r.rating);
+    const accepted = all.filter((r) => reached(r, 'in-progress')).length;
+    const cur = (n: number) => n.toLocaleString(locale, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    let paid = 0, owed = 0, offered = 0;
     for (const r of all) {
-      if (r.status === 'submitted' && !r.adminReadAt) attention.push([r, t.overview.reasons.new]);
-      else if (unreadFor(r, 'admin')) attention.push([r, t.overview.reasons.message]);
-      else if (['reviewing', 'proposal', 'in-progress'].includes(r.status) && Date.now() - ms(r.updatedAt) > 7 * DAY) attention.push([r, fill(t.overview.reasons.stale, Math.round((Date.now() - ms(r.updatedAt)) / DAY))]);
+      const p = r.plan; if (!p || r.free) continue;
+      if (r.acceptedAt) for (const x of p.payments || []) { if (x.paid) paid += x.amount || 0; else owed += x.amount || 0; }
+      else if (p.publishedAt && !ENDED.includes(r.status)) offered += p.price || 0;
     }
-    for (const r of drafts.slice(0, 3)) attention.push([r, fill(t.overview.reasons.draft, Math.round((Date.now() - ms(r.updatedAt)) / DAY))]);
+    const day = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+    const item = (r: Row, note: string, when: string) => el('li', {}, el('a', { href: '#request/' + r.id }, el('span', { class: 'who' }, el('b', {}, nameOf(r)), el('small', {}, note)), el('time', {}, when)));
+    const focus = (cls: string, title: string, count: number, list: HTMLElement[], empty: string, hash: string) =>
+      el('section', { class: 'focus ' + cls + (count ? ' has' : '') }, el('div', { class: 'focus-head' }, el('h2', {}, title), el('b', { class: 'focus-n' }, String(count))),
+        list.length ? el('ul', { class: 'focus-list' }, ...list.slice(0, 3)) : el('p', { class: 'soft focus-empty' }, empty),
+        count > 3 || list.length ? el('a', { class: 'focus-go', href: '#' + hash }, N.all, ' →') : null);
+    // Work by stage, one hue from light to dark along the flow.
+    const byStage = FLOW.map((s, k) => ({ s, k, n: all.filter((r) => r.status === s).length }));
+    const total = byStage.reduce((a, x) => a + x.n, 0);
+    const pipe = el('div', { class: 'pipe' },
+      el('div', { class: 'pipe-bar', role: 'img', 'aria-label': byStage.map((x) => `${S.steps[x.k]} ${x.n}`).join(', ') }, ...byStage.filter((x) => x.n).map((x) => el('span', { style: `flex:${x.n}; --l:${x.k}`, title: `${S.steps[x.k]} · ${x.n}` }))),
+      el('ul', { class: 'pipe-legend' }, ...byStage.map((x) => el('li', { style: `--l:${x.k}` }, el('i', { 'aria-hidden': 'true' }), el('span', {}, S.steps[x.k]), el('b', {}, String(x.n))))));
+    const metric = (label: string, value: string, hash: string) => el('a', { class: 'metric', href: '#' + hash }, el('b', {}, value), el('span', {}, label));
     const events: { at: number; node: HTMLElement }[] = [];
     for (const r of all) {
-      if (r.submittedAt) events.push({ at: ms(r.submittedAt), node: el('span', {}, el('b', {}, nameOf(r)), ' ', t.overview.events.submitted) });
-      if (r.lastAt && r.lastFrom) events.push({ at: ms(r.lastAt), node: r.lastFrom === 'client' ? el('span', {}, el('b', {}, nameOf(r)), ' ', t.overview.events.client) : el('span', {}, t.overview.events.admin, ' ', el('b', {}, nameOf(r))) });
-      for (const [s, at] of Object.entries(r.statusAt || {})) events.push({ at: ms(at), node: el('span', {}, el('b', {}, nameOf(r)), ' ', t.overview.events.status, ' ', pill(s)) });
+      if (r.submittedAt) events.push({ at: ms(r.submittedAt), node: el('span', {}, el('b', {}, nameOf(r)), ' ', O.events.submitted) });
+      if (r.lastAt && r.lastFrom) events.push({ at: ms(r.lastAt), node: r.lastFrom === 'client' ? el('span', {}, el('b', {}, nameOf(r)), ' ', O.events.client) : el('span', {}, O.events.admin, ' ', el('b', {}, nameOf(r))) });
+      for (const [s, at] of Object.entries(r.statusAt || {})) events.push({ at: ms(at), node: el('span', {}, el('b', {}, nameOf(r)), ' ', O.events.status, ' ', pill(s)) });
     }
     events.sort((a, b) => b.at - a.at);
-    const funnel: [string, number][] = FLOW.map((s, k) => [S.steps[k], all.filter((r) => reached(r, s)).length]);
     panel.replaceChildren(
-      el('h1', {}, t.overview.hello, el('em', {}, name)), el('p', { class: 'lede' }, t.overview.lead),
-      el('div', { class: 'kpis' },
-        kpi('pending', pending, 'requests', pending ? 'hot' : ''), kpi('unanswered', unread, 'inbox', unread ? 'hot' : ''),
-        kpi('active', all.filter((r) => ['reviewing', 'proposal', 'in-progress'].includes(r.status)).length, 'board'),
-        kpi('delivered', all.filter((r) => r.status === 'delivered').length, 'board'),
-        kpi('clients', cs.length, 'clients'), kpi('acceptance', all.length ? `${Math.round((accepted / all.length) * 100)}%` : '—', 'stats'),
-        kpi('response', resp === null ? '—' : duration(resp), 'stats'), kpi('drafts', drafts.length, 'requests')),
+      el('div', { class: 'ov-head' }, el('div', {}, el('h1', {}, O.hello, el('em', {}, name)), el('p', { class: 'soft' }, fill(N.today, new Date().toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })))),
+        el('a', { class: 'avail' + (site.accepting ? ' on' : ''), href: '#settings' }, el('i', { 'aria-hidden': 'true' }), site.accepting ? N.accepting : N.paused)),
+      el('div', { class: 'focus-row' },
+        focus('f-review', N.review, toReview.length, toReview.map((r) => item(r, titleOf(r), ago(r.submittedAt))), N.reviewEmpty, 'requests'),
+        focus('f-reply', N.reply, toReply.length, toReply.map((r) => item(r, titleOf(r), ago(r.lastAt))), N.replyEmpty, 'inbox'),
+        focus('f-due', N.due, due.length, due.map(({ r, m }) => item(r, m.title, day(m.due!))), N.dueEmpty, 'board')),
+      el('div', { class: 'ov-mid' },
+        el('section', { class: 'con-card' }, el('div', { class: 'plan-head' }, el('h2', {}, N.pipeline), el('b', { class: 'soft' }, String(total))), pipe),
+        el('section', { class: 'con-card money' }, el('h2', {}, N.money), el('dl', {},
+          el('div', {}, el('dt', {}, N.paid), el('dd', {}, cur(paid))), el('div', {}, el('dt', {}, N.pending), el('dd', {}, cur(owed))), el('div', {}, el('dt', {}, N.proposed), el('dd', {}, cur(offered)))))),
+      el('div', { class: 'metrics' },
+        metric(O.kpi.clients, String(cs.length), 'clients'),
+        metric(O.kpi.acceptance, all.length ? `${Math.round((accepted / all.length) * 100)}%` : '—', 'stats'),
+        metric(O.kpi.response, resp === null ? '—' : duration(resp), 'stats'),
+        metric(t.extra.rating, rated.length ? `${(rated.reduce((a, r) => a + (r.rating?.stars || 0), 0) / rated.length).toFixed(1)} ★` : '—', 'stats'),
+        metric(N.stale, String(stale.length), 'board'),
+        metric(O.kpi.drafts, String(drafts.length), 'requests')),
       el('div', { class: 'con-grid' },
-        card(t.overview.attention, null, attention.length ? el('ul', { class: 'con-list' }, ...attention.slice(0, 8).map(([r, why]) => el('li', {}, el('a', { href: '#request/' + r.id },
-          el('span', { class: 'dot-new' + (why === t.overview.reasons.new || why === t.overview.reasons.message ? '' : ' calm'), 'aria-hidden': 'true' }),
-          el('span', { class: 'who' }, el('b', {}, nameOf(r)), el('small', {}, `${titleOf(r)} · ${why}`)), el('time', {}, ago(r.lastAt || r.updatedAt)))))) : el('p', { class: 'soft empty' }, t.overview.attentionEmpty)),
-        card(t.overview.recent, null, events.length ? el('ul', { class: 'con-feed' }, ...events.slice(0, 8).map((e) => el('li', {}, e.node, el('time', {}, ago({ toMillis: () => e.at } as Timestamp))))) : el('p', { class: 'soft empty' }, t.overview.recentEmpty)),
-        card(t.overview.weekly, t.overview.weeklyLead, columns(weeks(12), t.overview.weekly)),
-        card(t.overview.funnel, t.overview.funnelLead, bars(funnel, t.overview.funnel))));
+        card(O.weekly, O.weeklyLead, columns(weeks(12), O.weekly)),
+        card(O.recent, null, events.length ? el('ul', { class: 'con-feed' }, ...events.slice(0, 8).map((e) => el('li', {}, e.node, el('time', {}, ago({ toMillis: () => e.at } as Timestamp))))) : el('p', { class: 'soft empty' }, O.recentEmpty))));
   };
 
   const filters = { term: '', status: 'all', priority: '', kind: '', sort: 'recent', drafts: false };

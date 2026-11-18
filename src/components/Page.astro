@@ -1,10 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import LiveBanner from './LiveBanner.astro';
 import Mark from './Mark.astro';
 import { copy } from '../data/copy';
 import { activities, kinds, linkedinActivity } from '../data/activities';
-import { achievements, certifications, experience, isPending, links, profile, projects, services, socials } from '../data/content';
+import { achievements, certifications, isPending, links, profile, projects, services, socials } from '../data/content';
 import { galaxy, galaxyHref, href, labels, origin, projectHref, resolveHref, type Language, type Page } from '../data/site';
 interface Props { lang: Language; page: Page; projectId?: string; }
 const { lang, page, projectId } = Astro.props;
@@ -12,7 +11,6 @@ const current = projectId ? [...projects.items, ...achievements].find((p) => p.i
 const t = copy[lang];
 const role = isPending(profile.role) ? null : profile.role[lang];
 const cv = isPending(profile.cv) ? null : profile.cv;
-const pad = (n: number) => String(n).padStart(2, '0');
 const record = [
   [lang === 'es' ? 'Evento' : 'Event', `${t.banner.event} · USFQ`],
   [lang === 'es' ? 'Rol' : 'Role', isPending(galaxy.role) ? null : galaxy.role[lang]],
@@ -36,18 +34,9 @@ const fieldOf = (id: string) => fields.find((f) => f.ids.includes(id))?.name ?? 
 const fieldIndex = (id: string) => { const k = fields.findIndex((f) => f.ids.includes(id)); return k < 0 ? 'o' : String(k); };
 // The panorama: the whole range at first sight; each tile opens the project's own page.
 const related = current ? projects.items.filter((p) => p.id !== current.id && fieldIndex(p.id) === fieldIndex(current.id)).slice(0, 3) : [];
-// Highlights in the community section: the result first, then where it happened.
-const byAny = (id: string) => byId(id) ?? achievements.find((x) => x.id === id);
-const highlights = [
-  { badge: lang === 'es' ? '3.er lugar' : '3rd place', item: byAny('sublime-airlift') },
-  { badge: lang === 'es' ? '5.º lugar' : '5th place', item: byAny('devfest-ctf') },
-  { badge: lang === 'es' ? 'Ronda 2' : 'Round 2', item: byAny('codevita') },
-  { badge: 'Outstanding Innovator', item: byAny('blue-challenge') },
-  { badge: lang === 'es' ? 'Embajador' : 'Ambassador', item: byAny('ieeextreme-ambassador') },
-].filter((h): h is { badge: string; item: NonNullable<typeof h.item> } => Boolean(h.item));
 // The showcase: a spotlight that rotates through the projects (or follows the visitor's pick) beside the grid.
 const SHOW = ['farpoint-horizon', 'studium', 'galaxy', 'munhub-lab', 'pancho-bus', 'nivela', 'sublime-airlift', 'unallocated', 'dragon-ocean-analyzer', 'aklabs-store'];
-const actionOf: Record<string, 'play' | 'try' | 'live' | 'enter' | 'code'> = { 'farpoint-horizon': 'play', galaxy: 'play', 'sublime-airlift': 'play', studium: 'enter', 'pancho-bus': 'try', nivela: 'try', 'munhub-lab': 'live', unallocated: 'code', 'dragon-ocean-analyzer': 'code', 'aklabs-store': 'code' };
+const actionOf: Record<string, 'play' | 'try' | 'live' | 'enter' | 'code'> = { 'farpoint-horizon': 'play', galaxy: 'play', 'sublime-airlift': 'play', studium: 'enter', 'pancho-bus': 'try', nivela: 'try', 'munhub-lab': 'live', unallocated: 'code', 'dragon-ocean-analyzer': 'try', 'aklabs-store': 'code' };
 const shown = SHOW.map(byId).filter((p): p is NonNullable<typeof p> => Boolean(p)).map((p) => ({
   id: p.id, title: p.title[lang], field: '', context: p.context[lang], purpose: (t.showcase.purpose as Record<string, string>)[p.id] ?? p.pitch[lang],
   image: isPending(p.image) ? '' : p.image.src, action: actionOf[p.id] ?? 'code',
@@ -58,11 +47,26 @@ const moreCount = activities.length;
 // The Experience page, by category, newest first inside each.
 const groups = kinds.map((k) => ({ k, items: activities.filter((a) => a.kind === k).sort((a, b) => b.sort.localeCompare(a.sort)) })).filter((g) => g.items.length);
 const linkedin = socials.items.find((s) => s.id === 'linkedin');
-const github = socials.items.find((s) => s.id === 'github');
+// Community on the home (his note of 2026-11-18): real roles with their periods, events he organised, volunteering;
+// no competition results (they are experience and projects) and no tutoring (not a role).
+const act = (id: string) => activities.find((x) => x.id === id);
+const community = [
+  { key: 'lead', ids: ['ieee-vp', 'ieeextreme-20', 'prog-club'] },
+  { key: 'organize', ids: ['mini-ieeextreme-2', 'prompt-course', 'github-course'] },
+  { key: 'volunteer', ids: ['staff-devfest', 'staff-cursor', 'staff-sala', 'vecinos', 'ingenieros', 'slb'] },
+].map((col) => ({ key: col.key, items: col.ids.map(act).filter((x): x is NonNullable<typeof x> => Boolean(x)).map((x) => ({
+  primary: col.key === 'lead' && x.role ? x.role[lang] : x.title[lang],
+  secondary: col.key === 'lead' ? (x.role ? x.title[lang] : x.org?.[lang] ?? '') : (x.role?.[lang] ?? x.org?.[lang] ?? ''),
+  date: x.date[lang], solo: Boolean(x.solo),
+})) }));
+const commIcons: Record<string, string> = {
+  lead: '<path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/>',
+  organize: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4M8 14h3"/>',
+  volunteer: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+};
 // Events he took part in, by the names in his projects and his bio (content.ts).
 const eventNames = ['NASA Space Apps Challenge 2026', 'Be a Dragon 2026', 'IEEEXtreme 20.0', 'Mini IEEEXtreme 2.0', 'Google DevFest 2026', 'IGNITE Summit 2026', 'Interact2Hack 2026', 'SALA 2026', 'Space Expo', 'Build With AI', 'AWS Gen AI Day', 'Cursor Workshop Quito', 'Cursor x Supabase', 'TCS CodeVita 13', 'IEEEXtreme 19.0', 'DevFest Quito 2025', 'Diners Club Blue Challenge', 'USFQ IEEE CS Game Jam 2025'];
 const cases = t.solve.cases.map(([id, problem]) => ({ problem, project: byId(id)! })).filter((c) => c.project);
-const repos = projects.items.filter((p) => p.source?.href.startsWith('https://github.com/')).map((p) => ({ title: p.title[lang], href: p.source!.href, path: p.source!.href.replace('https://github.com/', '') }));
 const icons: Record<string, string> = {
   software: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12"/>', web: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18"/>',
   design: '<path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>', video: '<rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3"/>',
@@ -127,24 +131,6 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
     <p class="all-work" data-reveal><a class="btn-b" href={href('projects', lang)}>{t.stage.all}</a></p>
 
 
-    <section class="band view bleed tint" aria-labelledby="view-title">
-      <h2 class="kicker" id="view-title" data-reveal>{t.view.kicker}</h2>
-      <div class="view-grid">
-        <figure class="vcard" data-reveal style="--i:0">
-          <div class="art fields-art" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
-          <figcaption>{t.view.items[0][0]}<em>{t.view.items[0][1]}</em></figcaption>
-        </figure>
-        <figure class="vcard" data-reveal style="--i:1">
-          <div class="art polish-art" aria-hidden="true"><span class="bar"></span><span class="img"></span><span class="ln"></span><span class="ln s"></span><span class="btn"></span></div>
-          <figcaption>{t.view.items[1][0]}<em>{t.view.items[1][1]}</em></figcaption>
-        </figure>
-        <figure class="vcard" data-reveal style="--i:2">
-          <div class="art use-art" aria-hidden="true"><span class="press">▶</span><span class="ring"></span><span class="plus">+1</span><svg class="cursor" viewBox="0 0 24 24"><path d="M4 2l15 9-7 1.5L8.5 20z"/></svg></div>
-          <figcaption>{t.view.items[2][0]}<em>{t.view.items[2][1]}</em></figcaption>
-        </figure>
-      </div>
-    </section>
-
     <section class="band events bleed ink" aria-labelledby="events-title">
       <p class="kicker" data-reveal>{t.events.kicker}</p>
       <h2 id="events-title" data-reveal>{t.events.title[0]}<em>{t.events.title[1]}</em></h2>
@@ -156,21 +142,23 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
           </div>
         ))}
       </div>
-      <h3 class="kicker comm-sub" data-reveal>{t.achieve.kicker}</h3>
-      <ul class="highlights">
-        {highlights.map((h, k) => (
-          <li data-reveal style={`--i:${k}`}>
-            <a class="hl" href={projectHref(h.item.id, lang)} data-glow>
-              <span class="hl-shot">{!isPending(h.item.image) && <img src={h.item.image.src} alt="" width="640" height="400" loading="lazy" decoding="async" />}</span>
-              <span class="hl-badge">{h.badge}</span>
-              <b>{h.item.title[lang]}</b>
-              <small>{h.item.context[lang].split(' · ')[0]}</small>
-            </a>
-          </li>
+      <div class="comm-cols">
+        {community.map((col, k) => (
+          <section class={'comm-col c-' + col.key} data-reveal data-glow style={`--i:${k}`} aria-labelledby={'comm-' + col.key}>
+            <span class="comm-ico" aria-hidden="true"><i></i><svg viewBox="0 0 24 24" set:html={commIcons[col.key]}></svg></span>
+            <h3 id={'comm-' + col.key}>{t.events.cols[col.key as keyof typeof t.events.cols]}</h3>
+            <ul>
+              {col.items.map((x) => (
+                <li>
+                  <span class="cm-what"><b>{x.primary}</b>{x.secondary && <small>{x.secondary}</small>}{x.solo && <span class="cm-solo">★ {t.experiencePage.solo}</span>}</span>
+                  <time>{x.date}</time>
+                </li>
+              ))}
+            </ul>
+          </section>
         ))}
-      </ul>
-      <h3 class="kicker comm-sub" data-reveal>{t.achieve.roles}</h3>
-      <ul class="roles">{t.events.roles.map((r, k) => <li data-reveal style={`--i:${k}`}>{r}</li>)}</ul>
+      </div>
+      <p class="calls" data-reveal><a class="btn-b light" href={href('experience', lang)}>{t.events.more} <span aria-hidden="true">→</span></a></p>
     </section>
 
     <section class="band certs bleed ink deep" aria-labelledby="certs-title">
@@ -203,13 +191,6 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
       </div>
     </section>
 
-    <section class="band invite glow-l" aria-labelledby="invite-title">
-      <p class="kicker" data-reveal>{t.invite.kicker}</p>
-      <h2 id="invite-title" data-reveal>{t.invite.title[0]}<em>{t.invite.title[1]}</em></h2>
-      <p class="lede" data-reveal>{t.invite.lead}</p>
-      <ul class="chips-big">{t.invite.items.map((item, k) => <li data-reveal style={`--i:${k}`}>{item}</li>)}</ul>
-      {linkedin && <p class="calls" data-reveal><a class="btn-c" href={linkedin.href}><span class="dot" aria-hidden="true"></span>{t.invite.write} · LinkedIn</a></p>}
-    </section>
 
     <section class="band offer bleed ink deep" aria-labelledby="teaser-title">
       <p class="kicker" data-reveal>{t.serviceTeaser.kicker}</p>
@@ -225,7 +206,23 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
           </a>
         ))}
       </div>
+      <div class="process" data-reveal aria-labelledby="process-title">
+        <h3 id="process-title" class="kicker">{t.serviceTeaser.process.title}</h3>
+        <ol class="steps-row">
+          <span class="track" aria-hidden="true"><i></i></span>
+          {t.serviceTeaser.process.steps.map(([title, text], k) => (
+            <li style={`--k:${k}`}><span class="node" aria-hidden="true">{k + 1}</span><b>{title}</b><span>{text}</span></li>
+          ))}
+        </ol>
+      </div>
       <p class="calls" data-reveal><a class="btn-a big" href={startHref}>{t.serviceTeaser.start}<span class="arrow" aria-hidden="true">→</span></a><a class="btn-b" href={href('services', lang)}>{t.serviceTeaser.cta}</a></p>
+    </section>
+    <section class="band invite contact-end glow-l" aria-labelledby="invite-title">
+      <p class="kicker" data-reveal>{t.invite.kicker}</p>
+      <h2 id="invite-title" data-reveal>{t.invite.title[0]}<em>{t.invite.title[1]}</em></h2>
+      <p class="lede" data-reveal>{t.invite.lead}</p>
+      <ul class="chips-big">{t.invite.items.map((item, k) => <li data-reveal style={`--i:${k}`}>{item}</li>)}</ul>
+      {linkedin && <p class="calls" data-reveal><a class="btn-a big" href={linkedin.href}>{t.invite.contact}<span class="arrow" aria-hidden="true">↗</span></a><span class="via">LinkedIn</span></p>}
     </section>
     <script>
       import { startMotion } from '../scripts/motion';
@@ -453,10 +450,13 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
       <ul class="ab-grid">
         {([
           ['build', href('projects', lang), null],
+          ['research', href('projects', lang), '/projects/munhub-lab.webp'],
           ['compete', href('experience', lang) + '#competition', '/projects/devfest-ctf.webp'],
           ['lead', href('experience', lang) + '#ieee', '/activities/ieee-vp.webp'],
+          ['teach', href('experience', lang) + '#teaching', '/projects/github-desde-cero.webp'],
           ['work', href('experience', lang) + '#work', '/about/tcs-welcome.webp'],
           ['video', href('services', lang) + '#demo-video', null],
+          ['volunteer', href('experience', lang) + '#volunteer', '/activities/ingenieros.webp'],
         ] as const).map(([key, link, photo], k) => {
           const d = t.about.does[key];
           return (
@@ -632,7 +632,7 @@ const demoOf: Record<string, string> = { software: 'bots', web: 'web', design: '
                 <p class="xc-meta"><span>{a.date[lang]}</span>{a.org && <span>{a.org[lang]}</span>}{a.role && <span>{a.role[lang]}</span>}</p>
                 <h3>{a.title[lang]}</h3>
                 {a.text && <p class="xc-text">{a.text[lang]}</p>}
-                {(a.page || a.post) && <p class="xp-links">{a.page && <a class="xl" href={projectHref(a.page, lang)}>{t.experiencePage.more} <span aria-hidden="true">→</span></a>}{a.post && <a class="xl li" href={a.post}><span class="in" aria-hidden="true">in</span>{t.experiencePage.linkedin}</a>}</p>}
+                {a.page && <p class="xp-links"><a class="xl" href={projectHref(a.page, lang)}>{t.experiencePage.more} <span aria-hidden="true">→</span></a></p>}
               </div>
             </li>
           ))}

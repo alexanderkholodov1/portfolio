@@ -193,7 +193,7 @@ export const projects: List<Project> = {
         en: 'Bioacoustic analysis tool for the underwater soundscape of San Cristóbal Bay in Galápagos. Audio processing pipeline combining 6 pre-trained machine learning models with an interactive dashboard displaying spectrograms, clustering, and species detection probabilities.',
         es: 'Herramienta para el análisis bioacústico del paisaje sonoro submarino de la bahía de San Cristóbal en Galápagos. Procesamiento de grabaciones mediante una secuencia de 6 modelos preentrenados y panel interactivo para explorar espectrogramas, agrupamientos y probabilidades de especies.',
       },
-      href: 'https://github.com/DhamarAM/hackathon_sala2026',
+      href: 'https://dragon-ocean-analyzer.web.app/',
       source: {
         id: 'dragon-ocean-analyzer-source',
         label: { en: 'Dragon Ocean Analyzer on GitHub', es: 'Código de Dragon Ocean Analyzer en GitHub' },
@@ -203,7 +203,7 @@ export const projects: List<Project> = {
       role: { en: 'Frontend and interactive dashboard development', es: 'Desarrollo de la interfaz y del panel interactivo' },
       stack: ['React', 'Chart.js', 'Machine Learning', 'Python'],
       dates: { en: 'Mar 2026', es: 'Mar 2026' },
-      image: { src: '/projects/dragon-ocean-analyzer.webp', alt: { en: 'The Dragon Ocean Analyzer pitch on stage at the SALA 2026 hackathon.', es: 'La presentación de Dragon Ocean Analyzer en el escenario de la hackatón SALA 2026.' } },
+      image: { src: '/projects/dragon-ocean-analyzer-app.webp', alt: { en: 'Dragon Ocean Analyzer: a marine bioacoustics platform for the Galápagos Marine Reserve, with Analyze Recording and View Batch Report.', es: 'Dragon Ocean Analyzer: una plataforma de bioacústica marina para la Reserva Marina de Galápagos, con Analizar grabación y Ver informe por lotes.' } },
     },
     {
       id: 'munhub-lab',
